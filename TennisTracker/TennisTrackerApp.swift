@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct TennisTrackerApp: App {
+    static var isAlreadyLaunched = false
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            signIn()
         }
     }
 }
+

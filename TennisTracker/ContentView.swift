@@ -8,9 +8,14 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State var isSignedIn = false
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        ZStack{
+            //if isSignedIn { SHOW HOMEPAGE }
+            //else 
+            signIn()
+        }
+      
     }
 }
 
