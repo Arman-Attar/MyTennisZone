@@ -81,6 +81,7 @@ class UserViewModel: ObservableObject {
         if userSearch?.uid != ""{
             userSearch = nil
         }
+        
         FirebaseManager.shared.firestore.collection("users").whereField("username", isEqualTo: userName).getDocuments { snapshot, err in
             if let err = err{
                 print(err.localizedDescription)

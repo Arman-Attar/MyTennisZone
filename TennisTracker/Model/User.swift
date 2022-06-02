@@ -40,16 +40,15 @@ struct Friend {
 
 struct Match: Codable {
     let id: String
-    let date: Date
+    let date: String
     let player1Pic: String
     let player2Pic: String
     let player1DisplayName: String
     let player2DisplayName: String
-    let player1Score: Int
-    let player2Score: Int
-    let winner: String
-    let loser: String
-    let matchFinished: Bool
+    var player1Score: Int
+    var player2Score: Int
+    var winner: String
+    let matchOngoing: Bool
     let setsToWin: Int
 }
 
@@ -70,5 +69,6 @@ struct Player: Codable{
     var points: Int
     var wins: Int
     var losses: Int
+    var played: Int
 }
 

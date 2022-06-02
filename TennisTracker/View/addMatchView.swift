@@ -19,7 +19,7 @@ struct addMatchView: View {
     @State var showPlayerList = false
     @State var matchOngoing = false
     @State var playerNumber = 0
-    @State var matchDate = Date()
+    @State var matchDate = Date.now
     @State var numberOfSets = 3
     @State var sets: [Set] = []
     @State var winner = ""
@@ -109,10 +109,10 @@ extension addMatchView {
                 ForEach(leagueVm.league!.players, id: \.uid) { friend in
                     Button {
                         if playerNumber == 1 {
-                            player1 = Player(uid: friend.uid, profilePicUrl: friend.profilePicUrl, displayName: friend.displayName, points: friend.points, wins: friend.wins, losses: friend.losses)
+                            player1 = Player(uid: friend.uid, profilePicUrl: friend.profilePicUrl, displayName: friend.displayName, points: friend.points, wins: friend.wins, losses: friend.losses, played: friend.played)
                         }
                         else {
-                            player2 = Player(uid: friend.uid, profilePicUrl: friend.profilePicUrl, displayName: friend.displayName, points: friend.points, wins: friend.wins, losses: friend.losses)
+                            player2 = Player(uid: friend.uid, profilePicUrl: friend.profilePicUrl, displayName: friend.displayName, points: friend.points, wins: friend.wins, losses: friend.losses, played: friend.played)
                         }
                         showPlayerList.toggle()
                     } label: {
@@ -444,8 +444,9 @@ extension addMatchView {
     private func createMatch(){
         
         setPlayerScores()
+        let date = convertDateToString(date: matchDate)
         
-        let matchData = ["id" : matchId, "date" : matchDate, "player1Pic" : player1!.profilePicUrl, "player2Pic" : player2!.profilePicUrl, "player1DisplayName" : player1!.displayName, "player2DisplayName" : player2!.displayName ,"player1Score" : player1Score, "player2Score" : player2Score, "winner" : winner, "matchFinished" : matchOngoing, "setsToWin" : numberOfSets] as [String: Any]
+        let matchData = ["id" : matchId, "date" : date, "player1Pic" : player1!.profilePicUrl, "player2Pic" : player2!.profilePicUrl, "player1DisplayName" : player1!.displayName, "player2DisplayName" : player2!.displayName ,"player1Score" : player1Score, "player2Score" : player2Score, "winner" : winner, "matchOngoing" : matchOngoing, "setsToWin" : numberOfSets] as [String: Any]
         
 //        FirebaseManager.shared.firestore.collection("matches").document(matchId).setData(matchData) { err in
 //            if let err = err {
@@ -514,13 +515,18 @@ extension addMatchView {
                         displayName: player["displayName"] as? String ?? "",
                         points: player["points"] as? Int ?? 0,
                         wins: player["wins"] as? Int ?? 0,
-                        losses: player["losses"] as? Int ?? 0)
+                        losses: player["losses"] as? Int ?? 0,
+                        played: player["played"] as? Int ?? 0)
                 }
                 let winnerIndex = players.firstIndex(where: { $0.uid == winner})
                 let loserIndex = players.firstIndex(where: { $0.uid == loser})
                 players[winnerIndex!].points += 3
                 players[winnerIndex!].wins += 1
                 players[loserIndex!].losses += 1
+                players[winnerIndex!].played += 1
+                players[loserIndex!].played += 1
+                
+                
                 
                 FirebaseManager.shared.firestore.collection("leagues").document(leagueVm.league!.id).updateData(["players" : FieldValue.delete()])
                 
@@ -545,5 +551,12 @@ extension addMatchView {
                 player2Score += 1
             }
         }
+    }
+    
+    private func convertDateToString(date: Date) -> String{
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, y"
+        let result = formatter.string(from: date)
+        return result
     }
 }

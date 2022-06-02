@@ -11,11 +11,14 @@ import SDWebImageSwiftUI
 
 
 struct leagueDetailView: View {
-    @State private var selectedIndex = 1
+    @State private var selectedIndex = 0
     var position = 1
-    //@ObservedObject var matchVM = MatchViewModel()
     @State private var showSheet = false
+    @State private var modifyMatch = false
     @ObservedObject var leagueVM = LeagueViewModel()
+    @ObservedObject var userVm = UserViewModel()
+    @ObservedObject var matchVm = MatchViewModel()
+    @State var matchId = ""
     var body: some View {
         VStack(alignment: .leading) {
             Picker("Tab View", selection: $selectedIndex, content: {
@@ -52,50 +55,7 @@ struct leagueDetailView: View {
                     .padding()
                 VStack{
                     ScrollView {
-                        ForEach(leagueVM.listOfMatches, id: \.id) { match in
-                            HStack{
-                                Text("\(match.player1DisplayName)")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.black)
-                                    .frame(width: UIScreen.main.bounds.size.width / 4)
-
-
-                                WebImage(url: URL(string: match.player1Pic))
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 40, height: 40)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 20)
-
-
-
-
-                                Text("\(match.player1Score) - \(match.player2Score)")
-                                    .font(.callout)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.black)
-                                    .padding(1)
-
-                                WebImage(url: URL(string: match.player2Pic))
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 40, height: 40)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 20)
-
-
-
-                                Text("\(match.player2DisplayName)")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.black)
-                                    .frame(width: UIScreen.main.bounds.size.width / 4)
-
-
-                            }.padding()
-                            Divider().padding(.horizontal)
-                        }
+                        matchHistory
                     }
                 }
             }
@@ -104,6 +64,9 @@ struct leagueDetailView: View {
         }
         .sheet(isPresented: $showSheet) {
             addMatchView(leagueVm: leagueVM)
+        }
+        .sheet(isPresented: $modifyMatch) {
+            modifyMatchView(leagueVm: leagueVM)
         }
     }
 }
@@ -172,4 +135,68 @@ extension leagueDetailView{
         }
     }
     }
+    
+    private var matchHistory: some View {
+        VStack {
+            ForEach(leagueVM.listOfMatches, id: \.id) { match in
+                Button {
+                    leagueVM.getCurrentMatch(matchId: match.id)
+                    modifyMatch.toggle()
+                } label: {
+                    VStack {
+                        HStack {
+                            //let matchDate = convertDate(matchDate: match.date)
+                            Text("\(match.date)").foregroundColor(Color.black).font(.footnote)
+                            Spacer()
+                            if match.matchOngoing {
+                                Text("Ongoing").font(.footnote).foregroundColor(Color.black)
+                                Image(systemName: "circle.fill").foregroundColor(Color.green).font(.footnote)
+                            }
+                        }.padding(.horizontal).padding(.top, 10)
+                        HStack{
+                            Text("\(match.player1DisplayName)")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.black)
+                                .frame(width: UIScreen.main.bounds.size.width / 4)
+
+
+                            WebImage(url: URL(string: match.player1Pic))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 40, height: 40)
+                                .clipShape(Circle())
+                                .shadow(radius: 20)
+                            
+                            Text("\(match.player1Score) - \(match.player2Score)")
+                                .font(.callout)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.black)
+                                .padding(5)
+
+                            WebImage(url: URL(string: match.player2Pic))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 40, height: 40)
+                                .clipShape(Circle())
+                                .shadow(radius: 20)
+
+
+                            Text("\(match.player2DisplayName)")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.black)
+                                .frame(width: UIScreen.main.bounds.size.width / 4)
+
+
+                        }.padding(.leading)
+                            .padding(.trailing)
+                            .padding(.bottom, 10)
+                    }
+                }
+                Divider().padding(.horizontal)
+            }
+        }
+    }
+  
 }
