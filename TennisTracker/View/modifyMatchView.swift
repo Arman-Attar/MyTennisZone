@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SDWebImageSwiftUI
+import Firebase
 
 struct modifyMatchView: View {
     @ObservedObject var leagueVm = LeagueViewModel()
@@ -374,13 +375,55 @@ extension modifyMatchView{
                 .padding()
                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
                 .onTapGesture {
-                    leagueVm.updateMatch()
+                    leagueVm.updateMatch(ongoing: matchOngoing)
+                    updateStats()
                     dismiss()
                 }
         }.padding()
     }
     
-    
+    private func updateStats() {
+        if !matchOngoing {
+            FirebaseManager.shared.firestore.collection("leagues").document(leagueVm.league!.id).getDocument { snapshot, err in
+                if let err = err {
+                    print(err.localizedDescription)
+                    return
+                }
+
+               guard let document = snapshot?.data() else {return}
+                var players = (document["players"] as! [[String: Any]]).map{ player in
+                    return Player(
+                        uid: player["uid"] as? String ?? "",
+                        profilePicUrl: player["profilePicUrl"] as? String ?? "",
+                        displayName: player["displayName"] as? String ?? "",
+                        points: player["points"] as? Int ?? 0,
+                        wins: player["wins"] as? Int ?? 0,
+                        losses: player["losses"] as? Int ?? 0,
+                        played: player["played"] as? Int ?? 0)
+                }
+                let winnerIndex = players.firstIndex(where: { $0.displayName == winner})
+                let loserIndex = players.firstIndex(where: { $0.displayName == loser})
+                players[winnerIndex!].points += 3
+                players[winnerIndex!].wins += 1
+                players[loserIndex!].losses += 1
+                players[winnerIndex!].played += 1
+                players[loserIndex!].played += 1
+                
+                
+                
+                FirebaseManager.shared.firestore.collection("leagues").document(leagueVm.league!.id).updateData(["players" : FieldValue.delete()])
+                
+                for player in players {
+                    
+                    let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
+                    
+                    FirebaseManager.shared.firestore.collection("leagues").document(leagueVm.league!.id).updateData(["players" : FieldValue.arrayUnion([playerData])])
+                }
+                
+                
+        }
+    }
+    }
 }
 
 

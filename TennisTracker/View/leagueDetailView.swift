@@ -15,6 +15,7 @@ struct leagueDetailView: View {
     var position = 1
     @State private var showSheet = false
     @State private var modifyMatch = false
+    @State private var matchInfo = false
     @ObservedObject var leagueVM = LeagueViewModel()
     @ObservedObject var userVm = UserViewModel()
     @ObservedObject var matchVm = MatchViewModel()
@@ -67,6 +68,9 @@ struct leagueDetailView: View {
         }
         .sheet(isPresented: $modifyMatch) {
             modifyMatchView(leagueVm: leagueVM)
+        }
+        .sheet(isPresented: $matchInfo) {
+            matchResultView(leagueVm: leagueVM)
         }
     }
 }
@@ -141,11 +145,14 @@ extension leagueDetailView{
             ForEach(leagueVM.listOfMatches, id: \.id) { match in
                 Button {
                     leagueVM.getCurrentMatch(matchId: match.id)
-                    modifyMatch.toggle()
+                    if match.matchOngoing {
+                        modifyMatch.toggle()
+                    } else {
+                        matchInfo.toggle()
+                    }
                 } label: {
                     VStack {
                         HStack {
-                            //let matchDate = convertDate(matchDate: match.date)
                             Text("\(match.date)").foregroundColor(Color.black).font(.footnote)
                             Spacer()
                             if match.matchOngoing {

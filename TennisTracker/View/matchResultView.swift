@@ -9,9 +9,7 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct matchResultView: View {
-    var player1: Player?
-    var player2: Player?
-    @State var sets: [Set]?
+    @ObservedObject var leagueVm = LeagueViewModel()
     var body: some View {
             Form{
                 Text("Match Result")
@@ -19,28 +17,23 @@ struct matchResultView: View {
                     .fontWeight(.bold)
                     .padding()
                 vsSection
-                Section{
-                    addSetResult
-                    HStack{
-                        Spacer()
-                        Text("5").font(.system(size: 50, weight: .black))
-                        Text("-").font(.system(size: 50, weight: .black))
-                        Text("5").font(.system(size: 50, weight: .black))
-                        Spacer()
-                    }
-                    HStack{
-                        Spacer()
-                        Text("5").font(.system(size: 50, weight: .black))
-                        Text("-").font(.system(size: 50, weight: .black))
-                        Text("5").font(.system(size: 50, weight: .black))
-                        Spacer()
-                    }
-                    HStack{
-                        Spacer()
-                        Text("5").font(.system(size: 50, weight: .black))
-                        Text("-").font(.system(size: 50, weight: .black))
-                        Text("5").font(.system(size: 50, weight: .black))
-                        Spacer()
+                HStack{
+                    Spacer()
+                    Text("Set Scores")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .padding()
+                    Spacer()
+                }
+                ScrollView {
+                    ForEach(leagueVm.currentSets, id: \.setId) { set in
+                        HStack{
+                            Spacer()
+                            Text("\(set.player1Points)").font(.system(size: 50, weight: .black))
+                            Text("-").font(.system(size: 50, weight: .black))
+                            Text("\(set.player2Points)").font(.system(size: 50, weight: .black))
+                            Spacer()
+                        }
                     }
                 }
             }
@@ -58,15 +51,7 @@ extension matchResultView{
         HStack{
             VStack
             {
-//                WebImage(url: URL(string: player1!.profilePicUrl))
-//                    .resizable()
-//                    .aspectRatio(contentMode: .fill)
-//                    .frame(width: 100, height: 100)
-//                    .clipShape(Circle())
-//                    .shadow(radius: 20)
-//                    .padding(.horizontal)
-                
-                Image("profile")
+                WebImage(url: URL(string: leagueVm.currentMatch!.player1Pic))
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 100, height: 100)
@@ -74,12 +59,7 @@ extension matchResultView{
                     .shadow(radius: 20)
                     .padding(.horizontal)
                 
-//                Text(player1!.displayName)
-//                    .font(.system(size: 15, weight: .bold))
-//                    .multilineTextAlignment(.leading)
-//                    .frame(width: 100, height: 50)
-                
-                Text("TEST")
+                Text(leagueVm.currentMatch!.player1DisplayName)
                     .font(.system(size: 15, weight: .bold))
                     .multilineTextAlignment(.leading)
                     .frame(width: 100, height: 50)
@@ -91,49 +71,20 @@ extension matchResultView{
             
             VStack
             {
-//                WebImage(url: URL(string: player2!.profilePicUrl))
-//                    .resizable()
-//                    .aspectRatio(contentMode: .fill)
-//                    .frame(width: 100, height: 100)
-//                    .clipShape(Circle())
-//                    .shadow(radius: 20)
-//                    .padding(.horizontal)
-                
-                Image("profile")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 100, height: 100)
-                    .clipShape(Circle())
-                    .shadow(radius: 20)
-                    .padding(.horizontal)
-                
-                
-                Text("TEST")
-                    .font(.system(size: 15, weight: .bold))
-                    .multilineTextAlignment(.leading)
-                    .frame(width: 100, height: 50)
-//                Text(player2!.displayName)
-//                    .font(.system(size: 15, weight: .bold))
-//                    .multilineTextAlignment(.leading)
-//                    .frame(width: 100, height: 50)
+               WebImage(url: URL(string: leagueVm.currentMatch!.player2Pic))
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 100, height: 100)
+                .clipShape(Circle())
+                .shadow(radius: 20)
+                .padding(.horizontal)
+            
+            Text(leagueVm.currentMatch!.player2DisplayName)
+                .font(.system(size: 15, weight: .bold))
+                .multilineTextAlignment(.leading)
+                .frame(width: 100, height: 50)
             }
             
         }.padding(.vertical)
-    }
-    
-    private var addSetResult: some View{
-        HStack {
-            Text("Add Set Result")
-                .font(.headline)
-                .fontWeight(.bold)
-                .padding()
-            
-            Spacer()
-            Button {
-                
-            } label: {
-                Image(systemName: "plus").padding()
-            }
-        }
     }
 }

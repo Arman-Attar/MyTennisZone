@@ -232,7 +232,7 @@ class LeagueViewModel: ObservableObject {
         print(self.currentSets)
     }
     
-    func updateMatch(){
+    func updateMatch(ongoing: Bool){
         
 //        currentSets = []
 //        FirebaseManager.shared.firestore.collection("sets").whereField("matchId", isEqualTo: currentMatch!.id).getDocuments { snapshot, err in
@@ -276,7 +276,7 @@ class LeagueViewModel: ObservableObject {
                     date: match["date"] as? String ?? "",
                     player1Pic: match["player1Pic"] as? String ?? "",
                     player2Pic: match["player2Pic"] as? String ?? "",
-                    player1DisplayName: match["player1`DisplayName"] as? String ?? "",
+                    player1DisplayName: match["player1DisplayName"] as? String ?? "",
                     player2DisplayName: match["player2DisplayName"] as? String ?? "",
                     player1Score: match["player1Score"] as? Int ?? 0,
                     player2Score: match["player2Score"] as? Int ?? 0,
@@ -292,9 +292,9 @@ class LeagueViewModel: ObservableObject {
                    break
                 }
             }
-            print(matches[matchIndex])
             matches[matchIndex].player1Score = player1Score
             matches[matchIndex].player2Score = player2Score
+            matches[matchIndex].matchOngoing = ongoing
             
             FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["matches" : FieldValue.delete()])
             
@@ -304,6 +304,5 @@ class LeagueViewModel: ObservableObject {
                 FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["matches" : FieldValue.arrayUnion([matchData])])
             }
         }
-        print("THIS IS DONE THIS IS DONE THIS IS DONE")
     }
 }
