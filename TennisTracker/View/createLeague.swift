@@ -14,7 +14,6 @@ struct createLeague: View {
     @State var opponentSelection = false
     @State var noOfGames = ""
     @ObservedObject var vm = UserViewModel()
-    //@ObservedObject var leagueVm = LeagueViewModel()
     @State var players: [Player] = []
     @State var playerId: [String] = []
     
@@ -247,21 +246,3 @@ extension createLeague {
         }
     }
 }
-
-
-//struct Player{
-//    let uid: String
-//    let profilePicUrl: String
-//    let displayName: String
-//    let points: Int
-//    let wins: Int
-//    let losses: Int
-//}
-
-
-//struct League {
-//    let id: String
-//    let name: String
-//    let players: [Player]
-//    let matches: [String]
-//}

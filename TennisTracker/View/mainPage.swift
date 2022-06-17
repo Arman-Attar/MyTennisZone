@@ -11,23 +11,6 @@ struct mainPage: View {
     @State var tabNumber = 0
     let tabImages = ["house", "person.3", "at" ,"crown", "person.circle"]
     var body: some View {
-//        TabView{
-//            homePage().tabItem {
-//                Label("Home", systemImage: "house")
-//            }
-//            leagueView().tabItem {
-//                Label("League", systemImage: "person.3")
-//            }
-//            addFriend().tabItem {
-//                Label("Search", systemImage: "at")
-//            }
-//            tournyView().tabItem {
-//                Label("Tournament", systemImage: "crown")
-//            }
-//            profileTab().tabItem {
-//                Label("Profile", systemImage: "person.circle")
-//            }
-//        }
         ZStack {
             VStack{
                 switch tabNumber{

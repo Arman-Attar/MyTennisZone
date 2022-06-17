@@ -75,11 +75,11 @@ struct addMatchView: View {
             }
             .sheet(isPresented: $showPlayerList) {
                 selectOpponent
-        }
+            }
             if showSetSheet{
                 Rectangle().ignoresSafeArea().opacity(0.5)
                 addSetBottomSheet
-
+                
             }
             if showWinnerSheet{
                 Rectangle().ignoresSafeArea().opacity(0.5)
@@ -97,6 +97,7 @@ struct addMatchView_Previews: PreviewProvider {
 }
 
 extension addMatchView {
+    
     private var selectOpponent: some View {
         VStack{
             Text("Players")
@@ -254,20 +255,20 @@ extension addMatchView {
                 .padding()
                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
                 .onTapGesture {
-                dismiss()
-            }
-            Spacer()
-            if player1?.uid ?? "" != "" && player1?.uid ?? "" != ""{
-            Text("Add")
-                .font(.title3)
-                .fontWeight(.bold)
-                .frame(width: UIScreen.main.bounds.size.width/4)
-                .padding()
-                .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
-                .onTapGesture {
-                    createMatch()
                     dismiss()
                 }
+            Spacer()
+            if player1?.uid ?? "" != "" && player1?.uid ?? "" != ""{
+                Text("Add")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .frame(width: UIScreen.main.bounds.size.width/4)
+                    .padding()
+                    .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
+                    .onTapGesture {
+                        createMatch()
+                        dismiss()
+                    }
             }
         }.padding()
     }
@@ -286,7 +287,7 @@ extension addMatchView {
                                 .clipShape(Circle())
                                 .shadow(radius: 20)
                                 .padding()
-                              
+                            
                         }
                         else {
                             Image("profile")
@@ -296,12 +297,12 @@ extension addMatchView {
                                 .clipShape(Circle())
                                 .shadow(radius: 20)
                                 .padding()
-                              
+                            
                         }
                         
                         Text("VS")
                             .font(.system(size: 20, weight: .bold)).zIndex(1.0)
-                            
+                        
                         
                         if player2?.profilePicUrl ?? "" != ""{
                             WebImage(url: URL(string: player2!.profilePicUrl))
@@ -320,20 +321,20 @@ extension addMatchView {
                                 .clipShape(Circle())
                                 .shadow(radius: 20)
                                 .padding()
-
+                            
                         }
                     }
                     Picker("\(player1?.displayName ?? "Oponent") Score:", selection: $player1SetScore) {
-                                ForEach(0..<6){ set in
-                                    Text("\(set)")
-                                }
-                            }.padding()
-                        
+                        ForEach(0..<6){ set in
+                            Text("\(set)")
+                        }
+                    }.padding()
+                    
                     Picker("\(player2?.displayName ?? "Oponent") Score:", selection: $player2SetScore) {
-                                ForEach(0..<6){ set in
-                                    Text("\(set)")
-                                }
-                            }.padding()
+                        ForEach(0..<6){ set in
+                            Text("\(set)")
+                        }
+                    }.padding()
                     
                     HStack{
                         Text("Cancel")
@@ -344,7 +345,7 @@ extension addMatchView {
                             .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
                             .onTapGesture {
                                 showSetSheet.toggle()
-                        }
+                            }
                         Spacer()
                         Text("Add")
                             .font(.headline)
@@ -364,83 +365,84 @@ extension addMatchView {
             }
             
         }.cornerRadius(20)
-                .frame(width: UIScreen.main.bounds.size.width - 10, height: UIScreen.main.bounds.size.height / 1.7)
+            .frame(width: UIScreen.main.bounds.size.width - 10, height: UIScreen.main.bounds.size.height / 1.7)
             .position(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.maxY - 300)
     }
     
     private var addWinnerBottomSheet: some View {
         ZStack {
-                Form{
-                    Text("Select The Winner").fontWeight(.bold).padding()
-                    HStack{
-                        if player1?.profilePicUrl ?? "" != ""{
-                            WebImage(url: URL(string: player1!.profilePicUrl))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
-                                .padding()
-                        }
-                        else {
-                            Image("profile")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
-                                .padding()
-                        }
-                        Text(player1?.displayName ?? "").font(.headline).padding()
-                    }.onTapGesture {
-                        winner = player1?.uid ?? ""
-                        loser = player2?.uid ?? ""
-                        showWinnerSheet.toggle()
-                    }
-                    HStack{
-                        if player2?.profilePicUrl ?? "" != ""{
-                            WebImage(url: URL(string: player2!.profilePicUrl))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
-                                .padding()
-                              
-                        }
-                        else {
-                            Image("profile")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
-                                .padding()
-                              
-                        }
-                        Text(player2?.displayName ?? "").font(.headline).padding()
-                    }.onTapGesture {
-                        winner = player2?.uid ?? ""
-                        loser = player1?.uid ?? ""
-                        showWinnerSheet.toggle()
-                    }
-                    HStack{
-                        Spacer()
-                        Text("Cancel")
-                            .font(.headline)
-                            .fontWeight(.bold)
-                            .frame(width: UIScreen.main.bounds.size.width/1.5)
+            Form{
+                Text("Select The Winner").fontWeight(.bold).padding()
+                HStack{
+                    if player1?.profilePicUrl ?? "" != ""{
+                        WebImage(url: URL(string: player1!.profilePicUrl))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                            .shadow(radius: 20)
                             .padding()
-                            .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
-                            .onTapGesture {
-                                showWinnerSheet.toggle()
-                        }
                     }
-        }.cornerRadius(20)
+                    else {
+                        Image("profile")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                            .shadow(radius: 20)
+                            .padding()
+                    }
+                    Text(player1?.displayName ?? "").font(.headline).padding()
+                }.onTapGesture {
+                    winner = player1?.uid ?? ""
+                    loser = player2?.uid ?? ""
+                    showWinnerSheet.toggle()
+                }
+                HStack{
+                    if player2?.profilePicUrl ?? "" != ""{
+                        WebImage(url: URL(string: player2!.profilePicUrl))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                            .shadow(radius: 20)
+                            .padding()
+                        
+                    }
+                    else {
+                        Image("profile")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                            .shadow(radius: 20)
+                            .padding()
+                        
+                    }
+                    Text(player2?.displayName ?? "").font(.headline).padding()
+                }.onTapGesture {
+                    winner = player2?.uid ?? ""
+                    loser = player1?.uid ?? ""
+                    showWinnerSheet.toggle()
+                }
+                HStack{
+                    Spacer()
+                    Text("Cancel")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .frame(width: UIScreen.main.bounds.size.width/1.5)
+                        .padding()
+                        .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
+                        .onTapGesture {
+                            showWinnerSheet.toggle()
+                        }
+                }
+            }.cornerRadius(20)
                 .frame(width: UIScreen.main.bounds.size.width - 10, height: UIScreen.main.bounds.size.height / 1.7)
-            .position(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.maxY - 300)
+                .position(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.maxY - 300)
+        }
     }
-    }
+    
     private func createMatch(){
         
         setPlayerScores()
@@ -448,18 +450,12 @@ extension addMatchView {
         
         let matchData = ["id" : matchId, "date" : date, "player1Pic" : player1!.profilePicUrl, "player2Pic" : player2!.profilePicUrl, "player1DisplayName" : player1!.displayName, "player2DisplayName" : player2!.displayName ,"player1Score" : player1Score, "player2Score" : player2Score, "winner" : winner, "matchOngoing" : matchOngoing, "setsToWin" : numberOfSets] as [String: Any]
         
-//        FirebaseManager.shared.firestore.collection("matches").document(matchId).setData(matchData) { err in
-//            if let err = err {
-//                print(err.localizedDescription)
-//                return
-//            }
-            
-            FirebaseManager.shared.firestore.collection("leagues").document(leagueVm.league!.id).updateData(["matches" : FieldValue.arrayUnion([matchData])])
-            
-            addSet()
-                
-            updateStats()
-            }
+        FirebaseManager.shared.firestore.collection("leagues").document(leagueVm.league!.id).updateData(["matches" : FieldValue.arrayUnion([matchData])])
+        
+        addSet()
+        
+        updateStats()
+    }
     
     private func addSet() {
         for set in sets {
@@ -478,22 +474,22 @@ extension addMatchView {
     private var setResultField: some View {
         VStack {
             HStack{
-                Text("Add Set Results").padding()
+                Text("Add Set Results").padding(.horizontal)
                 Spacer()
                 Button {
                     player1SetScore = 0
                     player2SetScore = 0
                     showSetSheet.toggle()
                 } label: {
-                    Image(systemName: "plus").padding()
+                    Image(systemName: "plus").padding(.horizontal)
                 }
             }
             HStack{
                 if !sets.isEmpty{
-                ForEach(sets, id: \.setId) { set in
-                    Text("\(set.player1Points)-\(set.player2Points)").font(.headline).fontWeight(.bold)
-                    Divider()
-                }
+                    ForEach(sets, id: \.setId) { set in
+                        Text("\(set.player1Points)-\(set.player2Points)").font(.headline).fontWeight(.bold)
+                        Divider()
+                    }
                 }
             }
         }
@@ -506,8 +502,8 @@ extension addMatchView {
                     print(err.localizedDescription)
                     return
                 }
-
-               guard let document = snapshot?.data() else {return}
+                
+                guard let document = snapshot?.data() else {return}
                 var players = (document["players"] as! [[String: Any]]).map{ player in
                     return Player(
                         uid: player["uid"] as? String ?? "",
@@ -538,10 +534,10 @@ extension addMatchView {
                 }
                 
                 
+            }
         }
     }
-    }
-
+    
     private func setPlayerScores(){
         for set in sets {
             if set.player1Points > set.player2Points {

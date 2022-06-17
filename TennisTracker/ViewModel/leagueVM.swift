@@ -11,7 +11,6 @@ import Firebase
 import FirebaseFirestoreSwift
 
 class LeagueViewModel: ObservableObject {
-    //@ObservedObject var matchVm = MatchViewModel()
     @Published var leagues: [League] = []
     @Published var league: League?
     @Published var playerList: [Player] = []
@@ -47,9 +46,6 @@ class LeagueViewModel: ObservableObject {
                         played: player["played"] as? Int ?? 0)
                 }
                 
-                
-                //let matches = document["matches"] as? [String] ?? []
-                
                 var matches = (document["matches"] as! [[String: Any]]).map{ match in
                     return Match(
                         id: match["id"] as? String ?? "",
@@ -64,7 +60,7 @@ class LeagueViewModel: ObservableObject {
                         matchOngoing: match["matchOngoing"] as? Bool ?? false,
                         setsToWin: match["setsToWin"] as? Int ?? 3)
                 }
-               
+                
                 players.sort {
                     $0.points > $1.points
                 }
@@ -111,20 +107,15 @@ class LeagueViewModel: ObservableObject {
                     setsToWin: match["setsToWin"] as? Int ?? 3)
             }
             
-            //let matches = document["matches"] as? [String] ?? []
             players.sort {
                 $0.points > $1.points
             }
-            
-            //self.matchVm.getMatches(leagueId: id)
             
             self.league = League(id: id, name: name, playerId: playerId, players: players, matches: matches)
             
             self.playerList = self.league?.players ?? []
             
             self.listOfMatches = matches
-            //self.getMatches(leagueId: id)
-            
         }
     }
     
@@ -233,26 +224,6 @@ class LeagueViewModel: ObservableObject {
     }
     
     func updateMatch(ongoing: Bool){
-        
-//        currentSets = []
-//        FirebaseManager.shared.firestore.collection("sets").whereField("matchId", isEqualTo: currentMatch!.id).getDocuments { snapshot, err in
-//            if let err = err {
-//                print(err.localizedDescription)
-//                return
-//            }
-//            for set in snapshot!.documents {
-//                let matchId = set["matchId"] as? String ?? ""
-//                let player1Points = set["player1Points"] as? Int ?? 0
-//                let player1Uid = set["player1Uid"] as? String ?? ""
-//                let player2Points = set["player2Points"] as? Int ?? 0
-//                let player2Uid = set["player2Uid"] as? String ?? ""
-//                let setId = set["setId"] as? String ?? ""
-//                let winner = set["winner"] as? String ?? ""
-//
-//                self.currentSets.append(Set(setId: setId, matchId: matchId, winner: winner, player1Uid: player1Uid, player2Uid: player2Uid, player1Points: player1Points, player2Points: player2Points))
-//            }
-//        }
-        
         var player1Score = 0
         var player2Score = 0
         for set in currentSets {
@@ -263,12 +234,12 @@ class LeagueViewModel: ObservableObject {
                 player2Score += 1
             }
         }
-            FirebaseManager.shared.firestore.collection("leagues").document(league!.id).getDocument { snapshot, err in
+        FirebaseManager.shared.firestore.collection("leagues").document(league!.id).getDocument { snapshot, err in
             if let err = err {
                 print(err.localizedDescription)
                 return
             }
-               
+            
             guard let doc = snapshot?.data() else {return}
             var matches = (doc["matches"] as! [[String: Any]]).map{ match in
                 return Match(
@@ -284,12 +255,12 @@ class LeagueViewModel: ObservableObject {
                     matchOngoing: match["matchOngoing"] as? Bool ?? false,
                     setsToWin: match["setsToWin"] as? Int ?? 0)
             }
-                
+            
             var matchIndex = -1
             for match in matches {
                 matchIndex += 1
                 if match.id == self.currentMatch!.id{
-                   break
+                    break
                 }
             }
             matches[matchIndex].player1Score = player1Score
@@ -304,5 +275,44 @@ class LeagueViewModel: ObservableObject {
                 FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["matches" : FieldValue.arrayUnion([matchData])])
             }
         }
+    }
+    
+    func findLeague(leagueName: String) {
+        league = nil
+        FirebaseManager.shared.firestore.collection("leagues").whereField("name", isEqualTo: leagueName).getDocuments { snapshot, err in
+            if let err = err{
+                print(err.localizedDescription)
+                return
+            }
+            guard let data = snapshot?.documents else {return}
+            
+            for document in data{
+            let id = document["id"] as? String ?? ""
+            let name = document["name"] as? String ?? ""
+            let playerId = document["playerId"] as? [String] ?? []
+            let players = (document["players"] as! [[String: Any]]).map{ player in
+                return Player(
+                    uid: player["uid"] as? String ?? "",
+                    profilePicUrl: player["profilePicUrl"] as? String ?? "",
+                    displayName: player["displayName"] as? String ?? "",
+                    points: player["points"] as? Int ?? 0,
+                    wins: player["wins"] as? Int ?? 0,
+                    losses: player["losses"] as? Int ?? 0,
+                    played: player["played"] as? Int ?? 0)
+            }
+            
+            self.league = League(id: id, name: name, playerId: playerId, players: players, matches: [])
+            
+            self.playerList = self.league?.players ?? []
+            }
+        }
+    }
+    
+    func joinLeague(uid: String, profilePic: String, displayName: String){
+        let playerData = ["uid" : uid, "profilePicUrl" : profilePic, "displayName" : displayName, "points" : 0, "wins" : 0, "losses" : 0] as [String: Any]
+        
+        FirebaseManager.shared.firestore.collection("leagues").document(league!.id).updateData(["players" : FieldValue.arrayUnion([playerData])])
+        FirebaseManager.shared.firestore.collection("leagues").document(league!.id).updateData(["playerId" : FieldValue.arrayUnion([uid])])
+        print("FINISHED MY BROTHER")
     }
 }
