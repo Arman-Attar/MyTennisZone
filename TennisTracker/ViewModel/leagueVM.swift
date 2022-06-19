@@ -46,7 +46,7 @@ class LeagueViewModel: ObservableObject {
                         played: player["played"] as? Int ?? 0)
                 }
                 
-                var matches = (document["matches"] as! [[String: Any]]).map{ match in
+                let matches = (document["matches"] as! [[String: Any]]).map{ match in
                     return Match(
                         id: match["id"] as? String ?? "",
                         date: match["date"] as? String ?? "",
@@ -92,7 +92,7 @@ class LeagueViewModel: ObservableObject {
                     losses: player["losses"] as? Int ?? 0,
                     played: player["played"] as? Int ?? 0)
             }
-            var matches = (document["matches"] as! [[String: Any]]).map{ match in
+            let matches = (document["matches"] as! [[String: Any]]).map{ match in
                 return Match(
                     id: match["id"] as? String ?? "",
                     date: match["date"] as? String ?? "",
@@ -310,9 +310,7 @@ class LeagueViewModel: ObservableObject {
     
     func joinLeague(uid: String, profilePic: String, displayName: String){
         let playerData = ["uid" : uid, "profilePicUrl" : profilePic, "displayName" : displayName, "points" : 0, "wins" : 0, "losses" : 0] as [String: Any]
-        
         FirebaseManager.shared.firestore.collection("leagues").document(league!.id).updateData(["players" : FieldValue.arrayUnion([playerData])])
         FirebaseManager.shared.firestore.collection("leagues").document(league!.id).updateData(["playerId" : FieldValue.arrayUnion([uid])])
-        print("FINISHED MY BROTHER")
     }
 }

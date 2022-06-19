@@ -15,55 +15,22 @@ struct addFriend: View {
     //@State var addButton = false
     
     var body: some View {
-        NavigationView {
-                VStack{
-                    ForEach(0..<10) { rows in
-                        Divider().padding()
-                    }
-                    Spacer()
+        VStack{
+            searchBar
+            ScrollView {
+                ForEach(0..<15){ num in
                     Divider().padding()
-                    TextField(" Enter Username", text: $userName)
-                        .padding()
-                            .frame(width: UIScreen.main.bounds.size.width - 50, height: 50)
-                            .foregroundColor(Color.black)
-                            .background(Color.gray.opacity(0.4))
-                            .cornerRadius(10)
-                    Button {
-                        vm.findUser(userName: userName)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
-                        vm.friendCheck(friendUid: vm.userSearch?.uid ?? "")
-                        showSearchBar.toggle()
-                        }
-                    } label: {
-                        Text("Find")
-                            .font(.title2)
-                            .fontWeight(.heavy)
-                            .padding()
-                            .foregroundColor(.black)
-                            .frame(maxWidth: UIScreen.main.bounds.size.width / 2, maxHeight: 20)
-                            .padding()
-                            .overlay(RoundedRectangle(cornerRadius: 100)
-                                .stroke(Color.black, lineWidth: 0.8))
-                            .padding()
-                            .offset(y: 9)                            }
-                }.navigationTitle("Find User")
-            }.sheet(isPresented: $showSearchBar) {
+                }
+            }
+        }.navigationTitle("Find User")
+            .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showSearchBar) {
                 VStack{
-                    Button {
-                        showSearchBar.toggle()
-                    } label: {
-                        HStack{
-                            Image(systemName: "arrow.left")
-                            Text("Back")
-                            Spacer()
-                            
-                        }.padding()
-                    }
+                    backButton.padding()
                     header
                     statBar
                     add
                     Spacer()
-                    Divider().padding()
                 }
             }
             
@@ -190,5 +157,43 @@ extension addFriend {
         }
     }
 
+    }
+    
+    private var searchBar: some View {
+        HStack{
+            HStack {
+                Image(systemName: "magnifyingglass")
+                TextField("Search User", text: $userName).foregroundColor(Color.black)
+            }.padding()
+                .background(Color.gray).opacity(0.5)
+                .cornerRadius(50)
+                .padding(.leading)
+            Button{
+                vm.findUser(userName: userName)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
+                vm.friendCheck(friendUid: vm.userSearch?.uid ?? "")
+                showSearchBar.toggle()
+                }
+            } label: {
+                Text("Find")
+                    .padding()
+                    .foregroundColor(Color.black)
+                    .font(.title3)
+            }
+        }
+    }
+    
+    private var backButton: some View {
+        VStack{
+            Button {
+                showSearchBar.toggle()
+            } label: {
+                HStack{
+                    Image(systemName: "arrow.left")
+                    Text("Back")
+                    Spacer()
+                }.padding()
+            }
+        }
     }
 }
