@@ -20,6 +20,7 @@ struct modifyMatchView: View {
     @State var player2SetScore = 0
     @State var showSetSheet = false
     @State var set: [Set] = []
+    @State var numberOfSets = 0
     var body: some View {
         ZStack{
             Form{
@@ -33,7 +34,11 @@ struct modifyMatchView: View {
                     Spacer()
                     Text("\(leagueVm.currentMatch?.date ?? "")")
                 }.padding()
-                setPicker
+                HStack{
+                    Text("First To:")
+                    Spacer()
+                    Text("\(leagueVm.currentMatch?.setsToWin ?? 2)")
+                }.padding()
                 Toggle("Match Ongoing?", isOn: $matchOngoing).padding()
                 setResultField
                 if !matchOngoing {
@@ -241,13 +246,13 @@ extension modifyMatchView{
                         }
                     }
                     Picker("\(leagueVm.currentMatch?.player1DisplayName ?? "Oponent") Score:", selection: $player1SetScore) {
-                                ForEach(0..<6){ set in
+                                ForEach(0..<8){ set in
                                     Text("\(set)")
                                 }
                             }.padding()
                         
                     Picker("\(leagueVm.currentMatch?.player2DisplayName ?? "Oponent") Score:", selection: $player2SetScore) {
-                                ForEach(0..<6){ set in
+                                ForEach(0..<8){ set in
                                     Text("\(set)")
                                 }
                             }.padding()

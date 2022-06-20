@@ -31,50 +31,57 @@ struct addMatchView: View {
     @Environment(\.dismiss) var dismiss
     var body: some View {
         ZStack {
-            Form{
-                Text("Add Match")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .padding()
-                vsSection
-                DatePicker("Match Date:", selection: $matchDate, displayedComponents: .date).padding().font(.callout)
-                setPicker
-                Toggle("Match Ongoing?", isOn: $matchOngoing).padding()
-                setResultField
-                if !matchOngoing {
-                    HStack{
-                        Text("Match Winner:").padding()
-                        Spacer()
-                        if winner == "" {
-                            Image("profile")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 50, height: 50)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
-                                .padding(.horizontal)
-                                .onTapGesture {
-                                    showWinnerSheet.toggle()
-                                }
+            NavigationView {
+                Form{
+                    Text("Add Match")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .padding()
+                    vsSection
+                    DatePicker("Match Date:", selection: $matchDate, displayedComponents: .date).padding().font(.callout)
+                    Picker("First To:", selection: $numberOfSets) {
+                        ForEach(0..<6){ set in
+                            Text("\(set)")
                         }
-                        else {
-                            WebImage(url: URL(string: winner == player1!.uid ? player1!.profilePicUrl : player2!.profilePicUrl))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 50, height: 50)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
-                                .padding(.horizontal)
-                                .onTapGesture {
-                                    showWinnerSheet.toggle()
-                                }
+                    }.padding()
+                    
+                    Toggle("Match Ongoing?", isOn: $matchOngoing).padding()
+                    setResultField
+                    if !matchOngoing {
+                        HStack{
+                            Text("Match Winner:").padding()
+                            Spacer()
+                            if winner == "" {
+                                Image("profile")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(Circle())
+                                    .shadow(radius: 20)
+                                    .padding(.horizontal)
+                                    .onTapGesture {
+                                        showWinnerSheet.toggle()
+                                    }
+                            }
+                            else {
+                                WebImage(url: URL(string: winner == player1!.uid ? player1!.profilePicUrl : player2!.profilePicUrl))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(Circle())
+                                    .shadow(radius: 20)
+                                    .padding(.horizontal)
+                                    .onTapGesture {
+                                        showWinnerSheet.toggle()
+                                    }
+                            }
                         }
                     }
-                }
-                buttons
+                    buttons
+                }.navigationBarHidden(true)
+                .sheet(isPresented: $showPlayerList) {
+                    selectOpponent
             }
-            .sheet(isPresented: $showPlayerList) {
-                selectOpponent
             }
             if showSetSheet{
                 Rectangle().ignoresSafeArea().opacity(0.5)
@@ -232,17 +239,22 @@ extension addMatchView {
     
     private var setPicker: some View {
         HStack{
-            Text("First To:").padding()
-            ForEach(0..<2) { index in
-                HStack {
-                    Image(systemName: numberOfSets == 2*index+3 ? "circle.circle.fill" : "circle.circle").font(.system(size: 20, weight: .semibold)).foregroundColor(Color.black)
-                    Text("\(2*index+3) Sets").font(.system(size: 15, weight: .regular))
-                }.padding(.leading)
-                    .onTapGesture {
-                        numberOfSets = 2*index+3
-                    }
-                
-            }
+            Picker("First To:", selection: $numberOfSets) {
+                ForEach(0..<8){ set in
+                    Text("\(set)")
+                }
+            }.padding()
+//            Text("First To:").padding()
+//            ForEach(0..<6) { index in
+//                HStack {
+//                    Image(systemName: numberOfSets == index ? "circle.circle.fill" : "circle.circle").font(.system(size: 20, weight: .semibold)).foregroundColor(Color.black)
+//                    Text("\(index) Sets").font(.system(size: 15, weight: .regular))
+//                }.padding(.horizontal)
+//                    .onTapGesture {
+//                        numberOfSets = index
+//                    }
+//
+//            }
         }
     }
     
@@ -325,13 +337,13 @@ extension addMatchView {
                         }
                     }
                     Picker("\(player1?.displayName ?? "Oponent") Score:", selection: $player1SetScore) {
-                        ForEach(0..<6){ set in
+                        ForEach(0..<8){ set in
                             Text("\(set)")
                         }
                     }.padding()
                     
                     Picker("\(player2?.displayName ?? "Oponent") Score:", selection: $player2SetScore) {
-                        ForEach(0..<6){ set in
+                        ForEach(0..<8){ set in
                             Text("\(set)")
                         }
                     }.padding()
