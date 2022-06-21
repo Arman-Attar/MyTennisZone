@@ -431,7 +431,8 @@ extension modifyMatchView{
                 FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(["matchesWon" : FieldValue.increment(1.00)])
                 
                 FirebaseManager.shared.firestore.collection("users").document(players[loserIndex!].uid).updateData(["matchesPlayed" : FieldValue.increment(1.00)])
-        }
+        
+            }
     }
     }
 }
