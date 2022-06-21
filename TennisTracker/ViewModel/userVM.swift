@@ -47,7 +47,6 @@ class UserViewModel: ObservableObject {
             let matchesWon = data["matchesWon"] as? Int ?? 0
             let trophies = data["trophies"] as? Int ?? 0
             let friendsUid = data["friends"] as? [String] ?? []
-            
             self.user = User(uid: uid, email: email, username: username, profilePicUrl: profilePicUrl, displayName: displayName, matchesPlayed: matchesPlayed, matchesWon: matchesWon, trophies: trophies, friendsUid: friendsUid)
         }
     }

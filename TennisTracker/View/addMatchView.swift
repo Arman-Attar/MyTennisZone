@@ -244,17 +244,6 @@ extension addMatchView {
                     Text("\(set)")
                 }
             }.padding()
-//            Text("First To:").padding()
-//            ForEach(0..<6) { index in
-//                HStack {
-//                    Image(systemName: numberOfSets == index ? "circle.circle.fill" : "circle.circle").font(.system(size: 20, weight: .semibold)).foregroundColor(Color.black)
-//                    Text("\(index) Sets").font(.system(size: 15, weight: .regular))
-//                }.padding(.horizontal)
-//                    .onTapGesture {
-//                        numberOfSets = index
-//                    }
-//
-//            }
         }
     }
     
@@ -545,8 +534,14 @@ extension addMatchView {
                     FirebaseManager.shared.firestore.collection("leagues").document(leagueVm.league!.id).updateData(["players" : FieldValue.arrayUnion([playerData])])
                 }
                 
+                FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(
+                    ["matchesPlayed" : FieldValue.increment(1.00)])
                 
+                FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(["matchesWon" : FieldValue.increment(1.00)])
+                
+                FirebaseManager.shared.firestore.collection("users").document(players[loserIndex!].uid).updateData(["matchesPlayed" : FieldValue.increment(1.00)])
             }
+            
         }
     }
     
