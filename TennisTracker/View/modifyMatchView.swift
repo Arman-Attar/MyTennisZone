@@ -414,8 +414,6 @@ extension modifyMatchView{
                 players[winnerIndex!].played += 1
                 players[loserIndex!].played += 1
                 
-                
-                
                 FirebaseManager.shared.firestore.collection("leagues").document(leagueVm.league!.id).updateData(["players" : FieldValue.delete()])
                 
                 for player in players {

@@ -36,11 +36,6 @@ struct signUp: View {
                     submitButton
                 }
                 Spacer()
-                Rectangle()
-                    .frame(maxWidth: .infinity, maxHeight: 1)
-                    .padding(.horizontal)
-                    .foregroundColor(.black)
-                    .padding(.vertical)
             }
         }
     }
