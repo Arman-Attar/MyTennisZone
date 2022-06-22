@@ -188,7 +188,7 @@ extension signUp {
     
     private func createUser(email: String, userName: String){
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return}
-        let userData = ["email" : email, "uid": uid, "profilePicUrl" : "", "username" : userName, "displayName" : userName, "matchesPlayed" : 0, "matchesWon": 0, "trophies" : 0, "friendsUid" : 0] as [String : Any]
+        let userData = ["email" : email.lowercased(), "uid": uid, "profilePicUrl" : "", "username" : userName.lowercased(), "displayName" : userName, "matchesPlayed" : 0, "matchesWon": 0, "trophies" : 0, "friendsUid" : 0] as [String : Any]
         FirebaseManager.shared.firestore.collection("users").document(uid).setData(userData) { err in
             if let err = err {
                 print(err.localizedDescription)

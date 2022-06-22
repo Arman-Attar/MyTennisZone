@@ -12,8 +12,7 @@ struct addFriend: View {
     @ObservedObject private var vm = UserViewModel()
     @State var userName = ""
     @State var showSearchBar = false
-    //@State var addButton = false
-    
+    @State var isFriend = false
     var body: some View {
         VStack{
             searchBar
@@ -27,9 +26,17 @@ struct addFriend: View {
             .sheet(isPresented: $showSearchBar) {
                 VStack{
                     backButton.padding()
+                    if vm.userSearch?.uid ?? "" == "" {
+                        Spacer()
+                        Text("User Not Found")
+                            .font(.title)
+                            .fontWeight(.bold)
+                    }
+                    else {
                     header
                     statBar
                     add
+                    }
                     Spacer()
                 }
             }
@@ -48,7 +55,8 @@ extension addFriend {
         HStack{
             Spacer()
             VStack {
-                Text("\(vm.userSearch?.friendsUid.count ?? 0)")
+                let userFriends = vm.userSearch?.friendsUid.count ?? 0
+                Text(vm.isUserFriend ? "\(userFriends + 1)" : "\(userFriends)")
                     .font(.callout)
                     .fontWeight(.bold)
                 Text("Friends")
@@ -137,7 +145,6 @@ extension addFriend {
             else{
             Button {
                 vm.addUser(userUid: vm.userSearch?.uid ?? "")
-                //addButton.toggle()
             } label: {
                 HStack {
                     Image(systemName: "person.fill.badge.plus").font(.title).foregroundColor(.black)
@@ -169,7 +176,7 @@ extension addFriend {
                 .cornerRadius(50)
                 .padding(.leading)
             Button{
-                vm.findUser(userName: userName)
+                vm.findUser(userName: userName.lowercased())
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
                 vm.friendCheck(friendUid: vm.userSearch?.uid ?? "")
                 showSearchBar.toggle()

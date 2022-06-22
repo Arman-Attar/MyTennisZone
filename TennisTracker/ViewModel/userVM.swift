@@ -110,15 +110,22 @@ class UserViewModel: ObservableObject {
         
         FirebaseManager.shared.firestore.collection("users").document(userUid).updateData(["friends" : FieldValue.arrayUnion([uid])])
         }
+        isUserFriend = true
     }
     
     func friendCheck(friendUid: String){
         
         if user?.friendsUid.count ?? 0 > 0 {
-            for friendId in user!.friendsUid {
-                if friendId == friendUid {
-                    isUserFriend = true
-                }
+//            for friendId in user!.friendsUid {
+//                if friendId == friendUid {
+//                    isUserFriend = true
+//                }
+//            }
+            if user!.friendsUid.contains(where: {$0 == friendUid}) {
+                isUserFriend = true
+            }
+            else {
+                isUserFriend = false
             }
         }
     }
