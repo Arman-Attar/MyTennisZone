@@ -30,6 +30,7 @@ struct profileTab: View {
                         changeProfilePicRow
                         Divider().padding()
                         logOutRow
+                        deleteAccountRow
                     }.padding()
                     Spacer()
                 }.sheet(isPresented: $showFriendsList, content: {
@@ -249,7 +250,7 @@ extension profileTab {
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding(.horizontal)
                 
-                Text("Statistics")
+                Text("Match History")
                     .foregroundColor(Color.black)
                     .font(.body)
                     .fontWeight(.semibold)
@@ -334,6 +335,29 @@ extension profileTab {
                 Spacer()
                 Image(systemName: "chevron.right")
                     .foregroundColor(Color.black)
+                    .padding()
+                
+            }.padding(.horizontal)
+        }
+    }
+    
+    private var deleteAccountRow: some View {
+        HStack{
+            NavigationLink(destination: mainPage()) {
+                Image(systemName: "delete.right")
+                    .font(.title)
+                    .foregroundColor(Color.red)
+                    .frame(width: 50, height: 50)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .padding(.horizontal)
+                
+                Text("Delete Account")
+                    .foregroundColor(Color.red)
+                    .font(.body)
+                    .fontWeight(.semibold)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(Color.red)
                     .padding()
                 
             }.padding(.horizontal)

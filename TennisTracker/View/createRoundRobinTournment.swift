@@ -1,109 +1,61 @@
 //
-//  createLeague.swift
+//  createRoundRobinTournment.swift
 //  TennisTracker
 //
-//  Created by Arman Zadeh-Attar on 2022-05-17.
+//  Created by Arman Zadeh-Attar on 2022-06-24.
 //
 
 import SwiftUI
 import SDWebImageSwiftUI
 import Firebase
 
-struct createLeague: View {
+struct createRoundRobinTournment: View {
     @State var leagueName = ""
     @State var opponentSelection = false
     @State var noOfGames = ""
     @ObservedObject var vm = UserViewModel()
     @State var players: [Player] = []
     @State var playerId: [String] = []
+    @State var matches: [Match] = []
     
     var body: some View {
-        Form{
-            leagueBanner.padding()
-            leagueNameField.padding(.vertical)
-            VStack {
-                HStack {
-                    Text("Players")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                    .padding()
-                    Spacer()
-                    Image(systemName: "person.fill.badge.plus")
-
-                        .font(.title3)
-                        .onTapGesture {
-                            opponentSelection.toggle()
-                        }
-                        .padding()
-                }
-                if players.isEmpty{
-                    HStack() {
-                        Text("Add players to the league")
-                            .font(.callout)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.gray)
-                            .padding(.horizontal)
-                    }.padding()
-                }
-                else{
-                HStack(spacing: -20) {
-                    ForEach(players, id:\.uid) { player in
-                    WebImage(url: URL(string: player.profilePicUrl))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 50, height: 50)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
-                    }
-                }.padding()
+        ScrollView{
+            VStack{
+                leagueBanner
+                Divider().padding(15)
+                leagueNameField
+                Divider().padding(.horizontal)
+                opponentField
+                Divider().padding(.horizontal)
+                noOfGamesField
+                Divider().padding(.horizontal)
+                createButton
+            }.sheet(isPresented: $opponentSelection) {
+                selectOpponent
             }
+        }.navigationTitle("Create a League")
+            .onAppear{
+                players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user?.profilePicUrl ?? "", displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0, played: 0))
+                playerId.append(vm.user?.uid ?? "")
             }
-            HStack {
-                Spacer()
-                createButton.onTapGesture {
-                    createLeague()
-                }
-                Spacer()
-            }
-        }.navigationTitle("Create a league")
-            .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $opponentSelection) {
-            selectOpponent
-        }
-//        ScrollView{
-//            VStack{
-//                leagueBanner
-//                Divider().padding(15)
-//                leagueNameField
-//                Divider().padding(.horizontal)
-//                opponentField
-//
-//                Divider().padding(.horizontal)
-//                createButton
-//            }.sheet(isPresented: $opponentSelection) {
-//                selectOpponent
-//            }
-//        }.navigationTitle("Create a League")
-//            .onAppear{
-//                players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user?.profilePicUrl ?? "", displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0, played: 0))
-//                playerId.append(vm.user?.uid ?? "")
-//            }
     }
 }
 
-struct createLeague_Previews: PreviewProvider {
+struct createRoundRobinTournment_Previews: PreviewProvider {
     static var previews: some View {
-        createLeague()
+        createRoundRobinTournment()
     }
 }
 
-extension createLeague {
+
+extension createRoundRobinTournment {
     private var leagueBanner: some View {
         VStack{
             Image("league")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .cornerRadius(20)
+                .frame(width: UIScreen.main.bounds.size.width - 10, height: UIScreen.main.bounds.size.height / 3.8)
                 .padding(8)
         }
     }
@@ -136,6 +88,7 @@ extension createLeague {
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 50, height: 50)
+                        //.padding(8)
                         .clipShape(Circle())
                         .shadow(radius: 20)
                     }
@@ -144,7 +97,7 @@ extension createLeague {
                 Button {
                     opponentSelection.toggle()
                 } label: {
-                    Text("Add")
+                    Text("Change")
                         .font(.subheadline)
                         .fontWeight(.heavy)
                         .padding()
@@ -187,6 +140,9 @@ extension createLeague {
     
     private var createButton: some View {
         ZStack {
+            Button {
+                generateMatches()
+            } label: {
                 Text("Create")
                     .font(.title2)
                     .fontWeight(.heavy)
@@ -198,6 +154,24 @@ extension createLeague {
                         .stroke(Color.black, lineWidth: 0.8))
                     .padding()
             }
+        }
+    }
+    
+    private var noOfGamesField: some View {
+        HStack{
+            Text("Select the number of games:").padding()
+            
+            VStack {
+                TextField("0", text: $noOfGames)
+                    .keyboardType(.numberPad)
+                    .frame(maxWidth: 50, maxHeight: 1)
+                Rectangle()
+                    .frame(maxWidth: 50, maxHeight: 1)
+                    .padding(.horizontal)
+                    .foregroundColor(.black)
+                    .offset(x: -20, y: 5)
+            }
+        }.padding(.horizontal)
     }
     
     private var selectOpponent: some View {
@@ -210,46 +184,6 @@ extension createLeague {
             Spacer()
             ScrollView {
                 ForEach(vm.friends, id: \.uid) {friend in
-                    if players.contains(where: {$0.uid == friend.uid}) {
-                        HStack{
-                            if friend.profilePicUrl != "" {
-                                WebImage(url: URL(string: friend.profilePicUrl))
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 20)
-                                    .padding(.horizontal)
-                            }
-                            else {
-                                Image("profile")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 20)
-                                    .padding()
-                            }
-                            VStack(alignment: .leading){
-                                
-                                Text(friend.displayName)
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.black)
-                                Text("@\(friend.username)")
-                                    .font(.callout)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.gray)
-                            }
-                            Spacer()
-                            Text("Selected")
-                                .font(.callout)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.gray)
-                                .padding(.horizontal)
-                        }
-                    }
-                    else {
                     Button {
                         players.append(Player(uid: friend.uid, profilePicUrl: friend.profilePicUrl, displayName: friend.displayName, points: 0, wins: 0, losses: 0, played: 0))
                         playerId.append(friend.uid)
@@ -288,11 +222,22 @@ extension createLeague {
                             Spacer()
                         }
                     }
-                    }
                     Divider().padding(.horizontal)
                 }
             }
             Spacer()
+        }
+    }
+    
+    func generateMatches(){
+        var temp = players
+        var matches: [Match] = []
+        while temp.count != 1 {
+            for i in 1..<temp.count {
+                let match = Match(id: UUID().uuidString, date: convertDateToString(date: Date.now), player1Pic: temp[0].profilePicUrl, player2Pic: temp[i].profilePicUrl, player1DisplayName: temp[0].displayName, player2DisplayName: temp[i].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: 6)
+                matches.append(match)
+            }
+            temp.removeFirst()
         }
     }
     
@@ -313,5 +258,13 @@ extension createLeague {
                 
             }
         }
+    }
+    
+    
+    private func convertDateToString(date: Date) -> String{
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, y"
+        let result = formatter.string(from: date)
+        return result
     }
 }
