@@ -26,10 +26,10 @@ struct createLeague: View {
                     Text("Players")
                         .font(.title3)
                         .fontWeight(.bold)
-                    .padding()
+                        .padding()
                     Spacer()
                     Image(systemName: "person.fill.badge.plus")
-
+                    
                         .font(.title3)
                         .onTapGesture {
                             opponentSelection.toggle()
@@ -46,17 +46,17 @@ struct createLeague: View {
                     }.padding()
                 }
                 else{
-                HStack(spacing: -20) {
-                    ForEach(players, id:\.uid) { player in
-                    WebImage(url: URL(string: player.profilePicUrl))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 50, height: 50)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
-                    }
-                }.padding()
-            }
+                    HStack(spacing: -20) {
+                        ForEach(players, id:\.uid) { player in
+                            WebImage(url: URL(string: player.profilePicUrl))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 50, height: 50)
+                                .clipShape(Circle())
+                                .shadow(radius: 20)
+                        }
+                    }.padding()
+                }
             }
             HStack {
                 Spacer()
@@ -67,27 +67,13 @@ struct createLeague: View {
             }
         }.navigationTitle("Create a league")
             .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $opponentSelection) {
-            selectOpponent
-        }
-//        ScrollView{
-//            VStack{
-//                leagueBanner
-//                Divider().padding(15)
-//                leagueNameField
-//                Divider().padding(.horizontal)
-//                opponentField
-//
-//                Divider().padding(.horizontal)
-//                createButton
-//            }.sheet(isPresented: $opponentSelection) {
-//                selectOpponent
-//            }
-//        }.navigationTitle("Create a League")
-//            .onAppear{
-//                players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user?.profilePicUrl ?? "", displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0, played: 0))
-//                playerId.append(vm.user?.uid ?? "")
-//            }
+            .sheet(isPresented: $opponentSelection) {
+                oponentSelectionView(players: $players, playerId: $playerId, vm: vm)
+            }
+            .onAppear{
+                players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user?.profilePicUrl ?? "", displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0, played: 0))
+                playerId.append(vm.user?.uid ?? "")
+            }
     }
 }
 
@@ -132,12 +118,12 @@ extension createLeague {
                 
                 HStack(spacing: -20) {
                     ForEach(players, id:\.uid) { player in
-                    WebImage(url: URL(string: player.profilePicUrl))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 50, height: 50)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                        WebImage(url: URL(string: player.profilePicUrl))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 50, height: 50)
+                            .clipShape(Circle())
+                            .shadow(radius: 20)
                     }
                 }
                 
@@ -157,29 +143,29 @@ extension createLeague {
                 }
             }
             else {
-            Text("Opponent:").padding().frame(maxWidth: UIScreen.main.bounds.size.width / 3, maxHeight: 10)
-            Image("profile")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 50, height: 50)
-                .clipShape(Circle())
-                .shadow(radius: 20)
-                .padding(.horizontal)
-            
-            Button {
-                opponentSelection.toggle()
-            } label: {
-                Text("Add")
-                    .font(.subheadline)
-                    .fontWeight(.heavy)
-                    .padding()
-                    .foregroundColor(.black)
-                    .frame(maxWidth: UIScreen.main.bounds.size.width / 3, maxHeight: 10)
-                    .padding()
-                    .overlay(RoundedRectangle(cornerRadius: 100)
-                        .stroke(Color.black, lineWidth: 0.8))
-                    .padding()
-            }
+                Text("Opponent:").padding().frame(maxWidth: UIScreen.main.bounds.size.width / 3, maxHeight: 10)
+                Image("profile")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
+                    .shadow(radius: 20)
+                    .padding(.horizontal)
+                
+                Button {
+                    opponentSelection.toggle()
+                } label: {
+                    Text("Add")
+                        .font(.subheadline)
+                        .fontWeight(.heavy)
+                        .padding()
+                        .foregroundColor(.black)
+                        .frame(maxWidth: UIScreen.main.bounds.size.width / 3, maxHeight: 10)
+                        .padding()
+                        .overlay(RoundedRectangle(cornerRadius: 100)
+                            .stroke(Color.black, lineWidth: 0.8))
+                        .padding()
+                }
             }
             
         }.padding(.horizontal)
@@ -187,112 +173,16 @@ extension createLeague {
     
     private var createButton: some View {
         ZStack {
-                Text("Create")
-                    .font(.title2)
-                    .fontWeight(.heavy)
-                    .padding()
-                    .foregroundColor(.black)
-                    .frame(maxWidth: UIScreen.main.bounds.size.width / 2, maxHeight: 20)
-                    .padding()
-                    .overlay(RoundedRectangle(cornerRadius: 100)
-                        .stroke(Color.black, lineWidth: 0.8))
-                    .padding()
-            }
-    }
-    
-    private var selectOpponent: some View {
-        VStack{
-            Text("Friends")
-                .font(.title)
-                .fontWeight(.bold)
+            Text("Create")
+                .font(.title2)
+                .fontWeight(.heavy)
                 .padding()
-            Divider().padding(.horizontal)
-            Spacer()
-            ScrollView {
-                ForEach(vm.friends, id: \.uid) {friend in
-                    if players.contains(where: {$0.uid == friend.uid}) {
-                        HStack{
-                            if friend.profilePicUrl != "" {
-                                WebImage(url: URL(string: friend.profilePicUrl))
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 20)
-                                    .padding(.horizontal)
-                            }
-                            else {
-                                Image("profile")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 20)
-                                    .padding()
-                            }
-                            VStack(alignment: .leading){
-                                
-                                Text(friend.displayName)
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.black)
-                                Text("@\(friend.username)")
-                                    .font(.callout)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.gray)
-                            }
-                            Spacer()
-                            Text("Selected")
-                                .font(.callout)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.gray)
-                                .padding(.horizontal)
-                        }
-                    }
-                    else {
-                    Button {
-                        players.append(Player(uid: friend.uid, profilePicUrl: friend.profilePicUrl, displayName: friend.displayName, points: 0, wins: 0, losses: 0, played: 0))
-                        playerId.append(friend.uid)
-                        opponentSelection.toggle()
-                    } label: {
-                        HStack{
-                            if friend.profilePicUrl != "" {
-                                WebImage(url: URL(string: friend.profilePicUrl))
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 20)
-                                    .padding(.horizontal)
-                            }
-                            else {
-                                Image("profile")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 20)
-                                    .padding()
-                            }
-                            VStack(alignment: .leading){
-                                
-                                Text(friend.displayName)
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.black)
-                                Text("@\(friend.username)")
-                                    .font(.callout)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.gray)
-                            }
-                            Spacer()
-                        }
-                    }
-                    }
-                    Divider().padding(.horizontal)
-                }
-            }
-            Spacer()
+                .foregroundColor(.black)
+                .frame(maxWidth: UIScreen.main.bounds.size.width / 2, maxHeight: 20)
+                .padding()
+                .overlay(RoundedRectangle(cornerRadius: 100)
+                    .stroke(Color.black, lineWidth: 0.8))
+                .padding()
         }
     }
     
