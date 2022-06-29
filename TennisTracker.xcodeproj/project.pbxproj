@@ -36,7 +36,7 @@
 		C2BADEA3281B8B4D001FFD83 /* signUp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2BADEA2281B8B4D001FFD83 /* signUp.swift */; };
 		C2BADEA5281B91B2001FFD83 /* signIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2BADEA4281B91B2001FFD83 /* signIn.swift */; };
 		C2E64BCE28661FA800501252 /* createRoundRobinTournment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E64BCD28661FA800501252 /* createRoundRobinTournment.swift */; };
-		C2E64BD0286A6DE900501252 /* oponentSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E64BCF286A6DE900501252 /* oponentSelectionView.swift */; };
+		C2E64BD0286A6DE900501252 /* opponentSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E64BCF286A6DE900501252 /* opponentSelectionView.swift */; };
 		C2F0D73A2821AC14009792CD /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F0D7392821AC14009792CD /* AuthenticationService.swift */; };
 /* End PBXBuildFile section */
 
@@ -68,7 +68,7 @@
 		C2BADEA2281B8B4D001FFD83 /* signUp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = signUp.swift; sourceTree = "<group>"; };
 		C2BADEA4281B91B2001FFD83 /* signIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = signIn.swift; sourceTree = "<group>"; };
 		C2E64BCD28661FA800501252 /* createRoundRobinTournment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = createRoundRobinTournment.swift; sourceTree = "<group>"; };
-		C2E64BCF286A6DE900501252 /* oponentSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = oponentSelectionView.swift; sourceTree = "<group>"; };
+		C2E64BCF286A6DE900501252 /* opponentSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = opponentSelectionView.swift; sourceTree = "<group>"; };
 		C2F0D7392821AC14009792CD /* AuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -105,7 +105,7 @@
 				C277D272284719520072814A /* modifyMatchView.swift */,
 				C277D274284AADA10072814A /* joinLeagueView.swift */,
 				C2E64BCD28661FA800501252 /* createRoundRobinTournment.swift */,
-				C2E64BCF286A6DE900501252 /* oponentSelectionView.swift */,
+				C2E64BCF286A6DE900501252 /* opponentSelectionView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -260,7 +260,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C22E524528335A4A00987437 /* createLeague.swift in Sources */,
-				C2E64BD0286A6DE900501252 /* oponentSelectionView.swift in Sources */,
+				C2E64BD0286A6DE900501252 /* opponentSelectionView.swift in Sources */,
 				C22E817A281B351F009593BE /* ContentView.swift in Sources */,
 				C21CF0462828BC9100292C9F /* profileTab.swift in Sources */,
 				C22E8178281B351F009593BE /* TennisTrackerApp.swift in Sources */,

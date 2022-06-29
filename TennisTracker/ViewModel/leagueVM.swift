@@ -61,10 +61,11 @@ class LeagueViewModel: ObservableObject {
                         setsToWin: match["setsToWin"] as? Int ?? 3)
                 }
                 
+                let bannerURL = document["bannerURL"] as? String ?? ""
                 players.sort {
                     $0.points > $1.points
                 }
-                self.leagues.append(League(id: id, name: name, playerId: playerId, players: players, matches: matches))
+                self.leagues.append(League(id: id, name: name, playerId: playerId, players: players, matches: matches, bannerURL: bannerURL))
             }
         }
     }
@@ -107,11 +108,13 @@ class LeagueViewModel: ObservableObject {
                     setsToWin: match["setsToWin"] as? Int ?? 3)
             }
             
+            let bannerURL = document["bannerURL"] as? String ?? ""
+            
             players.sort {
                 $0.points > $1.points
             }
             
-            self.league = League(id: id, name: name, playerId: playerId, players: players, matches: matches)
+            self.league = League(id: id, name: name, playerId: playerId, players: players, matches: matches, bannerURL: bannerURL)
             
             self.playerList = self.league?.players ?? []
             
@@ -300,8 +303,9 @@ class LeagueViewModel: ObservableObject {
                     losses: player["losses"] as? Int ?? 0,
                     played: player["played"] as? Int ?? 0)
             }
-            
-            self.league = League(id: id, name: name, playerId: playerId, players: players, matches: [])
+            let bannerURL = document["bannerURL"] as? String ?? ""
+                
+            self.league = League(id: id, name: name, playerId: playerId, players: players, matches: [], bannerURL: bannerURL)
             
             self.playerList = self.league?.players ?? []
             }

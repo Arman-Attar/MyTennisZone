@@ -6,9 +6,9 @@
 //
 
 import SwiftUI
+import SDWebImageSwiftUI
 
 struct leagueView: View {
-    //let leagueNames = ["Arman & Peter", "Andrew & Arman", "Andrew & Peter"]
     @ObservedObject var leagueVm = LeagueViewModel()
     
     var body: some View {
@@ -20,11 +20,20 @@ struct leagueView: View {
                             leagueDetailView(leagueVM: leagueVm) .navigationTitle(index.name).onAppear{leagueVm.getCurrentLeague(leagueId: index.id)}
                         } label: {
                             VStack{
+                                if index.bannerURL == ""{
                                 Image("league")
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: UIScreen.main.bounds.size.width - 50, height: UIScreen.main.bounds.size.height / 4)
                                     .padding(.horizontal)
+                                }
+                                else {
+                                    WebImage(url: URL(string: index.bannerURL!))
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: UIScreen.main.bounds.size.width - 50, height: UIScreen.main.bounds.size.height / 4)
+                                        .padding(.horizontal)
+                                }
                                 HStack {
                                     Text(index.name)
                                         .font(.title2)

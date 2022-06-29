@@ -8,11 +8,11 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
-struct oponentSelectionView: View {
+struct opponentSelectionView: View {
     @Binding var players: [Player]
-    //@State var players: [Player] = []
+    //@State var players: [Player] = [] TEST VAR TO GET THE PREVIEW WORKING
     @Binding var playerId: [String]
-    //@State var playerId: [String] = []
+    //@State var playerId: [String] = [] TEST VAR TO GET THE PREVIEW WORKING
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var vm = UserViewModel()
     @State var showImagePicker = false
@@ -22,12 +22,22 @@ struct oponentSelectionView: View {
     var body: some View {
         ZStack {
             VStack{
-                Text("Choose a player")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .padding()
-                    .padding(.top)
-                
+                HStack {
+                    Text("Choose players")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .padding()
+                        .padding(.top)
+                    Spacer()
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Done")
+                            .font(.title3)
+                            .padding()
+                            .padding(.top)
+                    }
+                }
                 HStack {
                     Text("Friends List")
                         .font(.title2)
@@ -56,13 +66,13 @@ struct oponentSelectionView: View {
 
 
 
-//struct oponentSelectionView_Previews: PreviewProvider {
+//struct opponentSelectionView_Previews: PreviewProvider {
 //    static var previews: some View {
-//        oponentSelectionView()
+//        opponentSelectionView()
 //    }
 //}
 
-extension oponentSelectionView {
+extension opponentSelectionView {
     
     private var playerForm: some View{
         ZStack{
@@ -138,7 +148,6 @@ extension oponentSelectionView {
                         Button {
                             players.append(Player(uid: friend.uid, profilePicUrl: friend.profilePicUrl, displayName: friend.displayName, points: 0, wins: 0, losses: 0, played: 0))
                             playerId.append(friend.uid)
-                            dismiss()
                         } label: {
                             HStack{
                                 if friend.profilePicUrl != "" {
@@ -253,9 +262,7 @@ extension oponentSelectionView {
                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
                 .onTapGesture {
                     updateImage() // this function uploads the image to storage and then creates a player
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        dismiss()
-                    }
+                    showForm.toggle()
                 }
         }.padding()
     }

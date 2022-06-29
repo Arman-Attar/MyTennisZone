@@ -12,15 +12,15 @@ import Firebase
 struct createLeague: View {
     @State var leagueName = ""
     @State var opponentSelection = false
-    @State var noOfGames = ""
     @ObservedObject var vm = UserViewModel()
     @State var players: [Player] = []
     @State var playerId: [String] = []
-    
+    @State var showImagePicker = false
+    @State var image: UIImage?
     var body: some View {
         Form{
-            leagueBanner.padding()
-            leagueNameField.padding(.vertical)
+            leagueBanner.padding(.vertical)
+            leagueNameField.padding(.vertical, 10)
             VStack {
                 HStack {
                     Text("Players")
@@ -36,16 +36,6 @@ struct createLeague: View {
                         }
                         .padding()
                 }
-                if players.isEmpty{
-                    HStack() {
-                        Text("Add players to the league")
-                            .font(.callout)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.gray)
-                            .padding(.horizontal)
-                    }.padding()
-                }
-                else{
                     HStack(spacing: -20) {
                         ForEach(players, id:\.uid) { player in
                             WebImage(url: URL(string: player.profilePicUrl))
@@ -56,23 +46,26 @@ struct createLeague: View {
                                 .shadow(radius: 20)
                         }
                     }.padding()
-                }
             }
             HStack {
                 Spacer()
                 createButton.onTapGesture {
-                    createLeague()
+                    updateImage() // NEED TO FIX THIS, RIGHT NOW THIS FUNCTION ALSO CREATES THE LEAGUE
                 }
                 Spacer()
             }
-        }.navigationTitle("Create a league")
-            .navigationBarTitleDisplayMode(.inline)
+        }
+            .navigationTitle("Create a league")
             .sheet(isPresented: $opponentSelection) {
-                oponentSelectionView(players: $players, playerId: $playerId, vm: vm)
+                //opponentSelectionView(vm: vm)
+                opponentSelectionView(players: $players, playerId: $playerId, vm: vm)
             }
             .onAppear{
                 players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user?.profilePicUrl ?? "", displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0, played: 0))
                 playerId.append(vm.user?.uid ?? "")
+            }
+            .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
+                ImagePicker(image: $image)
             }
     }
 }
@@ -86,11 +79,34 @@ struct createLeague_Previews: PreviewProvider {
 extension createLeague {
     private var leagueBanner: some View {
         VStack{
-            Image("league")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .cornerRadius(20)
-                .padding(8)
+            if image != nil {
+                Image(uiImage: image!)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height:UIScreen.main.bounds.height/4)
+                    .cornerRadius(10)
+                    .overlay(
+                        Image(systemName: "camera.fill").font(.title).foregroundColor(.white).opacity(0.8).padding([.top, .trailing], 5),
+                        alignment: .topTrailing
+                    )
+                    .onTapGesture {
+                        showImagePicker.toggle()
+                    }
+            }
+            else {
+                Image("league")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height:UIScreen.main.bounds.height/4)
+                    .cornerRadius(10)
+                    .overlay(
+                        Image(systemName: "camera.fill").font(.title).foregroundColor(.white).opacity(0.8).padding([.top, .trailing], 5),
+                        alignment: .topTrailing
+                    )
+                    .onTapGesture {
+                        showImagePicker.toggle()
+                    }
+            }
         }
     }
     
@@ -102,10 +118,9 @@ extension createLeague {
                     .keyboardType(.emailAddress)
                 Image(systemName: "plus")
                     .foregroundColor(.black)
-            }.padding(.horizontal).padding(.horizontal)
+            }.padding(.horizontal)
             Rectangle()
                 .frame(maxWidth: .infinity, maxHeight: 1)
-                .padding(.horizontal)
                 .foregroundColor(.black)
                 .padding()
         }
@@ -186,10 +201,30 @@ extension createLeague {
         }
     }
     
-    func createLeague(){
+    private func updateImage(){
+        let uid = UUID().uuidString
+        let ref = FirebaseManager.shared.storage.reference(withPath: uid)
+        guard let imageData = self.image?.jpegData(compressionQuality: 0.5) else {return}
+        ref.putData(imageData, metadata: nil) { metadata, err in
+            if let err = err {
+                print(err.localizedDescription)
+                return
+            }
+            ref.downloadURL { url, err in
+                if let err = err {
+                    print(err.localizedDescription)
+                    return
+                }
+                guard let url = url else {return}
+                createLeague(bannerURL: url.absoluteString)
+            }
+        }
+    }
+    
+    func createLeague(bannerURL: String){
         
         let leagueId = UUID().uuidString
-        let leagueData = ["id" : leagueId, "name" : leagueName, "playerId" : playerId ,"players" : [], "matches" : []] as [String : Any]
+        let leagueData = ["id" : leagueId, "name" : leagueName, "playerId" : playerId ,"players" : [], "matches" : [], "bannerURL" : bannerURL] as [String : Any]
         
         FirebaseManager.shared.firestore.collection("leagues").document(leagueId).setData(leagueData) { err in
             if let err = err {
