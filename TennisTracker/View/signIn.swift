@@ -11,8 +11,8 @@ struct signIn: View {
     init(){
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.black]
     }
-    @State var email = ""
-    @State var password = ""
+    @AppStorage("email") var email = ""
+    @AppStorage("password") var password = ""
     @State var isUserSignedIn = false
     @ObservedObject var fb = FirebaseManager()
     @State var result = ""
@@ -68,13 +68,6 @@ extension signIn {
                 }
             }.navigationTitle("Sign In")
         }.navigationViewStyle(StackNavigationViewStyle())
-            .onAppear {
-                fb.auth.addStateDidChangeListener { auth, user in
-                    if user != nil {
-                        //isUserSignedIn.toggle()
-                    }
-                }
-            }
     }
     
     private var emailField: some View{
