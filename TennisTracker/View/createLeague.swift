@@ -82,7 +82,7 @@ extension createLeague {
             if image != nil {
                 Image(uiImage: image!)
                     .resizable()
-                    .scaledToFill()
+                    .scaledToFit()
                     .frame(height:UIScreen.main.bounds.height/4)
                     .cornerRadius(10)
                     .overlay(
@@ -96,7 +96,7 @@ extension createLeague {
             else {
                 Image("league")
                     .resizable()
-                    .scaledToFill()
+                    .scaledToFit()
                     .frame(height:UIScreen.main.bounds.height/4)
                     .cornerRadius(10)
                     .overlay(

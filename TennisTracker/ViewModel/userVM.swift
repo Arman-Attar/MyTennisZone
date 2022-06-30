@@ -19,6 +19,7 @@ class UserViewModel: ObservableObject {
     @Published var userSearch: User?
     @Published var isUserFriend = false
     @Published var leaguesIn: [League] = []
+    @Published var isUserSignedOut = false
     
     init(){
         getCurrentUser()
@@ -121,6 +122,39 @@ class UserViewModel: ObservableObject {
             }
             else {
                 isUserFriend = false
+            }
+        }
+    }
+    
+    func signOut(){
+        do{
+            try FirebaseManager.shared.auth.signOut()
+            self.isUserSignedOut.toggle()
+        }catch{
+            print("Error")
+        }
+        
+    }
+    
+    func deleteUserData(uid: String){
+        FirebaseManager.shared.firestore.collection("users").document(uid).delete { err in
+            if let err = err {
+                print(err.localizedDescription)
+            }
+            print("User data deleted")
+        }
+    }
+    
+    func deleteUser(){
+        if let user = FirebaseManager.shared.auth.currentUser {
+            user.delete { err in
+                if let err = err {
+                    print(err.localizedDescription)
+                }
+                else {
+                    print("WERE GOOD ITS GONE")
+                    self.isUserSignedOut.toggle()
+                }
             }
         }
     }

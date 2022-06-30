@@ -131,6 +131,8 @@ struct profileTab: View {
                         }
                     }
                 }
+        }.fullScreenCover(isPresented: $vm.isUserSignedOut) {
+            signIn()
         }
     }
     
@@ -319,47 +321,52 @@ extension profileTab {
     }
     
     private var logOutRow: some View {
-        HStack{
-            NavigationLink(destination: mainPage()) {
-                Image(systemName: "arrow.right.square")
-                    .font(.title)
-                    .foregroundColor(Color.black)
-                    .frame(width: 50, height: 50)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .padding(.horizontal)
-                
-                Text("Log Out")
-                    .foregroundColor(Color.black)
-                    .font(.body)
-                    .fontWeight(.semibold)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .foregroundColor(Color.black)
-                    .padding()
-                
+        Button {
+            vm.signOut()
+        } label: {
+            HStack{
+                    Image(systemName: "arrow.right.square")
+                        .font(.title)
+                        .foregroundColor(Color.black)
+                        .frame(width: 50, height: 50)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.horizontal)
+                    
+                    Text("Log Out")
+                        .foregroundColor(Color.black)
+                        .font(.body)
+                        .fontWeight(.semibold)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(Color.black)
+                        .padding()
+                    
             }.padding(.horizontal)
         }
     }
     
     private var deleteAccountRow: some View {
-        HStack{
-            NavigationLink(destination: mainPage()) {
-                Image(systemName: "delete.right")
-                    .font(.title)
-                    .foregroundColor(Color.red)
-                    .frame(width: 50, height: 50)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .padding(.horizontal)
-                
-                Text("Delete Account")
-                    .foregroundColor(Color.red)
-                    .font(.body)
-                    .fontWeight(.semibold)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .foregroundColor(Color.red)
-                    .padding()
-                
+        Button {
+            vm.deleteUserData(uid: vm.user!.uid)
+            vm.deleteUser()
+        } label: {
+            HStack{
+                    Image(systemName: "arrow.right.square")
+                        .font(.title)
+                        .foregroundColor(Color.red)
+                        .frame(width: 50, height: 50)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.horizontal)
+                    
+                    Text("Delete Account")
+                        .foregroundColor(Color.red)
+                        .font(.body)
+                        .fontWeight(.semibold)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(Color.red)
+                        .padding()
+                    
             }.padding(.horizontal)
         }
     }
