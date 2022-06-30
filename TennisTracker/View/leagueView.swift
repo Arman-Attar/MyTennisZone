@@ -23,15 +23,17 @@ struct leagueView: View {
                                 if index.bannerURL == ""{
                                 Image("league")
                                     .resizable()
-                                    .scaledToFill()
-                                    .frame(width: UIScreen.main.bounds.size.width - 50, height: UIScreen.main.bounds.size.height / 4)
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: UIScreen.main.bounds.width/1.2, height: UIScreen.main.bounds.height/4)
+                                    .clipShape(Rectangle())
                                     .padding(.horizontal)
                                 }
                                 else {
                                     WebImage(url: URL(string: index.bannerURL!))
                                         .resizable()
-                                        .scaledToFill()
-                                        .frame(width: UIScreen.main.bounds.size.width - 50, height: UIScreen.main.bounds.size.height / 4)
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: UIScreen.main.bounds.width/1.2, height: UIScreen.main.bounds.height/4)
+                                        .clipShape(Rectangle())
                                         .padding(.horizontal)
                                 }
                                 HStack {

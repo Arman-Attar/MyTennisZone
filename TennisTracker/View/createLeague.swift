@@ -82,9 +82,9 @@ extension createLeague {
             if image != nil {
                 Image(uiImage: image!)
                     .resizable()
-                    .scaledToFit()
-                    .frame(height:UIScreen.main.bounds.height/4)
-                    .cornerRadius(10)
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: UIScreen.main.bounds.width/1.26, height: UIScreen.main.bounds.height/4)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                     .overlay(
                         Image(systemName: "camera.fill").font(.title).foregroundColor(.white).opacity(0.8).padding([.top, .trailing], 5),
                         alignment: .topTrailing
@@ -96,9 +96,9 @@ extension createLeague {
             else {
                 Image("league")
                     .resizable()
-                    .scaledToFit()
-                    .frame(height:UIScreen.main.bounds.height/4)
-                    .cornerRadius(10)
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: UIScreen.main.bounds.width/1.26, height: UIScreen.main.bounds.height/4)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                     .overlay(
                         Image(systemName: "camera.fill").font(.title).foregroundColor(.white).opacity(0.8).padding([.top, .trailing], 5),
                         alignment: .topTrailing
