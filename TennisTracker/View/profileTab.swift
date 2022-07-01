@@ -16,6 +16,7 @@ struct profileTab: View {
     @State var changeDisplayName = false
     @State var displayName = ""
     @State var showFriendsList = false
+    @State var confirmDeleteAlert = false
     @ObservedObject private var vm = UserViewModel()
     var body: some View {
         NavigationView {
@@ -133,6 +134,12 @@ struct profileTab: View {
                 }
         }.fullScreenCover(isPresented: $vm.isUserSignedOut) {
             signIn()
+        }
+        .alert(isPresented: $confirmDeleteAlert) {
+            Alert(title: Text("Delete Account"), message: Text("Are you sure you want to your account?"), primaryButton: .destructive(Text("Delete")){
+                vm.deleteUserData(uid: vm.user!.uid)
+                vm.deleteUser()
+            }, secondaryButton: .cancel())
         }
     }
     
@@ -347,8 +354,7 @@ extension profileTab {
     
     private var deleteAccountRow: some View {
         Button {
-            vm.deleteUserData(uid: vm.user!.uid)
-            vm.deleteUser()
+            confirmDeleteAlert.toggle()
         } label: {
             HStack{
                     Image(systemName: "arrow.right.square")
