@@ -13,6 +13,7 @@ struct addFriend: View {
     @State var userName = ""
     @State var showSearchBar = false
     @State var isFriend = false
+    @State var userNotFound = false
     var body: some View {
         VStack{
             searchBar
@@ -40,7 +41,9 @@ struct addFriend: View {
                     Spacer()
                 }
             }
-            
+            .alert(isPresented: $userNotFound){
+                Alert(title: Text("Error!"), message: Text("User Not Found"), dismissButton: .default(Text("Got it!")))
+            }
         }
     }
 
@@ -176,10 +179,16 @@ extension addFriend {
                 .cornerRadius(50)
                 .padding(.leading)
             Button{
+                userName = userName.trimmingCharacters(in: .whitespacesAndNewlines)
                 vm.findUser(userName: userName.lowercased())
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
-                vm.friendCheck(friendUid: vm.userSearch?.uid ?? "")
-                showSearchBar.toggle()
+                    if vm.userSearch?.uid ?? "" == "" {
+                        userNotFound = true
+                    }
+                    else{
+                        vm.friendCheck(friendUid: vm.userSearch?.uid ?? "")
+                        showSearchBar.toggle()
+                    }
                 }
             } label: {
                 Text("Find")

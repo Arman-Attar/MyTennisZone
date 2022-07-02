@@ -100,6 +100,7 @@ struct profileTab: View {
                                 .background(Color.gray.opacity(0.4))
                                 .padding()
                             Button {
+                                displayName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
                                 updateDisplayName(input: displayName)
                             } label: {
                                 Text("Update")

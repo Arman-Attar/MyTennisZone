@@ -12,6 +12,7 @@ struct joinLeagueView: View {
     @ObservedObject var leagueVm = LeagueViewModel()
     @State var showSheet = false
     @ObservedObject var vm = UserViewModel()
+    @State var notFoundAlert = false
     var body: some View {
         VStack{
             searchBar
@@ -30,6 +31,9 @@ struct joinLeagueView: View {
                     joinButton
                     Spacer()
                 }
+            }
+            .alert(isPresented: $notFoundAlert){
+                Alert(title: Text("Error!"), message: Text("League Not Found"), dismissButton: .default(Text("Got it!")))
             }
     }
 }
@@ -95,7 +99,7 @@ extension joinLeagueView {
                 .frame(width: UIScreen.main.bounds.size.width - 10, height: UIScreen.main.bounds.size.height / 3.8)
                 .padding(8)
             
-            Text(leagueVm.league?.name ?? "Test Name")
+            Text(leagueVm.league!.name)
                 .font(.title)
                 .fontWeight(.bold)
                 .padding()
@@ -126,9 +130,15 @@ extension joinLeagueView {
                 .cornerRadius(50)
                 .padding(.leading)
             Button {
-                leagueVm.findLeague(leagueName: leagueName)
+                let trimmedName = leagueName.trimmingCharacters(in: .whitespacesAndNewlines)
+                leagueVm.findLeague(leagueName: trimmedName)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    if leagueVm.league?.id ?? "" == ""{
+                        notFoundAlert = true
+                    }
+                    else{
                     showSheet.toggle()
+                    }
                 }
             } label: {
                 Text("Find")

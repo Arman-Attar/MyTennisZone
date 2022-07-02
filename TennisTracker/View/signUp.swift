@@ -178,6 +178,7 @@ extension signUp {
             }
             else{
                 self.result = "DONE"
+                userName = userName.trimmingCharacters(in: .whitespacesAndNewlines)
                 createUser(email: email, userName: userName)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1){
                     dismiss()
@@ -194,7 +195,6 @@ extension signUp {
                 print(err.localizedDescription)
                 return
             }
-            print("WE ACTUALLY DID IT MAD LAD")
         }
     }
 }

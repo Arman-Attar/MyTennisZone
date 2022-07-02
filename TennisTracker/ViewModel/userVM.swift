@@ -137,6 +137,7 @@ class UserViewModel: ObservableObject {
     }
     
     func deleteUserData(uid: String){
+
         FirebaseManager.shared.firestore.collection("users").document(uid).delete { err in
             if let err = err {
                 print(err.localizedDescription)
