@@ -207,7 +207,7 @@ class LeagueViewModel: ObservableObject {
             if player.displayName == currentMatch!.player1DisplayName{
                 p1Uid = player.uid
             }
-            else if player.displayName == currentMatch!.player1DisplayName {
+            else if player.displayName == currentMatch!.player2DisplayName {
                 p2Uid = player.uid
             }
         }
@@ -222,8 +222,6 @@ class LeagueViewModel: ObservableObject {
         }
         
         currentSets.append(Set(setId: setid, matchId: currentMatch!.id, winner: p1Points > p2Points ? p1Uid : p2Uid, player1Uid: p1Uid, player2Uid: p2Uid, player1Points: p1Points, player2Points: p2Points))
-        
-        print(self.currentSets)
     }
     
     func updateMatch(ongoing: Bool){

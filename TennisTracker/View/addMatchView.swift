@@ -28,6 +28,7 @@ struct addMatchView: View {
     @State var showSetSheet = false
     @State var player1SetScore = 0
     @State var player2SetScore = 0
+    @State var showAlert = false
     @Environment(\.dismiss) var dismiss
     var body: some View {
         ZStack {
@@ -92,6 +93,8 @@ struct addMatchView: View {
                 Rectangle().ignoresSafeArea().opacity(0.5)
                 addWinnerBottomSheet
             }
+        }.alert(isPresented: $showAlert){
+            Alert(title: Text("Error!"), message: Text("Required number of sets not reached"), dismissButton: .default(Text("Got it!")))
         }
     }
 }
@@ -267,8 +270,13 @@ extension addMatchView {
                     .padding()
                     .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
                     .onTapGesture {
-                        createMatch()
-                        dismiss()
+                        if !matchOngoing && !verifyScore(){
+                            showAlert = true
+                        }
+                        else{
+                            createMatch()
+                            dismiss()
+                        }
                     }
             }
         }.padding()
@@ -561,5 +569,14 @@ extension addMatchView {
         formatter.dateFormat = "MMM d, y"
         let result = formatter.string(from: date)
         return result
+    }
+    
+    private func verifyScore() -> Bool{
+        if player1Score == numberOfSets || player2Score == numberOfSets{
+            return true
+        }
+        else {
+            return false
+        }
     }
 }

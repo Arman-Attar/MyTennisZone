@@ -21,6 +21,7 @@ struct modifyMatchView: View {
     @State var showSetSheet = false
     @State var set: [Set] = []
     @State var numberOfSets = 0
+    @State var showAlert = false
     var body: some View {
         ZStack{
             Form{
@@ -82,6 +83,8 @@ struct modifyMatchView: View {
                 Rectangle().ignoresSafeArea().opacity(0.5)
                 addWinnerBottomSheet
             }
+        }.alert(isPresented: $showAlert){
+            Alert(title: Text("Error!"), message: Text("Required number of sets not reached"), dismissButton: .default(Text("Got it!")))
         }
     }
 }
@@ -380,9 +383,14 @@ extension modifyMatchView{
                 .padding()
                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
                 .onTapGesture {
-                    leagueVm.updateMatch(ongoing: matchOngoing)
-                    updateStats()
-                    dismiss()
+                    if !matchOngoing && !verifyScore(){
+                        showAlert = true
+                    }
+                    else{
+                        leagueVm.updateMatch(ongoing: matchOngoing)
+                        updateStats()
+                        dismiss()
+                    }
                 }
         }.padding()
     }
@@ -432,6 +440,25 @@ extension modifyMatchView{
         
             }
     }
+    }
+    
+    private func verifyScore() -> Bool{
+        var player1Score = 0
+        var player2Score = 0
+        for set in leagueVm.currentSets {
+            if set.player1Points > set.player2Points {
+                player1Score += 1
+            }
+            else{
+                player2Score += 1
+            }
+        }
+        if player1Score == leagueVm.currentMatch!.setsToWin || player2Score == leagueVm.currentMatch!.setsToWin{
+            return true
+        }
+        else {
+            return false
+        }
     }
 }
 
