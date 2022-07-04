@@ -50,7 +50,12 @@ struct createLeague: View {
             HStack {
                 Spacer()
                 createButton.onTapGesture {
-                    updateImage() // NEED TO FIX THIS, RIGHT NOW THIS FUNCTION ALSO CREATES THE LEAGUE
+                    if image != nil{
+                        updateImage() // NEED TO FIX THIS, RIGHT NOW THIS FUNCTION ALSO CREATES THE LEAGUE
+                    }
+                    else{
+                        createLeague(bannerURL: "")
+                    }
                 }
                 Spacer()
             }
@@ -224,7 +229,8 @@ extension createLeague {
     func createLeague(bannerURL: String){
         
         let leagueId = UUID().uuidString
-        let leagueData = ["id" : leagueId, "name" : leagueName, "playerId" : playerId ,"players" : [], "matches" : [], "bannerURL" : bannerURL] as [String : Any]
+        let admin = vm.user?.uid ?? ""
+        let leagueData = ["id" : leagueId, "name" : leagueName, "playerId" : playerId ,"players" : [], "matches" : [], "bannerURL" : bannerURL, "admin" : admin] as [String : Any]
         
         FirebaseManager.shared.firestore.collection("leagues").document(leagueId).setData(leagueData) { err in
             if let err = err {
@@ -237,6 +243,7 @@ extension createLeague {
                 FirebaseManager.shared.firestore.collection("leagues").document(leagueId).updateData(["players" : FieldValue.arrayUnion([playerData])])
                 
             }
+            print("DONE")
         }
     }
 }

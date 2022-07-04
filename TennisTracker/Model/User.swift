@@ -27,6 +27,7 @@ struct League: Codable {
     var players: [Player]
     let matches: [Match]
     let bannerURL: String?
+    let admin: String
 }
 
 struct Friend {

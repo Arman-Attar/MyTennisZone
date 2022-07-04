@@ -10,14 +10,14 @@ import SDWebImageSwiftUI
 
 struct leagueView: View {
     @ObservedObject var leagueVm = LeagueViewModel()
-    
+    @ObservedObject var userVm = UserViewModel()
     var body: some View {
         NavigationView {
             ScrollView(showsIndicators: false){
                 VStack{
                     ForEach(leagueVm.leagues, id: \.id){ index in
                         NavigationLink {
-                            leagueDetailView(leagueVM: leagueVm) .navigationTitle(index.name).onAppear{leagueVm.getCurrentLeague(leagueId: index.id)}
+                            leagueDetailView(leagueVM: leagueVm, userVm: userVm) .navigationTitle(index.name).onAppear{leagueVm.getCurrentLeague(leagueId: index.id)}
                         } label: {
                             VStack{
                                 if index.bannerURL == ""{

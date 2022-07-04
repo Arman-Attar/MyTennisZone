@@ -137,7 +137,7 @@ struct profileTab: View {
             signIn()
         }
         .alert(isPresented: $confirmDeleteAlert) {
-            Alert(title: Text("Delete Account"), message: Text("Are you sure you want to your account?"), primaryButton: .destructive(Text("Delete")){
+            Alert(title: Text("Delete Account"), message: Text("Are you sure you want to delete your account?"), primaryButton: .destructive(Text("Delete")){
                 vm.deleteUserData(uid: vm.user!.uid)
                 vm.deleteUser()
             }, secondaryButton: .cancel())

@@ -19,7 +19,9 @@ struct leagueDetailView: View {
     @ObservedObject var leagueVM = LeagueViewModel()
     @ObservedObject var userVm = UserViewModel()
     @ObservedObject var matchVm = MatchViewModel()
+    @State var settingTapped = false
     @State var matchId = ""
+    @State var confirmDeleteAlert = false
     var body: some View {
         VStack(alignment: .leading) {
             Picker("Tab View", selection: $selectedIndex, content: {
@@ -70,7 +72,32 @@ struct leagueDetailView: View {
             modifyMatchView(leagueVm: leagueVM)
         }
         .sheet(isPresented: $matchInfo) {
-            matchResultView(leagueVm: leagueVM)
+            matchResultView(leagueVm: leagueVM, userVm: userVm)
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if leagueVM.league?.admin ?? "" == userVm.user!.uid{
+                Button {
+                    settingTapped.toggle()
+                } label: {
+                    Image(systemName: "gear")
+                }
+
+            }
+            }
+        }
+        .confirmationDialog("Settings", isPresented: $settingTapped) {
+            Button(role: .destructive) {
+                confirmDeleteAlert.toggle()
+            } label: {
+                Text("Delete league")
+            }
+
+        }
+        .alert(isPresented: $confirmDeleteAlert) {
+            Alert(title: Text("Delete league"), message: Text("Are you sure you want to delete this league?"), primaryButton: .destructive(Text("Delete")){
+               // DELETE LEAGUE FUNCTION
+            }, secondaryButton: .cancel())
         }
     }
 }
