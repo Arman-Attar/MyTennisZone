@@ -270,6 +270,9 @@ extension addMatchView {
                     .padding()
                     .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
                     .onTapGesture {
+                        print(player1Score)
+                        print(player2Score)
+                        print(numberOfSets)
                         if !matchOngoing && !verifyScore(){
                             showAlert = true
                         }
@@ -554,6 +557,8 @@ extension addMatchView {
     }
     
     private func setPlayerScores(){
+        player1Score = 0
+        player2Score = 0
         for set in sets {
             if set.player1Points > set.player2Points {
                 player1Score += 1
@@ -572,6 +577,7 @@ extension addMatchView {
     }
     
     private func verifyScore() -> Bool{
+        setPlayerScores()
         if player1Score == numberOfSets || player2Score == numberOfSets{
             return true
         }

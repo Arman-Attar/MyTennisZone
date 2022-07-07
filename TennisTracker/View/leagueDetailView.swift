@@ -22,6 +22,7 @@ struct leagueDetailView: View {
     @State var settingTapped = false
     @State var matchId = ""
     @State var confirmDeleteAlert = false
+    @Environment(\.dismiss) var dismiss
     var body: some View {
         VStack(alignment: .leading) {
             Picker("Tab View", selection: $selectedIndex, content: {
@@ -96,7 +97,8 @@ struct leagueDetailView: View {
         }
         .alert(isPresented: $confirmDeleteAlert) {
             Alert(title: Text("Delete league"), message: Text("Are you sure you want to delete this league?"), primaryButton: .destructive(Text("Delete")){
-               // DELETE LEAGUE FUNCTION
+                leagueVM.deleteLeague(leagueId: leagueVM.league!.id)
+                dismiss()
             }, secondaryButton: .cancel())
         }
     }

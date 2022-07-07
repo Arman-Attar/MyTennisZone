@@ -234,7 +234,7 @@ extension createRoundRobinTournment {
         var matches: [Match] = []
         while temp.count != 1 {
             for i in 1..<temp.count {
-                let match = Match(id: UUID().uuidString, date: convertDateToString(date: Date.now), player1Pic: temp[0].profilePicUrl, player2Pic: temp[i].profilePicUrl, player1DisplayName: temp[0].displayName, player2DisplayName: temp[i].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: 6)
+                let match = Match(id: UUID().uuidString, date: convertDateToString(date: Date.now), player1Pic: temp[0].profilePicUrl, player2Pic: temp[i].profilePicUrl, player1DisplayName: temp[0].displayName, player2DisplayName: temp[i].displayName, player1Score: 0, player2Score: 0, winner: "", loser: "", matchOngoing: true, setsToWin: 6)
                 matches.append(match)
             }
             temp.removeFirst()
