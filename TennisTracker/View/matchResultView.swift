@@ -75,8 +75,8 @@ struct matchResultView: View {
             .alert(isPresented: $confirmDeleteAlert) {
                 Alert(title: Text("Delete match"), message: Text("Are you sure you want to delete this match?"), primaryButton: .destructive(Text("Delete")){
                    // DELETE MATCH FUNCTION AND REMOVE STATS FROM PLAYERS
-                    
-                    
+                    leagueVm.deleteMatch()
+                    dismiss()
                 }, secondaryButton: .cancel())
             }
     }

@@ -458,6 +458,15 @@ extension addMatchView {
     private func createMatch(){
         
         setPlayerScores()
+        var winner = ""
+        if !matchOngoing{
+            if player1Score > player2Score {
+                winner = player1!.displayName
+            }
+            else {
+                winner = player2!.displayName
+            }
+        }
         let date = convertDateToString(date: matchDate)
         
         let matchData = ["id" : matchId, "date" : date, "player1Pic" : player1!.profilePicUrl, "player2Pic" : player2!.profilePicUrl, "player1DisplayName" : player1!.displayName, "player2DisplayName" : player2!.displayName ,"player1Score" : player1Score, "player2Score" : player2Score, "winner" : winner, "matchOngoing" : matchOngoing, "setsToWin" : numberOfSets] as [String: Any]

@@ -9,9 +9,6 @@ import Foundation
 import SwiftUI
 import FirebaseFirestoreSwift
 import FirebaseFirestore
-//import simd
-
-
 
 class MatchViewModel: ObservableObject {
     @Published var currentMatch: Match?

@@ -50,7 +50,6 @@ struct Match: Codable {
     var player1Score: Int
     var player2Score: Int
     var winner: String
-    var loser: String
     var matchOngoing: Bool
     let setsToWin: Int
 }
