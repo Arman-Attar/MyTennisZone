@@ -367,9 +367,6 @@ class LeagueViewModel: ObservableObject {
                         loser = self.currentMatch!.player1DisplayName
                     }
                     let loserIndex = players.firstIndex(where: { $0.displayName == loser})
-                    print(players)
-                    print(players[winnerIndex!])
-                    print(players[loserIndex!])
                     players[winnerIndex!].points -= 3
                     players[winnerIndex!].wins -= 1
                     players[loserIndex!].losses -= 1
@@ -406,7 +403,17 @@ class LeagueViewModel: ObservableObject {
              "matchOngoing" : self.currentMatch!.matchOngoing,
              "setsToWin" : self.currentMatch!.setsToWin
         ]
-
+        
+        FirebaseManager.shared.firestore.collection("sets").whereField("matchId", isEqualTo: currentMatch!.id).getDocuments { snapshot, err in
+            if let err = err{
+                print(err.localizedDescription)
+                return
+            }
+            for set in snapshot!.documents{
+                set.reference.delete()
+            }
+        }
+        
         FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["matches" : FieldValue.arrayRemove([matchData])])
     }
 }
