@@ -74,3 +74,13 @@ struct Player: Codable{
     var played: Int
 }
 
+struct Tournament: Codable {
+    let id: String
+    let name: String
+    let playerId: [String]
+    var players: [Player]
+    let matches: [Match]
+    let bannerURL: String?
+    let admin: String
+}
+

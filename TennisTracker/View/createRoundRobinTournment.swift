@@ -10,33 +10,72 @@ import SDWebImageSwiftUI
 import Firebase
 
 struct createRoundRobinTournment: View {
-    @State var leagueName = ""
+    @State var tournamentName = ""
     @State var opponentSelection = false
     @State var noOfGames = ""
     @ObservedObject var vm = UserViewModel()
     @State var players: [Player] = []
     @State var playerId: [String] = []
     @State var matches: [Match] = []
+    @State var showImagePicker = false
+    @State var image: UIImage?
     
     var body: some View {
-        ScrollView{
-            VStack{
-                leagueBanner
-                Divider().padding(15)
-                leagueNameField
-                Divider().padding(.horizontal)
-                opponentField
-                Divider().padding(.horizontal)
-                noOfGamesField
-                Divider().padding(.horizontal)
-                createButton
-            }.sheet(isPresented: $opponentSelection) {
-                selectOpponent
+        Form{
+            leagueBanner.padding(.vertical)
+            leagueNameField.padding(.vertical, 10)
+            VStack {
+                HStack {
+                    Text("Players")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .padding()
+                    Spacer()
+                    Image(systemName: "person.fill.badge.plus")
+                    
+                        .font(.title3)
+                        .onTapGesture {
+                            opponentSelection.toggle()
+                        }
+                        .padding()
+                }
+                    HStack(spacing: -20) {
+                        ForEach(players, id:\.uid) { player in
+                            WebImage(url: URL(string: player.profilePicUrl))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 50, height: 50)
+                                .clipShape(Circle())
+                                .shadow(radius: 20)
+                        }
+                    }.padding()
             }
-        }.navigationTitle("Create a League")
+            HStack {
+                Spacer()
+                createButton.onTapGesture {
+                    generateMatches()
+                    if image != nil{
+                        updateImage() // NEED TO FIX THIS, RIGHT NOW THIS FUNCTION ALSO CREATES THE LEAGUE
+                    }
+                    else{
+                        createLeague(bannerURL: "")
+                    }
+                }
+                Spacer()
+            }
+        }
+            .navigationTitle("Create a tournament")
+            .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $opponentSelection) {
+                //opponentSelectionView(vm: vm)
+                opponentSelectionView(players: $players, playerId: $playerId, vm: vm)
+            }
             .onAppear{
                 players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user?.profilePicUrl ?? "", displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0, played: 0))
                 playerId.append(vm.user?.uid ?? "")
+            }
+            .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
+                ImagePicker(image: $image)
             }
     }
 }
@@ -49,29 +88,231 @@ struct createRoundRobinTournment_Previews: PreviewProvider {
 
 
 extension createRoundRobinTournment {
+    
+//    private var leagueBanner: some View {
+//        VStack{
+//            Image("league")
+//                .resizable()
+//                .aspectRatio(contentMode: .fit)
+//                .cornerRadius(20)
+//                .frame(width: UIScreen.main.bounds.size.width - 10, height: UIScreen.main.bounds.size.height / 3.8)
+//                .padding(8)
+//        }
+//    }
+//    
+//    private var leagueNameField: some View {
+//        VStack{
+//            HStack{
+//                TextField("Enter League Name", text: $tournamentName)
+//                    .foregroundColor(.black)
+//                    .keyboardType(.emailAddress)
+//                Image(systemName: "plus")
+//                    .foregroundColor(.black)
+//            }.padding(.horizontal).padding(.horizontal)
+//            Rectangle()
+//                .frame(maxWidth: .infinity, maxHeight: 1)
+//                .padding(.horizontal)
+//                .foregroundColor(.black)
+//                .padding()
+//        }
+//    }
+//    
+//    private var opponentField: some View {
+//        HStack{
+//            if !players.isEmpty {
+//                Text("Opponent:").padding().frame(maxWidth: UIScreen.main.bounds.size.width / 3, maxHeight: 10)
+//                
+//                HStack(spacing: -20) {
+//                    ForEach(players, id:\.uid) { player in
+//                    WebImage(url: URL(string: player.profilePicUrl))
+//                        .resizable()
+//                        .aspectRatio(contentMode: .fill)
+//                        .frame(width: 50, height: 50)
+//                        //.padding(8)
+//                        .clipShape(Circle())
+//                        .shadow(radius: 20)
+//                    }
+//                }
+//                
+//                Button {
+//                    opponentSelection.toggle()
+//                } label: {
+//                    Text("Change")
+//                        .font(.subheadline)
+//                        .fontWeight(.heavy)
+//                        .padding()
+//                        .foregroundColor(.black)
+//                        .frame(maxWidth: UIScreen.main.bounds.size.width / 3, maxHeight: 10)
+//                        .padding()
+//                        .overlay(RoundedRectangle(cornerRadius: 100)
+//                            .stroke(Color.black, lineWidth: 0.8))
+//                        .padding()
+//                }
+//            }
+//            else {
+//            Text("Opponent:").padding().frame(maxWidth: UIScreen.main.bounds.size.width / 3, maxHeight: 10)
+//            Image("profile")
+//                .resizable()
+//                .aspectRatio(contentMode: .fill)
+//                .frame(width: 50, height: 50)
+//                .clipShape(Circle())
+//                .shadow(radius: 20)
+//                .padding(.horizontal)
+//            
+//            Button {
+//                opponentSelection.toggle()
+//            } label: {
+//                Text("Add")
+//                    .font(.subheadline)
+//                    .fontWeight(.heavy)
+//                    .padding()
+//                    .foregroundColor(.black)
+//                    .frame(maxWidth: UIScreen.main.bounds.size.width / 3, maxHeight: 10)
+//                    .padding()
+//                    .overlay(RoundedRectangle(cornerRadius: 100)
+//                        .stroke(Color.black, lineWidth: 0.8))
+//                    .padding()
+//            }
+//            }
+//            
+//        }.padding(.horizontal)
+//    }
+//    
+//    private var createButton: some View {
+//        ZStack {
+//            Button {
+//                generateMatches()
+//            } label: {
+//                Text("Create")
+//                    .font(.title2)
+//                    .fontWeight(.heavy)
+//                    .padding()
+//                    .foregroundColor(.black)
+//                    .frame(maxWidth: UIScreen.main.bounds.size.width / 2, maxHeight: 20)
+//                    .padding()
+//                    .overlay(RoundedRectangle(cornerRadius: 100)
+//                        .stroke(Color.black, lineWidth: 0.8))
+//                    .padding()
+//            }
+//        }
+//    }
+//    
+//    private var noOfGamesField: some View {
+//        HStack{
+//            Text("Select the number of games:").padding()
+//            
+//            VStack {
+//                TextField("0", text: $noOfGames)
+//                    .keyboardType(.numberPad)
+//                    .frame(maxWidth: 50, maxHeight: 1)
+//                Rectangle()
+//                    .frame(maxWidth: 50, maxHeight: 1)
+//                    .padding(.horizontal)
+//                    .foregroundColor(.black)
+//                    .offset(x: -20, y: 5)
+//            }
+//        }.padding(.horizontal)
+//    }
+//    
+//    private var selectOpponent: some View {
+//        VStack{
+//            Text("Friends")
+//                .font(.title)
+//                .fontWeight(.bold)
+//                .padding()
+//            Divider().padding(.horizontal)
+//            Spacer()
+//            ScrollView {
+//                ForEach(vm.friends, id: \.uid) {friend in
+//                    Button {
+//                        players.append(Player(uid: friend.uid, profilePicUrl: friend.profilePicUrl, displayName: friend.displayName, points: 0, wins: 0, losses: 0, played: 0))
+//                        playerId.append(friend.uid)
+//                        opponentSelection.toggle()
+//                    } label: {
+//                        HStack{
+//                            if friend.profilePicUrl != "" {
+//                                WebImage(url: URL(string: friend.profilePicUrl))
+//                                    .resizable()
+//                                    .aspectRatio(contentMode: .fill)
+//                                    .frame(width: 50, height: 50)
+//                                    .clipShape(Circle())
+//                                    .shadow(radius: 20)
+//                                    .padding(.horizontal)
+//                            }
+//                            else {
+//                                Image("profile")
+//                                    .resizable()
+//                                    .aspectRatio(contentMode: .fill)
+//                                    .frame(width: 50, height: 50)
+//                                    .clipShape(Circle())
+//                                    .shadow(radius: 20)
+//                                    .padding()
+//                            }
+//                            VStack(alignment: .leading){
+//                                
+//                                Text(friend.displayName)
+//                                    .font(.title3)
+//                                    .fontWeight(.semibold)
+//                                    .foregroundColor(.black)
+//                                Text("@\(friend.username)")
+//                                    .font(.callout)
+//                                    .fontWeight(.semibold)
+//                                    .foregroundColor(.gray)
+//                            }
+//                            Spacer()
+//                        }
+//                    }
+//                    Divider().padding(.horizontal)
+//                }
+//            }
+//            Spacer()
+//        }
+//    }
+    
     private var leagueBanner: some View {
         VStack{
-            Image("league")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .cornerRadius(20)
-                .frame(width: UIScreen.main.bounds.size.width - 10, height: UIScreen.main.bounds.size.height / 3.8)
-                .padding(8)
+            if image != nil {
+                Image(uiImage: image!)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: UIScreen.main.bounds.width/1.26, height: UIScreen.main.bounds.height/4)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .overlay(
+                        Image(systemName: "camera.fill").font(.title).foregroundColor(.white).opacity(0.8).padding([.top, .trailing], 5),
+                        alignment: .topTrailing
+                    )
+                    .onTapGesture {
+                        showImagePicker.toggle()
+                    }
+            }
+            else {
+                Image("league")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: UIScreen.main.bounds.width/1.26, height: UIScreen.main.bounds.height/4)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .overlay(
+                        Image(systemName: "camera.fill").font(.title).foregroundColor(.white).opacity(0.8).padding([.top, .trailing], 5),
+                        alignment: .topTrailing
+                    )
+                    .onTapGesture {
+                        showImagePicker.toggle()
+                    }
+            }
         }
     }
     
     private var leagueNameField: some View {
         VStack{
             HStack{
-                TextField("Enter League Name", text: $leagueName)
+                TextField("Enter League Name", text: $tournamentName)
                     .foregroundColor(.black)
                     .keyboardType(.emailAddress)
                 Image(systemName: "plus")
                     .foregroundColor(.black)
-            }.padding(.horizontal).padding(.horizontal)
+            }.padding(.horizontal)
             Rectangle()
                 .frame(maxWidth: .infinity, maxHeight: 1)
-                .padding(.horizontal)
                 .foregroundColor(.black)
                 .padding()
         }
@@ -84,20 +325,19 @@ extension createRoundRobinTournment {
                 
                 HStack(spacing: -20) {
                     ForEach(players, id:\.uid) { player in
-                    WebImage(url: URL(string: player.profilePicUrl))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 50, height: 50)
-                        //.padding(8)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                        WebImage(url: URL(string: player.profilePicUrl))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 50, height: 50)
+                            .clipShape(Circle())
+                            .shadow(radius: 20)
                     }
                 }
                 
                 Button {
                     opponentSelection.toggle()
                 } label: {
-                    Text("Change")
+                    Text("Add")
                         .font(.subheadline)
                         .fontWeight(.heavy)
                         .padding()
@@ -110,29 +350,29 @@ extension createRoundRobinTournment {
                 }
             }
             else {
-            Text("Opponent:").padding().frame(maxWidth: UIScreen.main.bounds.size.width / 3, maxHeight: 10)
-            Image("profile")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 50, height: 50)
-                .clipShape(Circle())
-                .shadow(radius: 20)
-                .padding(.horizontal)
-            
-            Button {
-                opponentSelection.toggle()
-            } label: {
-                Text("Add")
-                    .font(.subheadline)
-                    .fontWeight(.heavy)
-                    .padding()
-                    .foregroundColor(.black)
-                    .frame(maxWidth: UIScreen.main.bounds.size.width / 3, maxHeight: 10)
-                    .padding()
-                    .overlay(RoundedRectangle(cornerRadius: 100)
-                        .stroke(Color.black, lineWidth: 0.8))
-                    .padding()
-            }
+                Text("Opponent:").padding().frame(maxWidth: UIScreen.main.bounds.size.width / 3, maxHeight: 10)
+                Image("profile")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 50, height: 50)
+                    .clipShape(Circle())
+                    .shadow(radius: 20)
+                    .padding(.horizontal)
+                
+                Button {
+                    opponentSelection.toggle()
+                } label: {
+                    Text("Add")
+                        .font(.subheadline)
+                        .fontWeight(.heavy)
+                        .padding()
+                        .foregroundColor(.black)
+                        .frame(maxWidth: UIScreen.main.bounds.size.width / 3, maxHeight: 10)
+                        .padding()
+                        .overlay(RoundedRectangle(cornerRadius: 100)
+                            .stroke(Color.black, lineWidth: 0.8))
+                        .padding()
+                }
             }
             
         }.padding(.horizontal)
@@ -140,98 +380,42 @@ extension createRoundRobinTournment {
     
     private var createButton: some View {
         ZStack {
-            Button {
-                generateMatches()
-            } label: {
-                Text("Create")
-                    .font(.title2)
-                    .fontWeight(.heavy)
-                    .padding()
-                    .foregroundColor(.black)
-                    .frame(maxWidth: UIScreen.main.bounds.size.width / 2, maxHeight: 20)
-                    .padding()
-                    .overlay(RoundedRectangle(cornerRadius: 100)
-                        .stroke(Color.black, lineWidth: 0.8))
-                    .padding()
-            }
+            Text("Create")
+                .font(.title2)
+                .fontWeight(.heavy)
+                .padding()
+                .foregroundColor(.black)
+                .frame(maxWidth: UIScreen.main.bounds.size.width / 2, maxHeight: 20)
+                .padding()
+                .overlay(RoundedRectangle(cornerRadius: 100)
+                    .stroke(Color.black, lineWidth: 0.8))
+                .padding()
         }
     }
     
-    private var noOfGamesField: some View {
-        HStack{
-            Text("Select the number of games:").padding()
-            
-            VStack {
-                TextField("0", text: $noOfGames)
-                    .keyboardType(.numberPad)
-                    .frame(maxWidth: 50, maxHeight: 1)
-                Rectangle()
-                    .frame(maxWidth: 50, maxHeight: 1)
-                    .padding(.horizontal)
-                    .foregroundColor(.black)
-                    .offset(x: -20, y: 5)
+    private func updateImage(){
+        let uid = UUID().uuidString
+        let ref = FirebaseManager.shared.storage.reference(withPath: uid)
+        guard let imageData = self.image?.jpegData(compressionQuality: 0.5) else {return}
+        ref.putData(imageData, metadata: nil) { metadata, err in
+            if let err = err {
+                print(err.localizedDescription)
+                return
             }
-        }.padding(.horizontal)
-    }
-    
-    private var selectOpponent: some View {
-        VStack{
-            Text("Friends")
-                .font(.title)
-                .fontWeight(.bold)
-                .padding()
-            Divider().padding(.horizontal)
-            Spacer()
-            ScrollView {
-                ForEach(vm.friends, id: \.uid) {friend in
-                    Button {
-                        players.append(Player(uid: friend.uid, profilePicUrl: friend.profilePicUrl, displayName: friend.displayName, points: 0, wins: 0, losses: 0, played: 0))
-                        playerId.append(friend.uid)
-                        opponentSelection.toggle()
-                    } label: {
-                        HStack{
-                            if friend.profilePicUrl != "" {
-                                WebImage(url: URL(string: friend.profilePicUrl))
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 20)
-                                    .padding(.horizontal)
-                            }
-                            else {
-                                Image("profile")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 20)
-                                    .padding()
-                            }
-                            VStack(alignment: .leading){
-                                
-                                Text(friend.displayName)
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.black)
-                                Text("@\(friend.username)")
-                                    .font(.callout)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.gray)
-                            }
-                            Spacer()
-                        }
-                    }
-                    Divider().padding(.horizontal)
+            ref.downloadURL { url, err in
+                if let err = err {
+                    print(err.localizedDescription)
+                    return
                 }
+                guard let url = url else {return}
+                createLeague(bannerURL: url.absoluteString)
             }
-            Spacer()
         }
     }
     
     func generateMatches(){
         var temp = players
-        var matches: [Match] = []
+        //var matches: [Match] = []
         while temp.count != 1 {
             for i in 1..<temp.count {
                 let match = Match(id: UUID().uuidString, date: convertDateToString(date: Date.now), player1Pic: temp[0].profilePicUrl, player2Pic: temp[i].profilePicUrl, player1DisplayName: temp[0].displayName, player2DisplayName: temp[i].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: 6)
@@ -239,14 +423,16 @@ extension createRoundRobinTournment {
             }
             temp.removeFirst()
         }
+       // self.matches = matches
     }
     
-    func createLeague(){
+    func createLeague(bannerURL: String){
         
-        let leagueId = UUID().uuidString
-        let leagueData = ["id" : leagueId, "name" : leagueName, "playerId" : playerId ,"players" : [], "matches" : []] as [String : Any]
+        let tournamentId = UUID().uuidString
+        let admin = vm.user?.uid ?? ""
+        let tournamentData = ["id" : tournamentId, "name" : tournamentName, "playerId" : playerId ,"players" : [], "matches" : [], "bannerURL" : bannerURL, "admin" : admin] as [String : Any]
         
-        FirebaseManager.shared.firestore.collection("leagues").document(leagueId).setData(leagueData) { err in
+        FirebaseManager.shared.firestore.collection("tournaments").document(tournamentId).setData(tournamentData) { err in
             if let err = err {
                 print(err.localizedDescription)
                 return
@@ -254,11 +440,36 @@ extension createRoundRobinTournment {
             for player in players{
                 let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
                 
-                FirebaseManager.shared.firestore.collection("leagues").document(leagueId).updateData(["players" : FieldValue.arrayUnion([playerData])])
+                FirebaseManager.shared.firestore.collection("tournaments").document(tournamentId).updateData(["players" : FieldValue.arrayUnion([playerData])])
                 
             }
+            for match in matches {
+                let matchData = ["id" : match.id, "date" : match.date, "player1Pic" : match.player1Pic, "player2Pic" : match.player2Pic, "player1DisplayName" : match.player1DisplayName, "player2DisplayName" : match.player2DisplayName ,"player1Score" : match.player1Score, "player2Score" : match.player2Score, "winner" : match.winner, "matchOngoing" : match.matchOngoing, "setsToWin" : match.setsToWin] as [String: Any]
+                
+                FirebaseManager.shared.firestore.collection("tournaments").document(tournamentId).updateData(["matches" : FieldValue.arrayUnion([matchData])])
+            }
+            print("DONE")
         }
     }
+    
+//    func createTournament(){
+//
+//        let tournamentId = UUID().uuidString
+//        let tournamentData = ["id" : tournamentId, "name" : tournamentName, "playerId" : playerId ,"players" : [], "matches" : []] as [String : Any]
+//
+//        FirebaseManager.shared.firestore.collection("tournaments").document(tournamentId).setData(tournamentData) { err in
+//            if let err = err {
+//                print(err.localizedDescription)
+//                return
+//            }
+//            for player in players{
+//                let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
+//
+//                FirebaseManager.shared.firestore.collection("tournaments").document(tournamentId).updateData(["players" : FieldValue.arrayUnion([playerData])])
+//
+//            }
+//        }
+//    }
     
     
     private func convertDateToString(date: Date) -> String{
