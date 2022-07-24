@@ -82,5 +82,6 @@ struct Tournament: Codable {
     let matches: [Match]
     let bannerURL: String?
     let admin: String
+    let mode: String
 }
 

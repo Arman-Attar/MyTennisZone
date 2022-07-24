@@ -11,6 +11,8 @@ import Firebase
 
 struct modifyMatchView: View {
     @ObservedObject var leagueVm = LeagueViewModel()
+    @ObservedObject var tournamentVm = TournamentViewModel()
+    @State var isLeague = true
     @Environment(\.dismiss) var dismiss
     @State var matchOngoing = true
     @State var winner = ""
@@ -33,12 +35,12 @@ struct modifyMatchView: View {
                 HStack{
                     Text("Match Date:")
                     Spacer()
-                    Text("\(leagueVm.currentMatch?.date ?? "")")
+                    Text(isLeague ? "\(leagueVm.currentMatch?.date ?? "")" : "\(tournamentVm.currentMatch?.date ?? "")")
                 }.padding()
                 HStack{
                     Text("First To:")
                     Spacer()
-                    Text("\(leagueVm.currentMatch?.setsToWin ?? 2)")
+                    Text(isLeague ? "\(leagueVm.currentMatch?.setsToWin ?? 2)" : "\(tournamentVm.currentMatch?.setsToWin ?? 2)")
                 }.padding()
                 Toggle("Match Ongoing?", isOn: $matchOngoing).padding()
                 setResultField
@@ -59,7 +61,7 @@ struct modifyMatchView: View {
                                 }
                         }
                         else {
-                            WebImage(url: URL(string: winner == leagueVm.currentMatch!.player1DisplayName ? leagueVm.currentMatch!.player1Pic : leagueVm.currentMatch!.player2Pic))
+                            WebImage(url: isLeague ? URL(string: winner == leagueVm.currentMatch!.player1DisplayName ? leagueVm.currentMatch!.player1Pic : leagueVm.currentMatch!.player2Pic) : URL(string: winner == tournamentVm.currentMatch!.player1DisplayName ? tournamentVm.currentMatch!.player1Pic : tournamentVm.currentMatch!.player2Pic))
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 50, height: 50)
@@ -101,8 +103,8 @@ extension modifyMatchView{
         HStack{
             VStack
             {
-                if leagueVm.currentMatch?.player1Pic ?? "" != ""{
-                    WebImage(url: URL(string: leagueVm.currentMatch!.player1Pic))
+                if leagueVm.currentMatch?.player1Pic ?? "" != "" || tournamentVm.currentMatch?.player1Pic ?? "" != ""{
+                    WebImage(url: isLeague ? URL(string: leagueVm.currentMatch!.player1Pic) : URL(string: tournamentVm.currentMatch!.player1Pic))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 100, height: 100)
@@ -122,7 +124,7 @@ extension modifyMatchView{
                         .padding(.horizontal)
                 }
                 
-                Text(leagueVm.currentMatch?.player1DisplayName ?? "Oponent")
+                Text(isLeague ? leagueVm.currentMatch?.player1DisplayName ?? "Oponent" : tournamentVm.currentMatch?.player1DisplayName ?? "Oponent")
                     .font(.system(size: 15, weight: .bold))
                     .multilineTextAlignment(.leading)
                     .frame(width: 100, height: 50)
@@ -132,8 +134,8 @@ extension modifyMatchView{
                 .offset(y: -25)
             
             VStack{
-                if leagueVm.currentMatch?.player2Pic ?? "" != ""{
-                    WebImage(url: URL(string: leagueVm.currentMatch!.player2Pic))
+                if leagueVm.currentMatch?.player2Pic ?? "" != "" || tournamentVm.currentMatch?.player2Pic ?? "" != ""{
+                    WebImage(url: isLeague ? URL(string: leagueVm.currentMatch!.player2Pic) : URL(string: tournamentVm.currentMatch!.player2Pic))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 100, height: 100)
@@ -153,7 +155,7 @@ extension modifyMatchView{
                 }
                 
                 
-                Text(leagueVm.currentMatch?.player2DisplayName ?? "Oponent")
+                Text(isLeague ? leagueVm.currentMatch?.player2DisplayName ?? "Oponent" : tournamentVm.currentMatch?.player2DisplayName ?? "Oponent")
                     .font(.system(size: 15, weight: .bold))
                     .multilineTextAlignment(.leading)
                     .frame(width: 100, height: 50)
@@ -166,7 +168,7 @@ extension modifyMatchView{
             Text("First To:").padding()
             ForEach(0..<2) { index in
                 HStack {
-                    Image(systemName: leagueVm.currentMatch!.setsToWin == 2*index+3 ? "circle.circle.fill" : "circle.circle").font(.system(size: 20, weight: .semibold)).foregroundColor(Color.black)
+                    Image(systemName: isLeague ? leagueVm.currentMatch!.setsToWin == 2*index+3 ? "circle.circle.fill" : "circle.circle" : tournamentVm.currentMatch!.setsToWin == 2*index+3 ? "circle.circle.fill" : "circle.circle").font(.system(size: 20, weight: .semibold)).foregroundColor(Color.black)
                     Text("\(2*index+3) Sets").font(.system(size: 15, weight: .regular))
                 }.padding(.leading)
             }
@@ -187,8 +189,8 @@ extension modifyMatchView{
                 }
             }
             HStack{
-                if !leagueVm.currentSets.isEmpty{
-                    ForEach(leagueVm.currentSets, id: \.setId) { set in
+                if !leagueVm.currentSets.isEmpty || !tournamentVm.currentSets.isEmpty{
+                    ForEach(isLeague ? leagueVm.currentSets : tournamentVm.currentSets, id: \.setId) { set in
                     Text("\(set.player1Points)-\(set.player2Points)").font(.headline).fontWeight(.bold)
                     Divider()
                 }
@@ -203,8 +205,8 @@ extension modifyMatchView{
                 Form{
                     Text("Enter Set Result").fontWeight(.bold).padding().zIndex(1.0)
                     HStack{
-                        if leagueVm.currentMatch?.player1Pic ?? "" != ""{
-                            WebImage(url: URL(string: leagueVm.currentMatch!.player1Pic))
+                        if leagueVm.currentMatch?.player1Pic ?? "" != "" || tournamentVm.currentMatch?.player1Pic ?? "" != ""{
+                            WebImage(url: isLeague ? URL(string: leagueVm.currentMatch!.player1Pic) : URL(string: tournamentVm.currentMatch!.player1Pic))
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 100, height: 100)
@@ -228,8 +230,8 @@ extension modifyMatchView{
                             .font(.system(size: 20, weight: .bold)).zIndex(1.0)
                             
                         
-                        if leagueVm.currentMatch?.player2Pic ?? "" != ""{
-                            WebImage(url: URL(string: leagueVm.currentMatch!.player2Pic))
+                        if leagueVm.currentMatch?.player2Pic ?? "" != "" || tournamentVm.currentMatch?.player2Pic ?? "" != ""{
+                            WebImage(url: isLeague ? URL(string: leagueVm.currentMatch!.player2Pic) : URL(string: tournamentVm.currentMatch!.player2Pic))
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 100, height: 100)
@@ -248,13 +250,13 @@ extension modifyMatchView{
                             
                         }
                     }
-                    Picker("\(leagueVm.currentMatch?.player1DisplayName ?? "Oponent") Score:", selection: $player1SetScore) {
+                    Picker(isLeague ? "\(leagueVm.currentMatch?.player1DisplayName ?? "Oponent")" : "\(tournamentVm.currentMatch?.player1DisplayName ?? "Oponent") Score:", selection: $player1SetScore) {
                                 ForEach(0..<8){ set in
                                     Text("\(set)")
                                 }
                             }.padding()
                         
-                    Picker("\(leagueVm.currentMatch?.player2DisplayName ?? "Oponent") Score:", selection: $player2SetScore) {
+                    Picker(isLeague ? "\(leagueVm.currentMatch?.player2DisplayName ?? "Oponent")" : "\(tournamentVm.currentMatch?.player2DisplayName ?? "Oponent") Score:", selection: $player2SetScore) {
                                 ForEach(0..<8){ set in
                                     Text("\(set)")
                                 }
@@ -278,7 +280,12 @@ extension modifyMatchView{
                             .padding()
                             .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
                             .onTapGesture {
-                                leagueVm.addSet(p1Points: player1SetScore, p2Points: player2SetScore)
+                                if isLeague{
+                                    leagueVm.addSet(p1Points: player1SetScore, p2Points: player2SetScore)
+                                }
+                                else {
+                                    tournamentVm.addSet(p1Points: player1SetScore, p2Points: player2SetScore)
+                                }
                                 showSetSheet.toggle()
                             }
                     }.padding()
@@ -295,8 +302,8 @@ extension modifyMatchView{
                 Form{
                     Text("Select The Winner").fontWeight(.bold).padding()
                     HStack{
-                        if leagueVm.currentMatch?.player1Pic ?? "" != ""{
-                            WebImage(url: URL(string: leagueVm.currentMatch!.player1Pic))
+                        if leagueVm.currentMatch?.player1Pic ?? "" != "" || tournamentVm.currentMatch?.player1Pic ?? "" != ""{
+                            WebImage(url: isLeague ? URL(string: leagueVm.currentMatch!.player1Pic) : URL(string: tournamentVm.currentMatch!.player1Pic))
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 100, height: 100)
@@ -313,15 +320,15 @@ extension modifyMatchView{
                                 .shadow(radius: 20)
                                 .padding()
                         }
-                        Text(leagueVm.currentMatch?.player1DisplayName ?? "").font(.headline).padding()
+                        Text(isLeague ? leagueVm.currentMatch?.player2DisplayName ?? "" : tournamentVm.currentMatch?.player2DisplayName ?? "").font(.headline).padding()
                     }.onTapGesture {
-                        winner = leagueVm.currentMatch!.player1DisplayName
-                        loser = leagueVm.currentMatch!.player2DisplayName
+                        winner = isLeague ? leagueVm.currentMatch!.player1DisplayName : tournamentVm.currentMatch!.player1DisplayName
+                        loser = isLeague ? leagueVm.currentMatch!.player2DisplayName : tournamentVm.currentMatch!.player2DisplayName
                         showWinnerSheet.toggle()
                     }
                     HStack{
-                        if leagueVm.currentMatch?.player2Pic ?? "" != ""{
-                            WebImage(url: URL(string: leagueVm.currentMatch!.player2Pic))
+                        if leagueVm.currentMatch?.player2Pic ?? "" != "" || tournamentVm.currentMatch?.player2Pic ?? "" != ""{
+                            WebImage(url: isLeague ? URL(string: leagueVm.currentMatch!.player2Pic) : URL(string: tournamentVm.currentMatch!.player2Pic))
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 100, height: 100)
@@ -340,10 +347,10 @@ extension modifyMatchView{
                                 .padding()
                               
                         }
-                        Text(leagueVm.currentMatch?.player2DisplayName ?? "").font(.headline).padding()
+                        Text(isLeague ? leagueVm.currentMatch?.player2DisplayName ?? "" : tournamentVm.currentMatch?.player2DisplayName ?? "").font(.headline).padding()
                     }.onTapGesture {
-                        winner = leagueVm.currentMatch!.player2DisplayName
-                        loser = leagueVm.currentMatch!.player1DisplayName
+                        winner = isLeague ? leagueVm.currentMatch!.player2DisplayName : tournamentVm.currentMatch!.player2DisplayName
+                        loser = isLeague ? leagueVm.currentMatch!.player1DisplayName : tournamentVm.currentMatch!.player1DisplayName
                         showWinnerSheet.toggle()
                     }
                     HStack{
@@ -387,7 +394,12 @@ extension modifyMatchView{
                         showAlert = true
                     }
                     else{
-                        leagueVm.updateMatch(ongoing: matchOngoing)
+                        if isLeague {
+                            leagueVm.updateMatch(ongoing: matchOngoing)
+                        }
+                        else {
+                            tournamentVm.updateMatch(ongoing: matchOngoing)
+                        }
                         updateStats()
                         dismiss()
                     }
@@ -397,7 +409,7 @@ extension modifyMatchView{
     
     private func updateStats() {
         if !matchOngoing {
-            FirebaseManager.shared.firestore.collection("leagues").document(leagueVm.league!.id).getDocument { snapshot, err in
+            FirebaseManager.shared.firestore.collection(isLeague ? "leagues" : "tournaments").document(isLeague ? leagueVm.league!.id : tournamentVm.tournament!.id).getDocument { snapshot, err in
                 if let err = err {
                     print(err.localizedDescription)
                     return
@@ -422,13 +434,13 @@ extension modifyMatchView{
                 players[winnerIndex!].played += 1
                 players[loserIndex!].played += 1
                 
-                FirebaseManager.shared.firestore.collection("leagues").document(leagueVm.league!.id).updateData(["players" : FieldValue.delete()])
+                FirebaseManager.shared.firestore.collection(isLeague ? "leagues" : "tournaments").document(isLeague ? leagueVm.league!.id : tournamentVm.tournament!.id).updateData(["players" : FieldValue.delete()])
                 
                 for player in players {
                     
                     let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
                     
-                    FirebaseManager.shared.firestore.collection("leagues").document(leagueVm.league!.id).updateData(["players" : FieldValue.arrayUnion([playerData])])
+                    FirebaseManager.shared.firestore.collection(isLeague ? "leagues" : "tournaments").document(isLeague ? leagueVm.league!.id : tournamentVm.tournament!.id).updateData(["players" : FieldValue.arrayUnion([playerData])])
                 }
                 
                 FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(
@@ -445,7 +457,7 @@ extension modifyMatchView{
     private func verifyScore() -> Bool{
         var player1Score = 0
         var player2Score = 0
-        for set in leagueVm.currentSets {
+        for set in isLeague ? leagueVm.currentSets : tournamentVm.currentSets {
             if set.player1Points > set.player2Points {
                 player1Score += 1
             }
@@ -453,7 +465,8 @@ extension modifyMatchView{
                 player2Score += 1
             }
         }
-        if player1Score == leagueVm.currentMatch!.setsToWin || player2Score == leagueVm.currentMatch!.setsToWin{
+        let setsToWin = isLeague ? leagueVm.currentMatch!.setsToWin : tournamentVm.currentMatch!.setsToWin
+        if player1Score == setsToWin || player2Score == setsToWin {
             return true
         }
         else {

@@ -38,6 +38,7 @@
 		C2E64BCE28661FA800501252 /* createRoundRobinTournment.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E64BCD28661FA800501252 /* createRoundRobinTournment.swift */; };
 		C2E64BD0286A6DE900501252 /* opponentSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E64BCF286A6DE900501252 /* opponentSelectionView.swift */; };
 		C2E64BD22888D50000501252 /* tournamentVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E64BD12888D50000501252 /* tournamentVM.swift */; };
+		C2E64BD42889D80F00501252 /* tournamentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E64BD32889D80F00501252 /* tournamentDetailView.swift */; };
 		C2F0D73A2821AC14009792CD /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F0D7392821AC14009792CD /* AuthenticationService.swift */; };
 /* End PBXBuildFile section */
 
@@ -71,6 +72,7 @@
 		C2E64BCD28661FA800501252 /* createRoundRobinTournment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = createRoundRobinTournment.swift; sourceTree = "<group>"; };
 		C2E64BCF286A6DE900501252 /* opponentSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = opponentSelectionView.swift; sourceTree = "<group>"; };
 		C2E64BD12888D50000501252 /* tournamentVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tournamentVM.swift; sourceTree = "<group>"; };
+		C2E64BD32889D80F00501252 /* tournamentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tournamentDetailView.swift; sourceTree = "<group>"; };
 		C2F0D7392821AC14009792CD /* AuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -108,6 +110,7 @@
 				C277D274284AADA10072814A /* joinLeagueView.swift */,
 				C2E64BCD28661FA800501252 /* createRoundRobinTournment.swift */,
 				C2E64BCF286A6DE900501252 /* opponentSelectionView.swift */,
+				C2E64BD32889D80F00501252 /* tournamentDetailView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -262,6 +265,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C2E64BD42889D80F00501252 /* tournamentDetailView.swift in Sources */,
 				C22E524528335A4A00987437 /* createLeague.swift in Sources */,
 				C2E64BD0286A6DE900501252 /* opponentSelectionView.swift in Sources */,
 				C22E817A281B351F009593BE /* ContentView.swift in Sources */,

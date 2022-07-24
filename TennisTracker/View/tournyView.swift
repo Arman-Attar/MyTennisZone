@@ -18,7 +18,10 @@ struct tournyView: View {
                 VStack{
                     ForEach(tournamentVm.tournaments, id: \.id){ index in
                         NavigationLink {
-                            leagueDetailView(leagueVM: leagueVm, userVm: userVm) .navigationTitle(index.name).onAppear{leagueVm.getCurrentLeague(leagueId: index.id)}
+                            tournamentDetailView(userVm: userVm, tournamentVm: tournamentVm)
+                                .navigationTitle(index.name).onAppear{
+                                    tournamentVm.getCurrentTournament(tournamentId: index.id)
+                                }
                         } label: {
                             VStack{
                                 if index.bannerURL == ""{
@@ -48,7 +51,7 @@ struct tournyView: View {
                                     Text("\(index.players.count)")
                                         .foregroundColor(.black)
                                     Rectangle().frame(width: 1, height: 20)
-                                    Text("Round Robin") // PUT IN THE TOURNAMENT TYPE
+                                    Text("\(index.mode)") // PUT IN THE TOURNAMENT TYPE
                                         .foregroundColor(.black)
                                 }
                                 .padding()
@@ -60,7 +63,7 @@ struct tournyView: View {
 
                     }
                 }
-            }.navigationTitle("Leagues")
+            }.navigationTitle("Tournaments")
         }
     }
 }

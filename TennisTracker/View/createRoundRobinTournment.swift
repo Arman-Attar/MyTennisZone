@@ -430,7 +430,8 @@ extension createRoundRobinTournment {
         
         let tournamentId = UUID().uuidString
         let admin = vm.user?.uid ?? ""
-        let tournamentData = ["id" : tournamentId, "name" : tournamentName, "playerId" : playerId ,"players" : [], "matches" : [], "bannerURL" : bannerURL, "admin" : admin] as [String : Any]
+        let mode = "Round Robin"
+        let tournamentData = ["id" : tournamentId, "name" : tournamentName, "playerId" : playerId ,"players" : [], "matches" : [], "bannerURL" : bannerURL, "admin" : admin, "mode": mode] as [String : Any]
         
         FirebaseManager.shared.firestore.collection("tournaments").document(tournamentId).setData(tournamentData) { err in
             if let err = err {
