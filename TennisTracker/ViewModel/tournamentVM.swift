@@ -261,4 +261,90 @@ class TournamentViewModel: ObservableObject {
         }
     }
     
+    func deleteMatch(){
+            if !currentMatch!.matchOngoing{
+                FirebaseManager.shared.firestore.collection("tournaments").document(tournament!.id).getDocument { snapshot, err in
+                    if let err = err {
+                        print(err.localizedDescription)
+                        return
+                    }
+
+                   guard let document = snapshot?.data() else {return}
+                    var players = (document["players"] as! [[String: Any]]).map{ player in
+                        return Player(
+                            uid: player["uid"] as? String ?? "",
+                            profilePicUrl: player["profilePicUrl"] as? String ?? "",
+                            displayName: player["displayName"] as? String ?? "",
+                            points: player["points"] as? Int ?? 0,
+                            wins: player["wins"] as? Int ?? 0,
+                            losses: player["losses"] as? Int ?? 0,
+                            played: player["played"] as? Int ?? 0)
+                    }
+                    let winnerIndex = players.firstIndex(where: { $0.displayName == self.currentMatch!.winner})
+                    var loser = ""
+                    if self.currentMatch!.player1DisplayName == self.currentMatch!.winner {
+                        loser = self.currentMatch!.player2DisplayName
+                    }
+                    else {
+                        loser = self.currentMatch!.player1DisplayName
+                    }
+                    let loserIndex = players.firstIndex(where: { $0.displayName == loser})
+                    players[winnerIndex!].points -= 3
+                    players[winnerIndex!].wins -= 1
+                    players[loserIndex!].losses -= 1
+                    players[winnerIndex!].played -= 1
+                    players[loserIndex!].played -= 1
+
+                    FirebaseManager.shared.firestore.collection("tournaments").document(self.tournament!.id).updateData(["players" : FieldValue.delete()])
+
+                    for player in players {
+
+                        let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
+
+                        FirebaseManager.shared.firestore.collection("tournamnets").document(self.tournament!.id).updateData(["players" : FieldValue.arrayUnion([playerData])])
+                    }
+                    FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(
+                        ["matchesPlayed" : FieldValue.increment(-1.00)])
+
+                    FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(["matchesWon" : FieldValue.increment(-1.00)])
+
+                    FirebaseManager.shared.firestore.collection("users").document(players[loserIndex!].uid).updateData(["matchesPlayed" : FieldValue.increment(-1.00)])
+
+                }
+            }
+        let matchData: [String: Any] = [
+            "id" : self.currentMatch!.id as Any,
+            "date" : self.currentMatch!.date,
+            "player1Pic" : self.currentMatch!.player1Pic,
+            "player2Pic" : self.currentMatch!.player2Pic,
+             "player1DisplayName" : self.currentMatch!.player1DisplayName,
+             "player2DisplayName" : self.currentMatch!.player2DisplayName,
+             "player1Score" : self.currentMatch!.player1Score,
+             "player2Score" : self.currentMatch!.player2Score,
+             "winner" : self.currentMatch!.winner,
+             "matchOngoing" : self.currentMatch!.matchOngoing,
+             "setsToWin" : self.currentMatch!.setsToWin
+        ]
+        
+        FirebaseManager.shared.firestore.collection("sets").whereField("matchId", isEqualTo: currentMatch!.id).getDocuments { snapshot, err in
+            if let err = err{
+                print(err.localizedDescription)
+                return
+            }
+            for set in snapshot!.documents{
+                set.reference.delete()
+            }
+        }
+        
+        FirebaseManager.shared.firestore.collection("tournaments").document(self.tournament!.id).updateData(["matches" : FieldValue.arrayRemove([matchData])])
+    }
+    
+    func deleteTournament(tournamentId: String){
+        FirebaseManager.shared.firestore.collection("tournaments").document(tournamentId).delete { err in
+            if let err = err {
+                print(err.localizedDescription)
+                return
+            }
+        }
+    }
 }

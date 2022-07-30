@@ -14,6 +14,8 @@ struct matchResultView: View {
     @State var settingTapped = false
     @State var confirmDeleteAlert = false
     @ObservedObject var userVm = UserViewModel()
+    @ObservedObject var tournamentVm = TournamentViewModel()
+    @State var isLeague = true
     var body: some View {
             VStack{
                     HStack{
@@ -24,12 +26,22 @@ struct matchResultView: View {
                             Text("Back").font(.title3)
                         }.padding()
                         Spacer()
+                        if isLeague{
                         if leagueVm.league!.admin == userVm.user!.uid {
                         Button {
                             settingTapped.toggle()
                         } label: {
                             Image(systemName: "gear").font(.title3)
                         }.padding([.top, .horizontal])
+                        }
+                        } else {
+                            if tournamentVm.tournament!.admin == userVm.user!.uid {
+                            Button {
+                                settingTapped.toggle()
+                            } label: {
+                                Image(systemName: "gear").font(.title3)
+                            }.padding([.top, .horizontal])
+                            }
                         }
                     }.padding()
                     
@@ -50,7 +62,7 @@ struct matchResultView: View {
                                 Spacer()
                             }.padding(.bottom)
                             ScrollView {
-                                ForEach(leagueVm.currentSets, id: \.setId) { set in
+                                ForEach(isLeague ? leagueVm.currentSets : tournamentVm.currentSets, id: \.setId) { set in
                                     HStack{
                                         Spacer()
                                         Text("\(set.player1Points)").font(.system(size: 40, weight: .black))
@@ -75,7 +87,9 @@ struct matchResultView: View {
             .alert(isPresented: $confirmDeleteAlert) {
                 Alert(title: Text("Delete match"), message: Text("Are you sure you want to delete this match?"), primaryButton: .destructive(Text("Delete")){
                    // DELETE MATCH FUNCTION AND REMOVE STATS FROM PLAYERS
-                    leagueVm.deleteMatch()
+                    if isLeague { leagueVm.deleteMatch() } else {
+                        tournamentVm.deleteMatch()
+                    }
                     dismiss()
                 }, secondaryButton: .cancel())
             }
@@ -89,44 +103,108 @@ struct addSetsView_Previews: PreviewProvider {
 }
 
 extension matchResultView{
-    private var vsSection: some View {
+    
+    private var vsSection: some View{
         HStack{
             VStack
             {
-                WebImage(url: URL(string: leagueVm.currentMatch!.player1Pic))
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 100, height: 100)
-                    .clipShape(Circle())
-                    .shadow(radius: 20)
-                    .padding(.horizontal)
+                if leagueVm.currentMatch?.player1Pic ?? "" != "" || tournamentVm.currentMatch?.player1Pic ?? "" != ""{
+                    WebImage(url: isLeague ? URL(string: leagueVm.currentMatch!.player1Pic) : URL(string: tournamentVm.currentMatch!.player1Pic))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 100, height: 100)
+                        .clipShape(Circle())
+                        .shadow(radius: 20)
+                        .padding(.horizontal)
+                        .padding(.top)
+                        
+                }
+                else {
+                    Image("profile")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 100, height: 100)
+                        .clipShape(Circle())
+                        .shadow(radius: 20)
+                        .padding(.horizontal)
+                }
                 
-                Text(leagueVm.currentMatch!.player1DisplayName)
+                Text(isLeague ? leagueVm.currentMatch?.player1DisplayName ?? "Oponent" : tournamentVm.currentMatch?.player1DisplayName ?? "Oponent")
                     .font(.system(size: 15, weight: .bold))
                     .multilineTextAlignment(.leading)
                     .frame(width: 100, height: 50)
             }
-            
             Text("VS")
                 .font(.system(size: 20, weight: .bold))
                 .offset(y: -25)
             
-            VStack
-            {
-               WebImage(url: URL(string: leagueVm.currentMatch!.player2Pic))
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 100, height: 100)
-                .clipShape(Circle())
-                .shadow(radius: 20)
-                .padding(.horizontal)
-            
-            Text(leagueVm.currentMatch!.player2DisplayName)
-                .font(.system(size: 15, weight: .bold))
-                .multilineTextAlignment(.leading)
-                .frame(width: 100, height: 50)
+            VStack{
+                if leagueVm.currentMatch?.player2Pic ?? "" != "" || tournamentVm.currentMatch?.player2Pic ?? "" != ""{
+                    WebImage(url: isLeague ? URL(string: leagueVm.currentMatch!.player2Pic) : URL(string: tournamentVm.currentMatch!.player2Pic))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 100, height: 100)
+                        .clipShape(Circle())
+                        .shadow(radius: 20)
+                        .padding(.horizontal)
+                        .padding(.top)
+                }
+                else {
+                    Image("profile")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 100, height: 100)
+                        .clipShape(Circle())
+                        .shadow(radius: 20)
+                        .padding(.horizontal)
+                }
+                
+                
+                Text(isLeague ? leagueVm.currentMatch?.player2DisplayName ?? "Oponent" : tournamentVm.currentMatch?.player2DisplayName ?? "Oponent")
+                    .font(.system(size: 15, weight: .bold))
+                    .multilineTextAlignment(.leading)
+                    .frame(width: 100, height: 50)
             }
-            
         }.padding(.vertical)
     }
+//    private var vsSection: some View {
+//        HStack{
+//            VStack
+//            {
+//                WebImage(url: URL(string: leagueVm.currentMatch!.player1Pic))
+//                    .resizable()
+//                    .aspectRatio(contentMode: .fill)
+//                    .frame(width: 100, height: 100)
+//                    .clipShape(Circle())
+//                    .shadow(radius: 20)
+//                    .padding(.horizontal)
+//
+//                Text(leagueVm.currentMatch!.player1DisplayName)
+//                    .font(.system(size: 15, weight: .bold))
+//                    .multilineTextAlignment(.leading)
+//                    .frame(width: 100, height: 50)
+//            }
+//
+//            Text("VS")
+//                .font(.system(size: 20, weight: .bold))
+//                .offset(y: -25)
+//
+//            VStack
+//            {
+//               WebImage(url: URL(string: leagueVm.currentMatch!.player2Pic))
+//                .resizable()
+//                .aspectRatio(contentMode: .fill)
+//                .frame(width: 100, height: 100)
+//                .clipShape(Circle())
+//                .shadow(radius: 20)
+//                .padding(.horizontal)
+//
+//            Text(leagueVm.currentMatch!.player2DisplayName)
+//                .font(.system(size: 15, weight: .bold))
+//                .multilineTextAlignment(.leading)
+//                .frame(width: 100, height: 50)
+//            }
+//
+//        }.padding(.vertical)
+//    }
 }

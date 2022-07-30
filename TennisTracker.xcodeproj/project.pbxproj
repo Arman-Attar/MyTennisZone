@@ -29,7 +29,6 @@
 		C252162728320309004C124A /* addFriend.swift in Sources */ = {isa = PBXBuildFile; fileRef = C252162628320309004C124A /* addFriend.swift */; };
 		C277D26D283DE6A10072814A /* addMatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C277D26C283DE6A10072814A /* addMatchView.swift */; };
 		C277D26F283F326D0072814A /* matchResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C277D26E283F326D0072814A /* matchResultView.swift */; };
-		C277D27128407D620072814A /* matchVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C277D27028407D620072814A /* matchVM.swift */; };
 		C277D273284719520072814A /* modifyMatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C277D272284719520072814A /* modifyMatchView.swift */; };
 		C277D275284AADA10072814A /* joinLeagueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C277D274284AADA10072814A /* joinLeagueView.swift */; };
 		C293B66B2820D4DA00BAA853 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C293B66A2820D4DA00BAA853 /* User.swift */; };
@@ -63,7 +62,6 @@
 		C252162628320309004C124A /* addFriend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = addFriend.swift; sourceTree = "<group>"; };
 		C277D26C283DE6A10072814A /* addMatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = addMatchView.swift; sourceTree = "<group>"; };
 		C277D26E283F326D0072814A /* matchResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = matchResultView.swift; sourceTree = "<group>"; };
-		C277D27028407D620072814A /* matchVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = matchVM.swift; sourceTree = "<group>"; };
 		C277D272284719520072814A /* modifyMatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = modifyMatchView.swift; sourceTree = "<group>"; };
 		C277D274284AADA10072814A /* joinLeagueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = joinLeagueView.swift; sourceTree = "<group>"; };
 		C293B66A2820D4DA00BAA853 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
@@ -128,7 +126,6 @@
 			children = (
 				C252161E282DFD7E004C124A /* userVM.swift */,
 				C23BD39D2836E705004E31D2 /* leagueVM.swift */,
-				C277D27028407D620072814A /* matchVM.swift */,
 				C2E64BD12888D50000501252 /* tournamentVM.swift */,
 			);
 			path = ViewModel;
@@ -281,7 +278,6 @@
 				C277D275284AADA10072814A /* joinLeagueView.swift in Sources */,
 				C24C4BEF282D9B6A004FA8A5 /* imagePicker.swift in Sources */,
 				C24C4BED282C2C6A004FA8A5 /* tournyView.swift in Sources */,
-				C277D27128407D620072814A /* matchVM.swift in Sources */,
 				C293B66B2820D4DA00BAA853 /* User.swift in Sources */,
 				C2E64BCE28661FA800501252 /* createRoundRobinTournment.swift in Sources */,
 				C252162728320309004C124A /* addFriend.swift in Sources */,

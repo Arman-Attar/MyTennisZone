@@ -60,7 +60,7 @@ struct tournamentDetailView: View {
             modifyMatchView(tournamentVm: tournamentVm ,isLeague: false)
         }
         .sheet(isPresented: $matchInfo) {
-            matchResultView(leagueVm: leagueVM, userVm: userVm)
+            matchResultView(leagueVm: leagueVM, userVm: userVm, tournamentVm: tournamentVm, isLeague: false)
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -84,7 +84,7 @@ struct tournamentDetailView: View {
         }
         .alert(isPresented: $confirmDeleteAlert) {
             Alert(title: Text("Delete league"), message: Text("Are you sure you want to delete this league?"), primaryButton: .destructive(Text("Delete")){
-                leagueVM.deleteLeague(leagueId: leagueVM.league!.id)
+                tournamentVm.deleteTournament(tournamentId: tournamentVm.tournament!.id)
                 dismiss()
             }, secondaryButton: .cancel())
         }
