@@ -18,10 +18,17 @@ struct tournyView: View {
                 VStack{
                     ForEach(tournamentVm.tournaments, id: \.id){ index in
                         NavigationLink {
+                            if index.mode == "Round Robin"{
                             tournamentDetailView(userVm: userVm, tournamentVm: tournamentVm)
                                 .navigationTitle(index.name).onAppear{
                                     tournamentVm.getCurrentTournament(tournamentId: index.id)
                                 }
+                            } else {
+                                bracketDetailView(tournamentVm: tournamentVm)
+                                    .navigationTitle(index.name).onAppear{
+                                        tournamentVm.getCurrentTournament(tournamentId: index.id)
+                                    }
+                            }
                         } label: {
                             VStack{
                                 if index.bannerURL == ""{

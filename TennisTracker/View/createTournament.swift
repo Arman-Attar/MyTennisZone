@@ -9,7 +9,7 @@ import SwiftUI
 import SDWebImageSwiftUI
 import Firebase
 
-struct createRoundRobinTournment: View {
+struct createTournament: View {
     @State var tournamentName = ""
     @State var opponentSelection = false
     @State var noOfGames = ""
@@ -19,75 +19,100 @@ struct createRoundRobinTournment: View {
     @State var matches: [Match] = []
     @State var showImagePicker = false
     @State var image: UIImage?
-    
+    @State var numberOfSets = 2
+    var modes = ["Bracket", "Round Robin"]
+    @Environment(\.dismiss) var dismiss
+    @State var mode = "Bracket"
+    @State var matchGeneration = "Random"
+    var bracketGeneration = ["Random", "Custom"]
     var body: some View {
-        Form{
-            leagueBanner.padding(.vertical)
-            leagueNameField.padding(.vertical, 10)
-            VStack {
-                HStack {
-                    Text("Players")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .padding()
-                    Spacer()
-                    Image(systemName: "person.fill.badge.plus")
-                    
-                        .font(.title3)
-                        .onTapGesture {
-                            opponentSelection.toggle()
-                        }
-                        .padding()
-                }
-                    HStack(spacing: -20) {
-                        ForEach(players, id:\.uid) { player in
-                            WebImage(url: URL(string: player.profilePicUrl))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 50, height: 50)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
+        NavigationView {
+            Form{
+                leagueBanner.padding(.vertical)
+                leagueNameField.padding(.vertical, 10)
+                Picker("First To:", selection: $numberOfSets) {
+                    ForEach(0..<5){ set in
+                        Text("\(set) Sets")
+                    }
+                }.padding()
+                Picker("Tournament Mode:", selection: $mode) {
+                    ForEach(modes, id: \.self){ mode in
+                        Text(mode)
+                    }
+                }.padding()
+                if mode == "Bracket"{
+                    Picker("Bracket Generation:", selection: $matchGeneration) {
+                        ForEach(bracketGeneration, id: \.self){ mode in
+                            Text(mode)
                         }
                     }.padding()
-            }
-            HStack {
-                Spacer()
-                createButton.onTapGesture {
-                    generateMatches()
-                    if image != nil{
-                        updateImage() // NEED TO FIX THIS, RIGHT NOW THIS FUNCTION ALSO CREATES THE LEAGUE
-                    }
-                    else{
-                        createLeague(bannerURL: "")
-                    }
                 }
-                Spacer()
+                VStack {
+                    HStack {
+                        Text("Players")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .padding()
+                        Spacer()
+                        Image(systemName: "person.fill.badge.plus")
+                        
+                            .font(.title3)
+                            .onTapGesture {
+                                opponentSelection.toggle()
+                            }
+                            .padding()
+                    }
+                        HStack(spacing: -20) {
+                            ForEach(players, id:\.uid) { player in
+                                WebImage(url: URL(string: player.profilePicUrl))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(Circle())
+                                    .shadow(radius: 20)
+                            }
+                        }.padding()
+                }
+                HStack {
+                    Spacer()
+                    createButton.onTapGesture {
+                        //if mode == "Round Robin" {
+                        generateMatches()
+                        //}
+                        if image != nil{
+                            updateImage() // NEED TO FIX THIS, RIGHT NOW THIS FUNCTION ALSO CREATES THE LEAGUE
+                        }
+                        else{
+                            createTournament(bannerURL: "")
+                        }
+                    }
+                    Spacer()
+                }
             }
-        }
-            .navigationTitle("Create a tournament")
+            .navigationBarHidden(true)
+                .sheet(isPresented: $opponentSelection) {
+                    opponentSelectionView(players: $players, playerId: $playerId, vm: vm)
+                }
+                .onAppear{
+                    players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user?.profilePicUrl ?? "", displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0, played: 0))
+                    playerId.append(vm.user?.uid ?? "")
+                }
+                .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
+                    ImagePicker(image: $image)
+            }
+        }.navigationTitle("Create a tournament")
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $opponentSelection) {
-                //opponentSelectionView(vm: vm)
-                opponentSelectionView(players: $players, playerId: $playerId, vm: vm)
-            }
-            .onAppear{
-                players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user?.profilePicUrl ?? "", displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0, played: 0))
-                playerId.append(vm.user?.uid ?? "")
-            }
-            .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
-                ImagePicker(image: $image)
-            }
     }
 }
 
 struct createRoundRobinTournment_Previews: PreviewProvider {
     static var previews: some View {
-        createRoundRobinTournment()
+        createTournament()
     }
 }
 
 
-extension createRoundRobinTournment {
+extension createTournament {
     
 
     private var leagueBanner: some View {
@@ -229,29 +254,38 @@ extension createRoundRobinTournment {
                     return
                 }
                 guard let url = url else {return}
-                createLeague(bannerURL: url.absoluteString)
+                createTournament(bannerURL: url.absoluteString)
             }
         }
     }
     
     func generateMatches(){
         var temp = players
-        //var matches: [Match] = []
+        if mode == "Round Robin"{
         while temp.count != 1 {
             for i in 1..<temp.count {
-                let match = Match(id: UUID().uuidString, date: convertDateToString(date: Date.now), player1Pic: temp[0].profilePicUrl, player2Pic: temp[i].profilePicUrl, player1DisplayName: temp[0].displayName, player2DisplayName: temp[i].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: 6)
+                let match = Match(id: UUID().uuidString, date: convertDateToString(date: Date.now), player1Pic: temp[0].profilePicUrl, player2Pic: temp[i].profilePicUrl, player1DisplayName: temp[0].displayName, player2DisplayName: temp[i].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: numberOfSets)
                 matches.append(match)
             }
             temp.removeFirst()
         }
-       // self.matches = matches
+        }
+        else if mode == "Bracket" && matchGeneration == "Random"{
+            while temp.count != 1 {
+                    let match = Match(id: UUID().uuidString, date: convertDateToString(date: Date.now), player1Pic: temp[0].profilePicUrl, player2Pic: temp[1].profilePicUrl, player1DisplayName: temp[0].displayName, player2DisplayName: temp[1].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: numberOfSets)
+                    matches.append(match)
+                temp.removeFirst()
+                temp.removeFirst()
+            }
+            let match = Match(id: UUID().uuidString, date: convertDateToString(date: Date.now), player1Pic: temp[0].profilePicUrl, player2Pic: "", player1DisplayName: temp[0].displayName, player2DisplayName: "", player1Score: numberOfSets, player2Score: 0, winner: "temp[0].displayName", matchOngoing: false, setsToWin: numberOfSets)
+            matches.append(match)
+        }
     }
     
-    func createLeague(bannerURL: String){
+    func createTournament(bannerURL: String){
         
         let tournamentId = UUID().uuidString
         let admin = vm.user?.uid ?? ""
-        let mode = "Round Robin"
         let tournamentData = ["id" : tournamentId, "name" : tournamentName, "playerId" : playerId ,"players" : [], "matches" : [], "bannerURL" : bannerURL, "admin" : admin, "mode": mode] as [String : Any]
         
         FirebaseManager.shared.firestore.collection("tournaments").document(tournamentId).setData(tournamentData) { err in
@@ -270,29 +304,8 @@ extension createRoundRobinTournment {
                 
                 FirebaseManager.shared.firestore.collection("tournaments").document(tournamentId).updateData(["matches" : FieldValue.arrayUnion([matchData])])
             }
-            print("DONE")
         }
     }
-    
-//    func createTournament(){
-//
-//        let tournamentId = UUID().uuidString
-//        let tournamentData = ["id" : tournamentId, "name" : tournamentName, "playerId" : playerId ,"players" : [], "matches" : []] as [String : Any]
-//
-//        FirebaseManager.shared.firestore.collection("tournaments").document(tournamentId).setData(tournamentData) { err in
-//            if let err = err {
-//                print(err.localizedDescription)
-//                return
-//            }
-//            for player in players{
-//                let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
-//
-//                FirebaseManager.shared.firestore.collection("tournaments").document(tournamentId).updateData(["players" : FieldValue.arrayUnion([playerData])])
-//
-//            }
-//        }
-//    }
-    
     
     private func convertDateToString(date: Date) -> String{
         let formatter = DateFormatter()

@@ -16,7 +16,6 @@ struct tournamentDetailView: View {
     @State private var matchInfo = false
     @ObservedObject var leagueVM = LeagueViewModel()
     @ObservedObject var userVm = UserViewModel()
-    @ObservedObject var matchVm = MatchViewModel()
     @ObservedObject var tournamentVm = TournamentViewModel()
     @State var settingTapped = false
     @State var matchId = ""

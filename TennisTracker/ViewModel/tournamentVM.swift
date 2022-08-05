@@ -347,4 +347,5 @@ class TournamentViewModel: ObservableObject {
             }
         }
     }
+    
 }

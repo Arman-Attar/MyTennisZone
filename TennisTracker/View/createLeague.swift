@@ -59,10 +59,9 @@ struct createLeague: View {
                 }
                 Spacer()
             }
-        }
-            .navigationTitle("Create a league")
+        }.navigationTitle("Create a tournament")
+            .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $opponentSelection) {
-                //opponentSelectionView(vm: vm)
                 opponentSelectionView(players: $players, playerId: $playerId, vm: vm)
             }
             .onAppear{
