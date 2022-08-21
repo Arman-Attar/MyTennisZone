@@ -24,7 +24,7 @@ struct tournyView: View {
                                     tournamentVm.getCurrentTournament(tournamentId: index.id)
                                 }
                             } else {
-                                bracketDetailView(tournamentVm: tournamentVm)
+                                bracketDetailView(tournamentVm: tournamentVm, userVm: userVm)
                                     .navigationTitle(index.name).onAppear{
                                         tournamentVm.getCurrentTournament(tournamentId: index.id)
                                     }

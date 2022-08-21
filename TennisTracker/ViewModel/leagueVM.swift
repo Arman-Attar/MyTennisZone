@@ -58,7 +58,8 @@ class LeagueViewModel: ObservableObject {
                         player2Score: match["player2Score"] as? Int ?? 0,
                         winner: match["winner"] as? String ?? "",
                         matchOngoing: match["matchOngoing"] as? Bool ?? false,
-                        setsToWin: match["setsToWin"] as? Int ?? 3)
+                        setsToWin: match["setsToWin"] as? Int ?? 3,
+                        matchType: match["matchType"] as? String ?? "")
                 }
                 
                 let bannerURL = document["bannerURL"] as? String ?? ""
@@ -107,7 +108,8 @@ class LeagueViewModel: ObservableObject {
                     player2Score: match["player2Score"] as? Int ?? 0,
                     winner: match["winner"] as? String ?? "",
                     matchOngoing: match["matchOngoing"] as? Bool ?? false,
-                    setsToWin: match["setsToWin"] as? Int ?? 3)
+                    setsToWin: match["setsToWin"] as? Int ?? 3,
+                    matchType: match["matchType"] as? String ?? "")
             }
             
             let bannerURL = document["bannerURL"] as? String ?? ""
@@ -155,8 +157,9 @@ class LeagueViewModel: ObservableObject {
                     let winner = doc["winner"] as? String ?? ""
                     let matchOngoing = doc["matchOngoing"] as? Bool ?? false
                     let setsToWin = doc["setsToWin"] as? Int ?? 3
+                    let matchType = doc["matchType"] as? String ?? ""
                     
-                    self.listOfMatches.append(Match(id: id, date: date, player1Pic: player1Pic, player2Pic: player2Pic, player1DisplayName: player1DisplayName, player2DisplayName: player2DisplayName ,player1Score: player1Score, player2Score: player2Score, winner: winner, matchOngoing: matchOngoing, setsToWin: setsToWin))
+                    self.listOfMatches.append(Match(id: id, date: date, player1Pic: player1Pic, player2Pic: player2Pic, player1DisplayName: player1DisplayName, player2DisplayName: player2DisplayName ,player1Score: player1Score, player2Score: player2Score, winner: winner, matchOngoing: matchOngoing, setsToWin: setsToWin, matchType: matchType))
                 }
             }
         }
@@ -178,8 +181,9 @@ class LeagueViewModel: ObservableObject {
                 let winner = match.winner
                 let matchOngoing = match.matchOngoing
                 let setsToWin = match.setsToWin
+                let matchType = match.matchType
                 
-                self.currentMatch = Match(id: id, date: date, player1Pic: player1Pic, player2Pic: player2Pic, player1DisplayName: player1DisplayName, player2DisplayName: player2DisplayName ,player1Score: player1Score, player2Score: player2Score, winner: winner, matchOngoing: matchOngoing, setsToWin: setsToWin)
+                self.currentMatch = Match(id: id, date: date, player1Pic: player1Pic, player2Pic: player2Pic, player1DisplayName: player1DisplayName, player2DisplayName: player2DisplayName ,player1Score: player1Score, player2Score: player2Score, winner: winner, matchOngoing: matchOngoing, setsToWin: setsToWin, matchType: matchType)
             }
         }
         
@@ -266,7 +270,8 @@ class LeagueViewModel: ObservableObject {
                     player2Score: match["player2Score"] as? Int ?? 0,
                     winner: match["winner"] as? String ?? "",
                     matchOngoing: match["matchOngoing"] as? Bool ?? false,
-                    setsToWin: match["setsToWin"] as? Int ?? 0)
+                    setsToWin: match["setsToWin"] as? Int ?? 0,
+                    matchType: match["matchType"] as? String ?? "")
             }
             
             var matchIndex = -1
@@ -284,7 +289,7 @@ class LeagueViewModel: ObservableObject {
             FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["matches" : FieldValue.delete()])
             
             for match in matches {
-                let matchData = ["id" : match.id, "date" : match.date, "player1Pic" : match.player1Pic, "player2Pic" : match.player2Pic, "player1DisplayName" : match.player1DisplayName, "player2DisplayName" : match.player2DisplayName, "player1Score" : match.player1Score, "player2Score" : match.player2Score, "winner" : match.winner, "matchOngoing" : match.matchOngoing, "setsToWin" : match.setsToWin] as [String: Any]
+                let matchData = ["id" : match.id, "date" : match.date, "player1Pic" : match.player1Pic, "player2Pic" : match.player2Pic, "player1DisplayName" : match.player1DisplayName, "player2DisplayName" : match.player2DisplayName, "player1Score" : match.player1Score, "player2Score" : match.player2Score, "winner" : match.winner, "matchOngoing" : match.matchOngoing, "setsToWin" : match.setsToWin, "matchType" : match.matchType] as [String: Any]
                 
                 FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["matches" : FieldValue.arrayUnion([matchData])])
             }
@@ -401,7 +406,8 @@ class LeagueViewModel: ObservableObject {
              "player2Score" : self.currentMatch!.player2Score,
              "winner" : self.currentMatch!.winner,
              "matchOngoing" : self.currentMatch!.matchOngoing,
-             "setsToWin" : self.currentMatch!.setsToWin
+             "setsToWin" : self.currentMatch!.setsToWin,
+            "matchType" : self.currentMatch!.matchType
         ]
         
         FirebaseManager.shared.firestore.collection("sets").whereField("matchId", isEqualTo: currentMatch!.id).getDocuments { snapshot, err in

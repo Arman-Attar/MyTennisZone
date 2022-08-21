@@ -394,13 +394,13 @@ extension modifyMatchView{
                         showAlert = true
                     }
                     else{
+                        updateStats()
                         if isLeague {
                             leagueVm.updateMatch(ongoing: matchOngoing)
                         }
                         else {
                             tournamentVm.updateMatch(ongoing: matchOngoing)
                         }
-                        updateStats()
                         dismiss()
                     }
                 }
@@ -409,12 +409,12 @@ extension modifyMatchView{
     
     private func updateStats() {
         if !matchOngoing {
+            
             FirebaseManager.shared.firestore.collection(isLeague ? "leagues" : "tournaments").document(isLeague ? leagueVm.league!.id : tournamentVm.tournament!.id).getDocument { snapshot, err in
                 if let err = err {
                     print(err.localizedDescription)
                     return
                 }
-
                guard let document = snapshot?.data() else {return}
                 var players = (document["players"] as! [[String: Any]]).map{ player in
                     return Player(
@@ -428,6 +428,7 @@ extension modifyMatchView{
                 }
                 let winnerIndex = players.firstIndex(where: { $0.displayName == winner})
                 let loserIndex = players.firstIndex(where: { $0.displayName == loser})
+                if isLeague || (!isLeague && tournamentVm.tournament!.mode == "Round Robin"){
                 players[winnerIndex!].points += 3
                 players[winnerIndex!].wins += 1
                 players[loserIndex!].losses += 1
@@ -442,7 +443,7 @@ extension modifyMatchView{
                     
                     FirebaseManager.shared.firestore.collection(isLeague ? "leagues" : "tournaments").document(isLeague ? leagueVm.league!.id : tournamentVm.tournament!.id).updateData(["players" : FieldValue.arrayUnion([playerData])])
                 }
-                
+                }
                 FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(
                     ["matchesPlayed" : FieldValue.increment(1.00)])
                 

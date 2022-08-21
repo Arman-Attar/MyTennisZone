@@ -14,10 +14,13 @@ class TournamentViewModel: ObservableObject {
     @Published var tournaments: [Tournament] = []
     @Published var tournament: Tournament?
     @Published var playerList: [Player] = []
+    @Published var playersEntered: [Player] = []
     @Published var listOfMatches: [Match] = []
     @Published var currentMatch: Match?
     @Published var currentSets: [Set] = []
     @State var topPlayer = ""
+    @Published var currentRound: String = ""
+    @Published var firstRound: String = ""
     
     init(){
         getTournaments()
@@ -58,7 +61,8 @@ class TournamentViewModel: ObservableObject {
                         player2Score: match["player2Score"] as? Int ?? 0,
                         winner: match["winner"] as? String ?? "",
                         matchOngoing: match["matchOngoing"] as? Bool ?? false,
-                        setsToWin: match["setsToWin"] as? Int ?? 3)
+                        setsToWin: match["setsToWin"] as? Int ?? 3,
+                        matchType: match["matchType"] as? String ?? "")
                 }
                 
                 let bannerURL = document["bannerURL"] as? String ?? ""
@@ -66,16 +70,17 @@ class TournamentViewModel: ObservableObject {
                 let admin = document["admin"] as? String ?? ""
                 
                 let mode = document["mode"] as? String ?? ""
+                
+                let winner = document["winner"] as? String ?? ""
                 players.sort {
                     $0.points > $1.points
                 }
-                self.tournaments.append(Tournament(id: id, name: name, playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin, mode: mode))
+                self.tournaments.append(Tournament(id: id, name: name, playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin, mode: mode, winner: winner))
             }
         }
     }
     
     func getCurrentTournament(tournamentId: String) {
-        playerList = []
         FirebaseManager.shared.firestore.collection("tournaments").document(tournamentId).getDocument { snapshot, err in
             if let err = err {
                 print(err.localizedDescription)
@@ -109,7 +114,8 @@ class TournamentViewModel: ObservableObject {
                     player2Score: match["player2Score"] as? Int ?? 0,
                     winner: match["winner"] as? String ?? "",
                     matchOngoing: match["matchOngoing"] as? Bool ?? false,
-                    setsToWin: match["setsToWin"] as? Int ?? 3)
+                    setsToWin: match["setsToWin"] as? Int ?? 3,
+                    matchType: match["matchType"] as? String ?? "")
             }
             
             let bannerURL = document["bannerURL"] as? String ?? ""
@@ -117,18 +123,24 @@ class TournamentViewModel: ObservableObject {
             let admin = document["admin"] as? String ?? ""
             
             let mode = document["mode"] as? String ?? ""
+            
+            let winner = document["winner"] as? String ?? ""
             players.sort {
                 $0.points > $1.points
             }
             
-            self.tournament = Tournament(id: id, name: name, playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin, mode: mode)
+            self.tournament = Tournament(id: id, name: name, playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin, mode: mode, winner: winner)
             
             self.playerList = self.tournament?.players ?? []
             
-            
             self.listOfMatches = matches
             
-            print(self.listOfMatches)
+            self.firstRound = self.listOfMatches[0].matchType
+            
+            let last = self.listOfMatches.endIndex - 1
+            self.currentRound = self.listOfMatches[last].matchType
+            
+            self.playersEntered = self.playerList
         }
     }
     
@@ -148,8 +160,9 @@ class TournamentViewModel: ObservableObject {
                 let winner = match.winner
                 let matchOngoing = match.matchOngoing
                 let setsToWin = match.setsToWin
+                let matchType = match.matchType
                 
-                self.currentMatch = Match(id: id, date: date, player1Pic: player1Pic, player2Pic: player2Pic, player1DisplayName: player1DisplayName, player2DisplayName: player2DisplayName ,player1Score: player1Score, player2Score: player2Score, winner: winner, matchOngoing: matchOngoing, setsToWin: setsToWin)
+                self.currentMatch = Match(id: id, date: date, player1Pic: player1Pic, player2Pic: player2Pic, player1DisplayName: player1DisplayName, player2DisplayName: player2DisplayName ,player1Score: player1Score, player2Score: player2Score, winner: winner, matchOngoing: matchOngoing, setsToWin: setsToWin, matchType: matchType)
             }
         }
         
@@ -209,12 +222,15 @@ class TournamentViewModel: ObservableObject {
             }
         }
         var winner = ""
+        var loser = ""
         if !ongoing {
             if player1Score > player2Score {
                 winner = currentMatch!.player1DisplayName
+                loser = currentMatch!.player2DisplayName
             }
             else{
                 winner = currentMatch!.player2DisplayName
+                loser = currentMatch!.player1DisplayName
             }
         }
         FirebaseManager.shared.firestore.collection("tournaments").document(tournament!.id).getDocument { snapshot, err in
@@ -224,6 +240,21 @@ class TournamentViewModel: ObservableObject {
             }
             
             guard let doc = snapshot?.data() else {return}
+            
+            let players = (doc["players"] as! [[String: Any]]).map{ player in
+                return Player(
+                    uid: player["uid"] as? String ?? "",
+                    profilePicUrl: player["profilePicUrl"] as? String ?? "",
+                    displayName: player["displayName"] as? String ?? "",
+                    points: player["points"] as? Int ?? 0,
+                    wins: player["wins"] as? Int ?? 0,
+                    losses: player["losses"] as? Int ?? 0,
+                    played: player["played"] as? Int ?? 0)
+            }
+            
+            self.playerList = []
+            self.playerList = players
+            
             var matches = (doc["matches"] as! [[String: Any]]).map{ match in
                 return Match(
                     id: match["id"] as? String ?? "",
@@ -236,7 +267,8 @@ class TournamentViewModel: ObservableObject {
                     player2Score: match["player2Score"] as? Int ?? 0,
                     winner: match["winner"] as? String ?? "",
                     matchOngoing: match["matchOngoing"] as? Bool ?? false,
-                    setsToWin: match["setsToWin"] as? Int ?? 0)
+                    setsToWin: match["setsToWin"] as? Int ?? 0,
+                    matchType: match["matchType"] as? String ?? "")
             }
             
             var matchIndex = -1
@@ -251,10 +283,31 @@ class TournamentViewModel: ObservableObject {
             matches[matchIndex].matchOngoing = ongoing
             matches[matchIndex].winner = winner
             
+            if winner != "" && !ongoing {
+            for player in self.playerList {
+                if player.displayName == loser {
+                    let playerData: [String: Any] = [
+                        "uid" : player.uid as Any,
+                        "profilePicUrl": player.profilePicUrl,
+                        "displayName": player.displayName,
+                        "points": player.points,
+                        "wins": player.wins,
+                        "losses": player.losses,
+                    ]
+                    print(player)
+                    FirebaseManager.shared.firestore.collection("tournaments").document(self.tournament!.id).updateData(["players" : FieldValue.arrayRemove([playerData])])
+                    print("PLAYER REMOVED")
+                }
+                if let index = self.playerList.firstIndex(where: {$0.displayName == loser}){
+                    self.playerList.remove(at: index)
+                }
+            }
+            }
+            
             FirebaseManager.shared.firestore.collection("tournaments").document(self.tournament!.id).updateData(["matches" : FieldValue.delete()])
             
             for match in matches {
-                let matchData = ["id" : match.id, "date" : match.date, "player1Pic" : match.player1Pic, "player2Pic" : match.player2Pic, "player1DisplayName" : match.player1DisplayName, "player2DisplayName" : match.player2DisplayName, "player1Score" : match.player1Score, "player2Score" : match.player2Score, "winner" : match.winner, "matchOngoing" : match.matchOngoing, "setsToWin" : match.setsToWin] as [String: Any]
+                let matchData = ["id" : match.id, "date" : match.date, "player1Pic" : match.player1Pic, "player2Pic" : match.player2Pic, "player1DisplayName" : match.player1DisplayName, "player2DisplayName" : match.player2DisplayName, "player1Score" : match.player1Score, "player2Score" : match.player2Score, "winner" : match.winner, "matchOngoing" : match.matchOngoing, "setsToWin" : match.setsToWin, "matchType" : match.matchType] as [String: Any]
                 
                 FirebaseManager.shared.firestore.collection("tournaments").document(self.tournament!.id).updateData(["matches" : FieldValue.arrayUnion([matchData])])
             }
@@ -348,4 +401,77 @@ class TournamentViewModel: ObservableObject {
         }
     }
     
+    func allMatchesFinished() -> Bool {
+        for match in listOfMatches {
+            if match.matchOngoing {
+                return false
+            }
+        }
+        return true
+    }
+    
+    func endRound() {
+        var matches: [Match] = []
+        if self.playerList.count > 0{
+            if currentRound == "R32" {
+                currentRound = "R16"
+            }
+            else if currentRound == "R16"{
+                currentRound = "R8"
+            }
+            else if currentRound == "R8"{
+                currentRound = "QF"
+            }
+            else if currentRound == "QF"{
+                currentRound = "SEMI"
+            }
+            else if currentRound == "SEMI" {
+                currentRound = "FINAL"
+            }
+            else{
+                currentRound = "DONE"
+            }
+            if currentRound != "DONE"{
+            if self.playerList.count % 2 == 0 {
+                while self.playerList.count != 0 {
+                    let match = Match(id: UUID().uuidString, date: convertDateToString(date: Date.now), player1Pic: playerList[0].profilePicUrl, player2Pic: playerList[1].profilePicUrl, player1DisplayName: playerList[0].displayName, player2DisplayName: playerList[1].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: self.listOfMatches[0].setsToWin, matchType: currentRound)
+                        matches.append(match)
+                        self.playerList.removeFirst()
+                        self.playerList.removeFirst()
+                }
+            }
+            else{
+                while self.playerList.count != 1 {
+                    let match = Match(id: UUID().uuidString, date: convertDateToString(date: Date.now), player1Pic: playerList[0].profilePicUrl, player2Pic: playerList[1].profilePicUrl, player1DisplayName: playerList[0].displayName, player2DisplayName: playerList[1].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: self.listOfMatches[0].setsToWin, matchType: currentRound)
+                        matches.append(match)
+                        self.playerList.removeFirst()
+                        self.playerList.removeFirst()
+            }
+                let match = Match(id: UUID().uuidString, date: convertDateToString(date: Date.now), player1Pic: playerList[0].profilePicUrl, player2Pic: playerList[1].profilePicUrl, player1DisplayName: playerList[0].displayName, player2DisplayName: playerList[1].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: self.listOfMatches[0].setsToWin, matchType: currentRound)
+                    matches.append(match)
+        }
+            
+            for match in matches {
+                let matchData = ["id" : match.id, "date" : match.date, "player1Pic" : match.player1Pic, "player2Pic" : match.player2Pic, "player1DisplayName" : match.player1DisplayName, "player2DisplayName" : match.player2DisplayName ,"player1Score" : match.player1Score, "player2Score" : match.player2Score, "winner" : match.winner, "matchOngoing" : match.matchOngoing, "setsToWin" : match.setsToWin, "matchType" : match.matchType] as [String: Any]
+                
+                FirebaseManager.shared.firestore.collection("tournaments").document(self.tournament!.id).updateData(["matches" : FieldValue.arrayUnion([matchData])])
+            }
+            }
+            else {
+                let winnerIndex = listOfMatches.endIndex - 1
+                let winner = listOfMatches[winnerIndex].winner
+                print(listOfMatches[winnerIndex])
+                print(winner)
+                FirebaseManager.shared.firestore.collection("tournaments").document(self.tournament!.id).updateData(["winner" : winner])
+                FirebaseManager.shared.firestore.collection("users").document(self.playerList[0].uid).updateData(["trophies" : FieldValue.increment(1.00)])
+            }
+    }
+    }
+    
+    private func convertDateToString(date: Date) -> String{
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, y"
+        let result = formatter.string(from: date)
+        return result
+    }
 }
