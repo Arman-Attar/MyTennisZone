@@ -135,11 +135,49 @@ class TournamentViewModel: ObservableObject {
             
             self.listOfMatches = matches
             
-            self.firstRound = self.listOfMatches[0].matchType
+            if !self.listOfMatches.isEmpty {
+                self.firstRound = self.listOfMatches[0].matchType
+            }
+            else{
+                if self.playerList.count == 32 || self.playerList.count == 31 {
+                    self.firstRound = "R32"
+                }
+                else if self.playerList.count == 16 || self.playerList.count == 15 {
+                    self.firstRound = "R16"
+                }
+                else if self.playerList.count == 8 || self.playerList.count == 7 {
+                    self.firstRound = "QF"
+                }
+                else if self.playerList.count == 4 || self.playerList.count == 3 {
+                    self.firstRound = "SEMI"
+                }
+                else {
+                    self.firstRound = "FINAL"
+                }
+            }
             
-            let last = self.listOfMatches.endIndex - 1
-            self.currentRound = self.listOfMatches[last].matchType
             
+            if !self.listOfMatches.isEmpty {
+                let last = self.listOfMatches.endIndex - 1
+                self.currentRound = self.listOfMatches[last].matchType
+            }
+            else{
+                if self.playerList.count == 32 || self.playerList.count == 31 {
+                    self.currentRound = "R32"
+                }
+                else if self.playerList.count == 16 || self.playerList.count == 15 {
+                    self.currentRound = "R16"
+                }
+                else if self.playerList.count == 8 || self.playerList.count == 7 {
+                    self.currentRound = "QF"
+                }
+                else if self.playerList.count == 4 || self.playerList.count == 3 {
+                    self.currentRound = "SEMI"
+                }
+                else {
+                    self.currentRound = "FINAL"
+                }
+            }
             self.playersEntered = self.playerList
         }
     }

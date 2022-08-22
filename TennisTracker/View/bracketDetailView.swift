@@ -94,6 +94,13 @@ struct bracketDetailView: View {
             Spacer()
             if selectedIndex != 5 {
             HStack{
+                if tournamentVm.listOfMatches.isEmpty {
+                    Button {
+                        
+                    } label: {
+                        Text("Add Match")
+                    }
+                }
                 Text("Heading").padding()
                 if tournamentVm.allMatchesFinished(){
                     Button {
@@ -240,7 +247,6 @@ extension bracketDetailView {
             }
         }
     }
-    
     
     struct matchBubble: View {
         @State var match: Match
