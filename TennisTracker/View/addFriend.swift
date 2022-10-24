@@ -9,10 +9,10 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct addFriend: View {
-    @ObservedObject private var vm = UserViewModel()
+    @EnvironmentObject private var vm: UserViewModel
     @State var userName = ""
     @State var showSearchBar = false
-    @State var isFriend = false
+    @State var userAdded = false
     @State var userNotFound = false
     var body: some View {
         VStack{
@@ -49,7 +49,7 @@ struct addFriend: View {
 
 struct addFriend_Previews: PreviewProvider {
     static var previews: some View {
-        addFriend()
+        addFriend().environmentObject(UserViewModel())
     }
 }
 
@@ -58,8 +58,8 @@ extension addFriend {
         HStack{
             Spacer()
             VStack {
-                let userFriends = vm.userSearch?.friendsUid.count ?? 0
-                Text(vm.isUserFriend ? "\(userFriends + 1)" : "\(userFriends)")
+                let userFriends = vm.userSearch?.friends.count ?? 0
+                Text("\(userFriends)")
                     .font(.callout)
                     .fontWeight(.bold)
                 Text("Friends")
@@ -129,7 +129,7 @@ extension addFriend {
     
     private var add: some View {
         VStack {
-            if vm.isUserFriend {
+            if userAdded {
                 HStack {
                         Image(systemName: "person.fill.checkmark").font(.title).foregroundColor(.black)
                     Text("Friend")
@@ -147,7 +147,11 @@ extension addFriend {
             }
             else{
             Button {
-                vm.addUser(userUid: vm.userSearch?.uid ?? "")
+                vm.addUser(userUid: vm.userSearch?.uid ?? "") { added in
+                    if added{
+                        userAdded = true
+                    }
+                }
             } label: {
                 HStack {
                     Image(systemName: "person.fill.badge.plus").font(.title).foregroundColor(.black)
@@ -173,22 +177,26 @@ extension addFriend {
         HStack{
             HStack {
                 Image(systemName: "magnifyingglass")
-                TextField("Search User", text: $userName).foregroundColor(Color.black)
+                TextField("Search User", text: $userName).foregroundColor(Color.black).disableAutocorrection(true)
             }.padding()
                 .background(Color.gray).opacity(0.5)
                 .cornerRadius(50)
                 .padding(.leading)
             Button{
                 userName = userName.trimmingCharacters(in: .whitespacesAndNewlines)
-                vm.findUser(userName: userName.lowercased())
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3){
-                    if vm.userSearch?.uid ?? "" == "" {
-                        userNotFound = true
-                    }
-                    else{
-                        vm.friendCheck(friendUid: vm.userSearch?.uid ?? "")
-                        showSearchBar.toggle()
-                    }
+                vm.findUser(userName: userName.lowercased()) { found in
+                        if !found {
+                            userNotFound = true
+                        }
+                        else{
+                            vm.friendCheck(friendUid: vm.userSearch?.uid ?? "") { isFriend in
+                                if isFriend {
+                                    userAdded = true
+                                    showSearchBar.toggle()
+
+                                }
+                            }
+                        }
                 }
             } label: {
                 Text("Find")

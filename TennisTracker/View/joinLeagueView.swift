@@ -6,12 +6,13 @@
 //
 
 import SwiftUI
+import SDWebImageSwiftUI
 
 struct joinLeagueView: View {
     @State var leagueName = ""
     @ObservedObject var leagueVm = LeagueViewModel()
     @State var showSheet = false
-    @ObservedObject var vm = UserViewModel()
+    @EnvironmentObject var vm: UserViewModel
     @State var notFoundAlert = false
     var body: some View {
         VStack{
@@ -40,7 +41,7 @@ struct joinLeagueView: View {
 
 struct joinLeagueView_Previews: PreviewProvider {
     static var previews: some View {
-        joinLeagueView()
+        joinLeagueView().environmentObject(UserViewModel())
     }
 }
 
@@ -56,14 +57,26 @@ extension joinLeagueView {
                     .font(.caption)
             }.padding()
             Spacer()
+            HStack{
             VStack {
-                Text("\(leagueVm.league?.matches.count ?? 0)")
+                Text("\(leagueVm.playerList[0].displayName)")
                     .font(.callout)
                     .fontWeight(.bold)
-                Text("Matches Played")
+                Text("Admin")
                     .font(.caption)
-            }.padding()
-            Spacer()
+            }
+                VStack{
+                    if leagueVm.playerList[0].profilePicUrl != "" {
+                        WebImage(url: URL(string: leagueVm.playerList[0].profilePicUrl))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 50, height: 50)
+                            .clipShape(Circle())
+                            .shadow(radius: 20)
+                            .padding()
+                    }
+                }.padding(.trailing)
+        }
         }.padding(.horizontal)
     }
     
@@ -124,15 +137,15 @@ extension joinLeagueView {
         HStack{
             HStack {
                 Image(systemName: "magnifyingglass")
-                TextField("Search Leagues", text: $leagueName).foregroundColor(Color.black)
+                TextField("Search Leagues", text: $leagueName).foregroundColor(Color.black).disableAutocorrection(true)
             }.padding()
                 .background(Color.gray).opacity(0.5)
                 .cornerRadius(50)
                 .padding(.leading)
             Button {
                 let trimmedName = leagueName.trimmingCharacters(in: .whitespacesAndNewlines)
-                leagueVm.findLeague(leagueName: trimmedName)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                leagueVm.findLeague(leagueName: trimmedName.lowercased())
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     if leagueVm.league?.id ?? "" == ""{
                         notFoundAlert = true
                     }

@@ -8,6 +8,7 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
+
 struct tournamentDetailView: View {
     @State private var selectedIndex = 0
     var position = 1
@@ -37,9 +38,14 @@ struct tournamentDetailView: View {
                         .padding()
                     Spacer()
                 }
-                ScrollView {
+                RefreshableScrollView {
                     Standingloop
+                } onRefresh: {
+                    tournamentVm.refreshData(tournamentId: tournamentVm.tournament!.id)
                 }
+//                ScrollView {
+//                    Standingloop
+//                }
             }
             else {
                 Text("Match History")
@@ -84,7 +90,10 @@ struct tournamentDetailView: View {
         .alert(isPresented: $confirmDeleteAlert) {
             Alert(title: Text("Delete league"), message: Text("Are you sure you want to delete this league?"), primaryButton: .destructive(Text("Delete")){
                 tournamentVm.deleteTournament(tournamentId: tournamentVm.tournament!.id)
-                dismiss()
+                tournamentVm.getTournaments()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    dismiss()
+                }
             }, secondaryButton: .cancel())
         }
     }

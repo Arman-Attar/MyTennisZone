@@ -12,6 +12,7 @@ import Firebase
 struct modifyMatchView: View {
     @ObservedObject var leagueVm = LeagueViewModel()
     @ObservedObject var tournamentVm = TournamentViewModel()
+    @ObservedObject var userVm = UserViewModel()
     @State var isLeague = true
     @Environment(\.dismiss) var dismiss
     @State var matchOngoing = true
@@ -24,6 +25,8 @@ struct modifyMatchView: View {
     @State var set: [Set] = []
     @State var numberOfSets = 0
     @State var showAlert = false
+    @State var deleteTapped = false
+    @State var confirmDeleteAlert = false
     var body: some View {
         ZStack{
             Form{
@@ -74,9 +77,32 @@ struct modifyMatchView: View {
                         }
                     }
                 }
+                Group{
                 buttons
+                if isLeague{
+                    if leagueVm.league!.admin == userVm.user!.uid{
+                    deleteButton
+                    }
+                }
+                }
+        }.alert(isPresented: $showAlert){
+            Alert(title: Text("Error!"), message: Text("Required number of sets not reached"), dismissButton: .default(Text("Got it!")))
+        }
+        .confirmationDialog("Settings", isPresented: $deleteTapped) {
+            Button(role: .destructive) {
+                confirmDeleteAlert.toggle()
+            } label: {
+                Text("Delete match")
             }
-            
+
+        }
+        .alert(isPresented: $confirmDeleteAlert) {
+            Alert(title: Text("Delete match"), message: Text("Are you sure you want to delete this match?"), primaryButton: .destructive(Text("Delete")){
+               // DELETE MATCH FUNCTION AND REMOVE STATS FROM PLAYERS
+                if isLeague { leagueVm.deleteMatch() }
+                dismiss()
+            }, secondaryButton: .cancel())
+        }
             if showSetSheet{
                 Rectangle().ignoresSafeArea().opacity(0.5)
                 addSetBottomSheet
@@ -85,10 +111,8 @@ struct modifyMatchView: View {
                 Rectangle().ignoresSafeArea().opacity(0.5)
                 addWinnerBottomSheet
             }
-        }.alert(isPresented: $showAlert){
-            Alert(title: Text("Error!"), message: Text("Required number of sets not reached"), dismissButton: .default(Text("Got it!")))
-        }
     }
+}
 }
 
 struct modifyMatchView_Previews: PreviewProvider {
@@ -474,6 +498,22 @@ extension modifyMatchView{
             return false
         }
     }
+    
+    private var deleteButton: some View {
+        HStack{
+            Spacer()
+            Text("Delete Match")
+                .font(.title3)
+                .fontWeight(.bold)
+                .foregroundColor(Color.red)
+                .frame(width: UIScreen.main.bounds.size.width/3)
+                .padding()
+                .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
+                .onTapGesture {
+                    deleteTapped.toggle()
+        }
+            Spacer()
+        }.padding()
+    }
 }
-
 

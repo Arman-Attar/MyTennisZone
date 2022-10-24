@@ -17,7 +17,7 @@ struct signUp: View {
     @State var password = ""
     @State var userName = ""
     @State var result = ""
-    //@ObservedObject var vm = userVM()
+    @State var notValid = false
     @ObservedObject var fb = FirebaseManager()
     @Environment(\.dismiss) var dismiss
     var body: some View {
@@ -37,6 +37,8 @@ struct signUp: View {
                 }
                 Spacer()
             }
+        }.alert(isPresented: $notValid) {
+            Alert(title: Text("Error"), message: Text("Username already exists"), dismissButton: .default(Text("Got It!")))
         }
     }
 }
@@ -115,9 +117,16 @@ extension signUp {
         VStack{
             Button {
                 //SEND DATA
+                validateUserName { (result) in
+                    if result {
                 register(email: email, password: password)
                 if self.result == "DONE"{
                     dismiss()
+                }
+                }
+                else {
+                    notValid = true
+                }
                 }
             } label: {
                 VStack {
@@ -194,6 +203,22 @@ extension signUp {
             if let err = err {
                 print(err.localizedDescription)
                 return
+            }
+        }
+    }
+    
+    private func validateUserName(completionHandler: @escaping (_ data: Bool) -> Void) {
+        //var validate = false
+        FirebaseManager.shared.firestore.collection("users").whereField("username", isEqualTo: userName.lowercased()).getDocuments { snapshot, err in
+            if let err = err {
+                print(err.localizedDescription)
+                completionHandler(false)
+            }
+            if snapshot!.isEmpty {
+                completionHandler(true)
+            }
+            else{
+                completionHandler(false)
             }
         }
     }

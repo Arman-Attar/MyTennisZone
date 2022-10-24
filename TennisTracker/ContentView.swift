@@ -13,7 +13,7 @@ struct ContentView: View {
         ZStack{
             //if isSignedIn { SHOW HOMEPAGE }
             //else 
-            signIn()
+            signIn().colorScheme(.light)
         }
       
     }

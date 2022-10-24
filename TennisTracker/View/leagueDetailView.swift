@@ -8,6 +8,29 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
+// CODE WAS TAKEN FROM STACKOVERFLOW BY Jishnu Raj T
+public struct RefreshableScrollView<Content: View>: View {
+    var content: Content
+    var onRefresh: () -> Void
+
+    public init(content: @escaping () -> Content, onRefresh: @escaping () -> Void) {
+        self.content = content()
+        self.onRefresh = onRefresh
+    }
+
+    public var body: some View {
+        List {
+            content
+                .listRowSeparatorTint(.clear)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+        }
+        .listStyle(.plain)
+        .refreshable {
+            onRefresh()
+        }
+    }
+}
 
 
 struct leagueDetailView: View {
@@ -47,8 +70,10 @@ struct leagueDetailView: View {
                     }.padding()
                     
                 }
-                ScrollView {
+                RefreshableScrollView {
                     Standingloop
+                } onRefresh: {
+                    leagueVM.refreshData(leagueId: leagueVM.league!.id)
                 }
             }
             else {
@@ -69,7 +94,7 @@ struct leagueDetailView: View {
             addMatchView(leagueVm: leagueVM)
         }
         .sheet(isPresented: $modifyMatch) {
-            modifyMatchView(leagueVm: leagueVM)
+            modifyMatchView(leagueVm: leagueVM, userVm: userVm)
         }
         .sheet(isPresented: $matchInfo) {
             matchResultView(leagueVm: leagueVM, userVm: userVm)
@@ -82,8 +107,14 @@ struct leagueDetailView: View {
                 } label: {
                     Image(systemName: "gear")
                 }
-
             }
+            }
+            ToolbarItem(placement: .navigationBarTrailing){
+                Button {
+                    leagueVM.refreshData(leagueId: leagueVM.league!.id)
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                }
             }
         }
         .confirmationDialog("Settings", isPresented: $settingTapped) {
@@ -97,7 +128,10 @@ struct leagueDetailView: View {
         .alert(isPresented: $confirmDeleteAlert) {
             Alert(title: Text("Delete league"), message: Text("Are you sure you want to delete this league?"), primaryButton: .destructive(Text("Delete")){
                 leagueVM.deleteLeague(leagueId: leagueVM.league!.id)
-                dismiss()
+                leagueVM.getLeagues()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    dismiss()
+                }
             }, secondaryButton: .cancel())
         }
     }
@@ -193,7 +227,8 @@ extension leagueDetailView{
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.black)
-                                .frame(width: UIScreen.main.bounds.size.width / 4)
+                                .frame(width: UIScreen.main.bounds.size.width / 4.5)
+                                .fixedSize(horizontal: false, vertical: true)
 
 
                             WebImage(url: URL(string: match.player1Pic))
@@ -221,7 +256,8 @@ extension leagueDetailView{
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.black)
-                                .frame(width: UIScreen.main.bounds.size.width / 4)
+                                .frame(width: UIScreen.main.bounds.size.width / 4.5)
+                                .fixedSize(horizontal: false, vertical: true)
 
 
                         }.padding(.leading)

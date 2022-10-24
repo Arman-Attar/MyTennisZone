@@ -9,6 +9,7 @@ import SwiftUI
 
 struct mainPage: View {
     @State var tabNumber = 0
+    @StateObject var userVm = UserViewModel()
     let tabImages = ["house", "person.3", "at" ,"crown", "person.circle"]
     var body: some View {
         ZStack {
@@ -25,7 +26,7 @@ struct mainPage: View {
                 case 4:
                     profileTab()
                 default:
-                    Text("WHATEVER")
+                    Text("PLACEHOLDER")
                 }
                 HStack{
                     ForEach(0..<5) { tab in
@@ -39,10 +40,9 @@ struct mainPage: View {
                             Spacer()
                         }
                     }.padding(.vertical)
-                }.background(.ultraThinMaterial)
-                    .frame(width: UIScreen.main.bounds.size.width)
+                }.frame(width: UIScreen.main.bounds.size.width)
             }
-        }
+        }.environmentObject(userVm)
     }
 }
 

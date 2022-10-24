@@ -10,7 +10,7 @@ import SDWebImageSwiftUI
 
 struct leagueView: View {
     @ObservedObject var leagueVm = LeagueViewModel()
-    @ObservedObject var userVm = UserViewModel()
+    @EnvironmentObject var userVm: UserViewModel
     var body: some View {
         NavigationView {
             ScrollView(showsIndicators: false){
@@ -67,7 +67,7 @@ struct leagueView: View {
 
 struct leagueView_Previews: PreviewProvider {
     static var previews: some View {
-        leagueView()
+        leagueView().environmentObject(UserViewModel())
     }
 }
 

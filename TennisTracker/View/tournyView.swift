@@ -11,7 +11,7 @@ import SDWebImageSwiftUI
 struct tournyView: View {
     @ObservedObject var leagueVm = LeagueViewModel()
     @ObservedObject var tournamentVm = TournamentViewModel()
-    @ObservedObject var userVm = UserViewModel()
+    @EnvironmentObject var userVm: UserViewModel
     var body: some View {
         NavigationView {
             ScrollView(showsIndicators: false){
@@ -77,6 +77,6 @@ struct tournyView: View {
 
 struct tournyView_Previews: PreviewProvider {
     static var previews: some View {
-        tournyView()
+        tournyView().environmentObject(UserViewModel())
     }
 }

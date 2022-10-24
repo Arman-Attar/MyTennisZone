@@ -103,7 +103,7 @@ extension opponentSelectionView {
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: 50, height: 50)
                                     .clipShape(Circle())
-                                    .shadow(radius: 20)
+                                    //.shadow(radius: 20)
                                     .padding(.horizontal)
                             }
                             else {
@@ -156,7 +156,7 @@ extension opponentSelectionView {
                                         .aspectRatio(contentMode: .fill)
                                         .frame(width: 50, height: 50)
                                         .clipShape(Circle())
-                                        .shadow(radius: 20)
+                                        //.shadow(radius: 20)
                                         .padding(.horizontal)
                                 }
                                 else {

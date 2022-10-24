@@ -12,7 +12,7 @@ import Firebase
 struct createLeague: View {
     @State var leagueName = ""
     @State var opponentSelection = false
-    @ObservedObject var vm = UserViewModel()
+    @EnvironmentObject var vm: UserViewModel
     @State var players: [Player] = []
     @State var playerId: [String] = []
     @State var showImagePicker = false
@@ -76,7 +76,7 @@ struct createLeague: View {
 
 struct createLeague_Previews: PreviewProvider {
     static var previews: some View {
-        createLeague()
+        createLeague().environmentObject(UserViewModel())
     }
 }
 
@@ -117,7 +117,7 @@ extension createLeague {
     private var leagueNameField: some View {
         VStack{
             HStack{
-                TextField("Enter League Name", text: $leagueName)
+                TextField("Enter a Unique League Name", text: $leagueName)
                     .foregroundColor(.black)
                     .keyboardType(.emailAddress)
                 Image(systemName: "plus")
@@ -242,7 +242,6 @@ extension createLeague {
                 FirebaseManager.shared.firestore.collection("leagues").document(leagueId).updateData(["players" : FieldValue.arrayUnion([playerData])])
                 
             }
-            print("DONE")
         }
     }
 }

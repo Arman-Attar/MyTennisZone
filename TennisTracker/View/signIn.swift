@@ -14,7 +14,7 @@ struct signIn: View {
     @AppStorage("email") var email = ""
     @AppStorage("password") var password = ""
     @State var isUserSignedIn = false
-    @ObservedObject var fb = FirebaseManager()
+    @StateObject var fb = FirebaseManager()
     @State var result = ""
     var body: some View {
         if isUserSignedIn{
@@ -115,7 +115,15 @@ extension signIn {
         VStack{
             Button {
                 //SEND DATA
-                logIn(email: email, password: password)
+                //logIn(email: email, password: password)
+                fb.logIn(email: email, password: password, completionHandler: { data in
+                    if data == "Sign In"{
+                        isUserSignedIn.toggle()
+                    }
+                    else{
+                        result = data
+                    }
+                })
             } label: {
                 VStack {
                     Text("Sign In")
@@ -130,7 +138,7 @@ extension signIn {
                         .padding()
                         .offset(y: 9)
                     
-                    if result != "" && result != "DONE" {
+                    if result != "" {
                         errorField
                     }
                 }
@@ -151,15 +159,15 @@ extension signIn {
             .padding()
     }
     
-    private func logIn(email: String, password: String) {
-        fb.auth.signIn(withEmail: email, password: password) { result, err in
-            if let err = err {
-                self.result = "Unable to Create User: \(err.localizedDescription)"
-            }
-            else{
-                self.isUserSignedIn.toggle()
-                self.result = "DONE"
-            }
-        }
-    }
+//    private func logIn(email: String, password: String) {
+//        fb.auth.signIn(withEmail: email, password: password) { result, err in
+//            if let err = err {
+//                self.result = "Unable to Create User: \(err.localizedDescription)"
+//            }
+//            else{
+//                self.isUserSignedIn.toggle()
+//                self.result = "DONE"
+//            }
+//        }
+//    }
 }

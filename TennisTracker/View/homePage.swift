@@ -8,15 +8,15 @@
 import SwiftUI
 
 struct homePage: View {
-    let viewList = [AnyView(createLeague()), AnyView(joinLeagueView()), AnyView(createTournament()), AnyView(mainPage())]
-    let pictureList = ["c_league", "j_league", "c_tourny", "j_tourny"]
-    let captionList = ["Create a League", "Join a League", "Create a Tournament", "Join a Tournament"]
+    let viewList = [AnyView(createLeague()), AnyView(joinLeagueView()), AnyView(createTournament())]
+    let pictureList = ["c_league", "j_league", "c_tourny"]
+    let captionList = ["Create a League", "Join a League", "Create a Tournament"]
     let iconList = ["pencil.circle.fill", "figure.wave.circle.fill", "pencil.circle.fill", "figure.wave.circle.fill"]
     var body: some View {
         NavigationView {
             ScrollView(showsIndicators: false){
                 VStack{
-                    ForEach(0..<4) {index in
+                    ForEach(0..<3) {index in
                         ZStack(alignment: .bottomTrailing) {
                             Image(pictureList[index])
                                 .resizable()

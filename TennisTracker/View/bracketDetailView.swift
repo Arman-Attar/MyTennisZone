@@ -19,7 +19,9 @@ struct bracketDetailView: View {
     @State var confirmDeleteAlert = false
     @State var showSummaryPage = true
     @Environment(\.dismiss) var dismiss
+    @State var refreshPage = false
     @State var i = 0
+    @State var count = 0
     var body: some View {
         VStack {
             Spacer()
@@ -90,27 +92,85 @@ struct bracketDetailView: View {
                     }.padding()
                 }
             }
-            //ZStack{
             Spacer()
-            if selectedIndex != 5 {
-            HStack{
-                if tournamentVm.listOfMatches.isEmpty {
-                    Button {
-                        
-                    } label: {
-                        Text("Add Match")
+            if tournamentVm.allMatchesFinished() && tournamentVm.playerList.count > 1{
+                Button {
+                    tournamentVm.endRound()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        selectedIndex = -1
                     }
-                }
-                Text("Heading").padding()
-                if tournamentVm.allMatchesFinished(){
-                    Button {
-                        tournamentVm.endRound()
-                    } label: {
-                        Text("End Round").padding()
-                    }
+                } label: {
+                    HStack {
+                        Text("End Current Round").font(.title3).padding()
+                        Image(systemName: "flag.2.crossed").font(.title3).padding()
+                    }.foregroundColor(Color.black)
                 }
             }
+            if selectedIndex == -1{
+                VStack {
+                    ScrollView(showsIndicators: false){
+                    HStack {
+                        Spacer()
+                        Text("Tournament Board").font(.title3).fontWeight(.heavy)
+                        Spacer()
+                    }
+                        Divider().padding()
+                        VStack {
+                            HStack{
+                                Rectangle().frame(height: 1)
+                                Text("Winner").font(.subheadline).fontWeight(.heavy).padding(.horizontal)
+                                Rectangle().frame(height: 1)
+                            }
+                            VStack{
+                                Spacer()
+                                if tournamentVm.playerList.count > 1 {
+                                    Image("profile")
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: 130, height: 130)
+                                                .clipShape(Circle())
+                                                .shadow(radius: 20)
+                                    Text("To Be Determined").fontWeight(.heavy).padding()
+                                }
+                                else {
+                                    if tournamentVm.tournament?.players[0].profilePicUrl ?? "profile" != "profile"{
+                                    WebImage(url: URL(string: tournamentVm.tournament!.players[0].profilePicUrl))
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 80, height: 80)
+                                        .clipShape(Circle())
+                                        .shadow(radius: 20)
+                                        
+                                        Text("\(tournamentVm.tournament!.players[0].displayName)").fontWeight(.heavy).padding()
+                                    }
+                                    else {
+                                        Image("profile")
+                                                    .resizable()
+                                                    .aspectRatio(contentMode: .fill)
+                                                    .frame(width: 130, height: 130)
+                                                    .clipShape(Circle())
+                                                    .shadow(radius: 20)
+                                    }
+                                }
+                                Spacer()
+                            }.padding(.top)
+                        }
+                        Divider().padding(.horizontal)
+                    HStack{
+                        VStack{
+                            Text("\(tournamentVm.playersEntered.count)").font(.system(size: 70)).fontWeight(.black)
+                            Text("PLAYERS ENTERED").font(.subheadline)
+                        }
+                        Divider().padding()
+                        VStack{
+                            Text("\(tournamentVm.playerList.count)").font(.system(size: 70)).fontWeight(.black)
+                            Text("PLAYERS LEFT").font(.subheadline)
+                        }
+                    }.padding()
+                    }.padding()
+                }
             }
+            else{
             ScrollView{
                 if selectedIndex == 0 {
                     matchContentField
@@ -131,7 +191,7 @@ struct bracketDetailView: View {
                     winnerPage
                 }
             }
-        //}
+            }
         }
         .sheet(isPresented: $modifyMatch) {
             modifyMatchView(tournamentVm: tournamentVm ,isLeague: false)
@@ -147,7 +207,14 @@ struct bracketDetailView: View {
                     } label: {
                         Image(systemName: "gear")
                     }
-                    
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing){
+                Button {
+                    tournamentVm.refreshData(tournamentId: tournamentVm.tournament!.id)
+                    selectedIndex = -1
+                } label: {
+                    Image(systemName: "arrow.clockwise")
                 }
             }
         }
@@ -214,7 +281,7 @@ extension bracketDetailView {
                             matchInfo.toggle()
                         }
                     } label: {
-                       matchBubble(match: match)
+                        matchBubble(match: match)
                     }.padding()
                 }
                 
@@ -282,7 +349,7 @@ extension bracketDetailView {
                         .padding()
                     
                 }.padding(.horizontal)
-                    HStack{
+                HStack{
                     
                     WebImage(url: URL(string: match.player2Pic))
                         .resizable()
@@ -296,51 +363,51 @@ extension bracketDetailView {
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundColor(.black)
-                        
                     
-                        Spacer()
-                        Text("\(match.player2Score)")
-                            .font(.callout)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.black)
-                            .padding()
-                    }.padding([.horizontal, .bottom])
+                    
+                    Spacer()
+                    Text("\(match.player2Score)")
+                        .font(.callout)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.black)
+                        .padding()
+                }.padding([.horizontal, .bottom])
             }
             .background(
-                                .regularMaterial,
-                                in: RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            )
+                .regularMaterial,
+                in: RoundedRectangle(cornerRadius: 10, style: .continuous)
+            )
         }
     }
     
     private var winnerPage: some View {
-        VStack{
+        VStack(spacing: 10){
             if tournamentVm.tournament?.winner ?? "" != "" {
-            HStack {
-                Spacer()
-                Text("Champion")
-                    .font(.title)
-                    .fontWeight(.heavy)
-                    .padding()
-                Spacer()
+                HStack {
+                    Image(systemName: "crown").font(.title3).padding()
+                    Text("Champion")
+                        .font(.title)
+                        .fontWeight(.heavy)
+                        .padding()
+                    Image(systemName: "crown").font(.title3).padding()
+                }.padding(.top, 20)
+                HStack {
+                    WebImage(url: URL(string: tournamentVm.tournament!.players[0].profilePicUrl))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 200, height: 200)
+                        .clipShape(Circle())
+                        .shadow(radius: 30)
+                }.padding()
+                HStack {
+                    Spacer()
+                    Text(tournamentVm.tournament!.players[0].displayName)
+                        .font(.title)
+                        .fontWeight(.heavy)
+                        .padding()
+                    Spacer()
+                }
             }
-            HStack {
-                WebImage(url: URL(string: tournamentVm.tournament!.players[0].profilePicUrl))
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 200, height: 200)
-                    .clipShape(Circle())
-                    .shadow(radius: 30)
-            }.padding()
-            HStack {
-                Spacer()
-                Text(tournamentVm.tournament!.players[0].displayName)
-                    .font(.title)
-                    .fontWeight(.heavy)
-                    .padding()
-                Spacer()
-            }
-        }
             else {
                 Spacer()
                 HStack{

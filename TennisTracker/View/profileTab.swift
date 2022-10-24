@@ -17,140 +17,152 @@ struct profileTab: View {
     @State var displayName = ""
     @State var showFriendsList = false
     @State var confirmDeleteAlert = false
-    @ObservedObject private var vm = UserViewModel()
+    @State var invalidDisplayName = false
+    @EnvironmentObject private var vm: UserViewModel
     var body: some View {
-        NavigationView {
-            ScrollView(showsIndicators: false){
-                VStack{
-                    header
-                    Divider().padding(.horizontal)
-                    statBar
+        ZStack{
+            NavigationView {
+                ScrollView(showsIndicators: false){
                     VStack{
-                        statRow
-                        changeUserRow
-                        changeProfilePicRow
-                        Divider().padding()
-                        logOutRow
-                        deleteAccountRow
-                    }.padding()
-                    Spacer()
-                }.sheet(isPresented: $showFriendsList, content: {
-                    VStack {
+                        header
+                        Divider().padding(.horizontal)
+                        statBar
+                        VStack{
+                            changeUserRow
+                            changeProfilePicRow
+                            Divider().padding()
+                            logOutRow
+                            deleteAccountRow
+                        }.padding()
+                        Spacer()
+                    }.sheet(isPresented: $showFriendsList, content: {
+                        VStack {
                             Text("Friends")
                                 .font(.title)
                                 .fontWeight(.bold)
                                 .padding()
-                        Divider().padding(.horizontal)
-                        Spacer()
-                        ScrollView {
-                            ForEach(vm.friends, id: \.uid) {friend in
-                                HStack{
-                                            if friend.profilePicUrl != "" {
-                                                WebImage(url: URL(string: friend.profilePicUrl))
-                                                    .resizable()
-                                                    .aspectRatio(contentMode: .fill)
-                                                    .frame(width: 50, height: 50)
-                                                    .clipShape(Circle())
-                                                    .shadow(radius: 20)
-                                                    .padding(.horizontal)
-                                            }
-                                            else {
-                                                Image("profile")
-                                                    .resizable()
-                                                    .aspectRatio(contentMode: .fill)
-                                                    .frame(width: 50, height: 50)
-                                                    .clipShape(Circle())
-                                                    .shadow(radius: 20)
-                                                    .padding()
-                                            }
-                                    VStack(alignment: .leading){
-                                                
-                                                Text(friend.displayName)
-                                                    .font(.title3)
-                                                    .fontWeight(.semibold)
-                                                    .foregroundColor(.black)
+                            Divider().padding(.horizontal)
+                            Spacer()
+                            ScrollView {
+                                ForEach(vm.friends, id: \.uid) {friend in
+                                    HStack{
+                                        if friend.profilePicUrl != "" {
+                                            WebImage(url: URL(string: friend.profilePicUrl))
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: 50, height: 50)
+                                                .clipShape(Circle())
+                                                .padding(.horizontal)
+                                        }
+                                        else {
+                                            Image("profile")
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: 50, height: 50)
+                                                .clipShape(Circle())
+                                                .padding()
+                                        }
+                                        VStack(alignment: .leading){
+                                            
+                                            Text(friend.displayName)
+                                                .font(.title3)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(.black)
                                             Text("@\(friend.username)")
                                                 .font(.callout)
                                                 .fontWeight(.semibold)
                                                 .foregroundColor(.gray)
-                                            }
-                                    Spacer()
+                                        }
+                                        Spacer()
                                     }
-                                
-                                Divider().padding(.horizontal)
+                                    
+                                    Divider().padding(.horizontal)
+                                }
+                            }
+                            Spacer()
+                        }
+                    })
+                }
+                .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
+                    
+                    ImagePicker(image: $image)
+                }.navigationTitle("Profile")
+                    .toolbar {
+                        if showSaveButton{
+                            Button {
+                                vm.updateImage(image: image)
+                                showSaveButton = false
+                            } label: {
+                                Text("Save")
+                                    .padding()
                             }
                         }
-                        Spacer()
                     }
-                })
-                .sheet(isPresented: $changeDisplayName) {
-                    ZStack {
-                        Image("back")
-                            .resizable()
-                            .ignoresSafeArea()
-                            .blur(radius: 2.0, opaque: true)
-                            .opacity(0.85)
-                        VStack(alignment: .leading){
-                            Text("Update Display Name")
-                                .font(.title)
-                                .fontWeight(.bold)
-                        TextField("Enter Display Name", text: $displayName)
-                                .frame(width: UIScreen.main.bounds.size.width - 50, height: 50)
-                                .foregroundColor(Color.black)
-                                .background(Color.gray.opacity(0.4))
-                                .padding()
-                            Button {
-                                displayName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
-                                updateDisplayName(input: displayName)
-                            } label: {
-                                Text("Update")
-                                    .font(.title2)
-                                    .fontWeight(.heavy)
-                                    .padding()
-                                    .foregroundColor(.black)
-                                    .frame(maxWidth: UIScreen.main.bounds.size.width / 1.25, maxHeight: 20)
-                                    .padding()
-                                    .overlay(RoundedRectangle(cornerRadius: 100)
-                                        .stroke(Color.black, lineWidth: 0.8))
-                                    .padding()
-                                    .offset(y: 9)                            }
-                        }
-                    }
-                }
+            }.fullScreenCover(isPresented: $vm.isUserSignedOut) {
+                signIn()
             }
-            .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
-                ImagePicker(image: $image)
-            }.navigationTitle("Profile")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    if showSaveButton{
+            .alert(isPresented: $invalidDisplayName) {
+                Alert(title: Text("Error!"), message: Text("Invalid display name entered"), dismissButton:
+                        .default(Text("Got it!")))
+            }
+            .alert(isPresented: $confirmDeleteAlert) {
+                Alert(title: Text("Delete Account"), message: Text("Are you sure you want to delete your account?"), primaryButton: .destructive(Text("Delete")){
+                    vm.deleteUser()
+                }, secondaryButton: .cancel())
+            }
+            if changeDisplayName{
+                Rectangle().ignoresSafeArea(.all).opacity(0.5)
+                VStack{
+                    Text("Change Display Name").font(.title3).fontWeight(.bold).padding()
+                    TextField(" Enter your new display name", text: $displayName).padding().background(Color.gray.opacity(0.3)).cornerRadius(20)
+                    HStack{
                         Button {
-                            updateImage()
-                            showSaveButton = false
+                            if displayName.isEmpty {
+                                invalidDisplayName = true
+                            }
+                            else{
+                                displayName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+                                vm.updateDisplayName(input: displayName) { _ in
+                                    changeDisplayName.toggle()
+                                }
+                            }
                         } label: {
-                            Text("Save")
-                                .padding()
+                            VStack{
+                                Text("Update")
+                                    .padding()
+                                    .foregroundColor(Color.white)
+                                    .background(Color.blue.opacity(0.8))
+                                    .cornerRadius(20)
+                            }
                         }
-                    }
+                        Button {
+                            changeDisplayName.toggle()
+                        } label: {
+                            VStack{
+                                Text("Cancel")
+                                    .padding()
+                                    .foregroundColor(Color.white)
+                                    .background(Color.blue.opacity(0.8))
+                                    .cornerRadius(20)
+                            }
+                        }
+                    }.padding()
                 }
-        }.fullScreenCover(isPresented: $vm.isUserSignedOut) {
-            signIn()
-        }
-        .alert(isPresented: $confirmDeleteAlert) {
-            Alert(title: Text("Delete Account"), message: Text("Are you sure you want to delete your account?"), primaryButton: .destructive(Text("Delete")){
-                vm.deleteUserData(uid: vm.user!.uid)
-                vm.deleteUser()
-            }, secondaryButton: .cancel())
+                .padding()
+                .frame(width: UIScreen.main.bounds.midX * 1.5, height: UIScreen.main.bounds.midY / 2)
+                .background(Color.white)
+                .cornerRadius(30)
+            }
+            
         }
     }
-    
 }
 
 
 
 struct profileTab_Previews: PreviewProvider {
     static var previews: some View {
-        profileTab()
+        profileTab().environmentObject(UserViewModel())
     }
 }
 
@@ -164,7 +176,7 @@ extension profileTab {
                 showFriendsList.toggle()
             } label: {
                 VStack {
-                    Text("\(vm.user?.friendsUid.count ?? 0)")
+                    Text("\(vm.user?.friends.count ?? 0)")
                         .font(.callout)
                         .fontWeight(.bold)
                         .foregroundColor(.black)
@@ -173,7 +185,7 @@ extension profileTab {
                         .foregroundColor(.black)
                 }.padding()
             }
-
+            
             Spacer()
             VStack {
                 Text("\(vm.user?.matchesPlayed ?? 0)")
@@ -235,9 +247,9 @@ extension profileTab {
                 
             }
             if displayName == "" && vm.user?.displayName != ""{
-            Text(vm.user?.displayName ?? "")
-                .font(.title)
-                .fontWeight(.bold)
+                Text(vm.user?.displayName ?? "")
+                    .font(.title)
+                    .fontWeight(.bold)
             }
             else {
                 Text(displayName)
@@ -333,22 +345,22 @@ extension profileTab {
             vm.signOut()
         } label: {
             HStack{
-                    Image(systemName: "arrow.right.square")
-                        .font(.title)
-                        .foregroundColor(Color.black)
-                        .frame(width: 50, height: 50)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .padding(.horizontal)
-                    
-                    Text("Log Out")
-                        .foregroundColor(Color.black)
-                        .font(.body)
-                        .fontWeight(.semibold)
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(Color.black)
-                        .padding()
-                    
+                Image(systemName: "arrow.right.square")
+                    .font(.title)
+                    .foregroundColor(Color.black)
+                    .frame(width: 50, height: 50)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .padding(.horizontal)
+                
+                Text("Log Out")
+                    .foregroundColor(Color.black)
+                    .font(.body)
+                    .fontWeight(.semibold)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(Color.black)
+                    .padding()
+                
             }.padding(.horizontal)
         }
     }
@@ -358,66 +370,23 @@ extension profileTab {
             confirmDeleteAlert.toggle()
         } label: {
             HStack{
-                    Image(systemName: "arrow.right.square")
-                        .font(.title)
-                        .foregroundColor(Color.red)
-                        .frame(width: 50, height: 50)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .padding(.horizontal)
-                    
-                    Text("Delete Account")
-                        .foregroundColor(Color.red)
-                        .font(.body)
-                        .fontWeight(.semibold)
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(Color.red)
-                        .padding()
-                    
+                Image(systemName: "arrow.right.square")
+                    .font(.title)
+                    .foregroundColor(Color.red)
+                    .frame(width: 50, height: 50)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .padding(.horizontal)
+                
+                Text("Delete Account")
+                    .foregroundColor(Color.red)
+                    .font(.body)
+                    .fontWeight(.semibold)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(Color.red)
+                    .padding()
+                
             }.padding(.horizontal)
-        }
-    }
-    
-    private func updateImage() {
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid
-        else {return}
-        let ref = FirebaseManager.shared.storage.reference(withPath: uid)
-        guard let imageData = self.image?.jpegData(compressionQuality: 0.5) else {return}
-        ref.putData(imageData, metadata: nil) { metadata, err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-            ref.downloadURL { url, err in
-                if let err = err {
-                    print(err.localizedDescription)
-                    return
-                }
-                guard let url = url else {return}
-                storeUserImage(imageURL: url)
-            }
-        }
-    }
-    
-    private func storeUserImage(imageURL: URL){
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return}
-        FirebaseManager.shared.firestore.collection("users")
-            .document(uid).updateData(["profilePicUrl" : imageURL.absoluteString]) { err in
-                if let err = err {
-                    print(err.localizedDescription)
-                    return
-                }
-            }
-    }
-    
-    private func updateDisplayName(input: String){
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return}
-        FirebaseManager.shared.firestore.collection("users").document(uid).updateData(["displayName" : input]) { err in
-            if let err = err{
-                print(err.localizedDescription)
-                return
-            }
-            changeDisplayName.toggle()
         }
     }
 }

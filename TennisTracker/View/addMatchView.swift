@@ -270,9 +270,6 @@ extension addMatchView {
                     .padding()
                     .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
                     .onTapGesture {
-                        print(player1Score)
-                        print(player2Score)
-                        print(numberOfSets)
                         if !matchOngoing && !verifyScore(){
                             showAlert = true
                         }

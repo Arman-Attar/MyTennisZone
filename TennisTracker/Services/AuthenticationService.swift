@@ -29,26 +29,14 @@ class FirebaseManager: NSObject, ObservableObject {
         super.init()
     }
     
-    
-    
-    //@Published var signUpStatusMessage = ""
-    
-    
-    // UNABLE TO RETURN THE ERROR MESSAGE TO THE USER FROM HERE, FUNCTIONS ARE IN THE VIEW FOR NOW
-//    func createUser(email: String, password: String){
-//        auth.createUser(withEmail: email, password: password) { result, err in
-//            if let err = err {
-//                print(err.localizedDescription)
-//                self.signUpStatusMessage = "Unable to Create User: \(err.localizedDescription)"
-//                return
-//            }
-//            else{
-//                self.signUpStatusMessage = "OK"
-//            }
-//        }
-//    }
-    
-//    func logIn(email: String, password: String) {
-//        auth.signIn(withEmail: email, password: password)
-//    }
+    func logIn(email: String, password: String, completionHandler: @escaping (_ data: String) -> Void) {
+        auth.signIn(withEmail: email, password: password) { result, err in
+            if let err = err {
+                completionHandler("Unable to Log In: \(err.localizedDescription)")
+            }
+            else{
+                completionHandler("Sign In")
+            }
+        }
+    }
 }

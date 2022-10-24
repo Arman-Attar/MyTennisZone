@@ -8,16 +8,16 @@
 import Foundation
 import FirebaseFirestoreSwift
 
-struct User {
+struct User: Codable {    
     let uid: String
     let email: String
     let username: String
     let profilePicUrl: String
-    let displayName: String
+    var displayName: String
     let matchesPlayed: Int
     let matchesWon: Int
     let trophies: Int
-    let friendsUid: [String]
+    let friends: [String]
 }
 
 struct League: Codable {
@@ -30,7 +30,7 @@ struct League: Codable {
     let admin: String
 }
 
-struct Friend {
+struct Friend: Codable {
     let uid: String
     let username: String
     let profilePicUrl: String

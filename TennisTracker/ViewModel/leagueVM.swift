@@ -23,10 +23,10 @@ class LeagueViewModel: ObservableObject {
         getLeagues()
     }
     
-    private func getLeagues(){
-        
+    func getLeagues(){
+        leagues = []
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return}
-        FirebaseManager.shared.firestore.collection("leagues").whereField("playerId", arrayContains: uid).getDocuments { snapshot, err in
+        FirebaseManager.shared.firestore.collection("leagues").whereField("playerId", arrayContains: uid).getDocuments { snapshot, err  in
             if let err = err {
                 print(err.localizedDescription)
                 return
@@ -68,8 +68,62 @@ class LeagueViewModel: ObservableObject {
                 players.sort {
                     $0.points > $1.points
                 }
-                self.leagues.append(League(id: id, name: name, playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin))
+                self.leagues.append(League(id: id, name: name.capitalized, playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin))
             }
+        }
+    }
+    
+    func refreshData(leagueId: String){
+        playerList = []
+        FirebaseManager.shared.firestore.collection("leagues").document(leagueId).getDocument { snapshot, err in
+            if let err = err {
+                print(err.localizedDescription)
+                return
+            }
+
+            guard let document = snapshot?.data() else {return}
+
+            let id = document["id"] as? String ?? ""
+            let name = document["name"] as? String ?? ""
+            let playerId = document["playerId"] as? [String] ?? []
+            var players = (document["players"] as! [[String: Any]]).map{ player in
+                return Player(
+                    uid: player["uid"] as? String ?? "",
+                    profilePicUrl: player["profilePicUrl"] as? String ?? "",
+                    displayName: player["displayName"] as? String ?? "",
+                    points: player["points"] as? Int ?? 0,
+                    wins: player["wins"] as? Int ?? 0,
+                    losses: player["losses"] as? Int ?? 0,
+                    played: player["played"] as? Int ?? 0)
+            }
+            let matches = (document["matches"] as! [[String: Any]]).map{ match in
+                return Match(
+                    id: match["id"] as? String ?? "",
+                    date: match["date"] as? String ?? "",
+                    player1Pic: match["player1Pic"] as? String ?? "",
+                    player2Pic: match["player2Pic"] as? String ?? "",
+                    player1DisplayName: match["player1DisplayName"] as? String ?? "",
+                    player2DisplayName: match["player2DisplayName"] as? String ?? "",
+                    player1Score: match["player1Score"] as? Int ?? 0,
+                    player2Score: match["player2Score"] as? Int ?? 0,
+                    winner: match["winner"] as? String ?? "",
+                    matchOngoing: match["matchOngoing"] as? Bool ?? false,
+                    setsToWin: match["setsToWin"] as? Int ?? 3,
+                    matchType: match["matchType"] as? String ?? "")
+            }
+
+            let bannerURL = document["bannerURL"] as? String ?? ""
+
+            let admin = document["admin"] as? String ?? ""
+            players.sort {
+                $0.points > $1.points
+            }
+
+            self.league = League(id: id, name: name, playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin)
+
+            self.playerList = self.league?.players ?? []
+
+            self.listOfMatches = matches.reversed()
         }
     }
     
@@ -119,11 +173,11 @@ class LeagueViewModel: ObservableObject {
                 $0.points > $1.points
             }
             
-            self.league = League(id: id, name: name, playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin)
+            self.league = League(id: id, name: name.capitalized, playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin)
             
             self.playerList = self.league?.players ?? []
             
-            self.listOfMatches = matches
+            self.listOfMatches = matches.reversed()
         }
     }
     
@@ -294,6 +348,7 @@ class LeagueViewModel: ObservableObject {
                 FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["matches" : FieldValue.arrayUnion([matchData])])
             }
         }
+        
     }
     
     func findLeague(leagueName: String) {
@@ -320,9 +375,9 @@ class LeagueViewModel: ObservableObject {
                     played: player["played"] as? Int ?? 0)
             }
             let bannerURL = document["bannerURL"] as? String ?? ""
-                let admin = document["admin"] as? String ?? ""
+            let admin = document["admin"] as? String ?? ""
                 
-            self.league = League(id: id, name: name, playerId: playerId, players: players, matches: [], bannerURL: bannerURL, admin: admin)
+                self.league = League(id: id, name: name.capitalized, playerId: playerId, players: players, matches: [], bannerURL: bannerURL, admin: admin)
             
             self.playerList = self.league?.players ?? []
             }

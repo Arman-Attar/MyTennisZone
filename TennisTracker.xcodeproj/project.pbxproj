@@ -62,6 +62,7 @@
 		C2521615282DA6B9004C124A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		C252161E282DFD7E004C124A /* userVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = userVM.swift; sourceTree = "<group>"; };
 		C252162628320309004C124A /* addFriend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = addFriend.swift; sourceTree = "<group>"; };
+		C2689D9228B68ADC0088AFC5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C277D26C283DE6A10072814A /* addMatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = addMatchView.swift; sourceTree = "<group>"; };
 		C277D26E283F326D0072814A /* matchResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = matchResultView.swift; sourceTree = "<group>"; };
 		C277D272284719520072814A /* modifyMatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = modifyMatchView.swift; sourceTree = "<group>"; };
@@ -156,6 +157,7 @@
 		C22E8176281B351F009593BE /* TennisTracker */ = {
 			isa = PBXGroup;
 			children = (
+				C2689D9228B68ADC0088AFC5 /* Info.plist */,
 				C2F0D7382821ABF8009792CD /* Services */,
 				C211BB0D281B3F0F00C964F2 /* ViewModel */,
 				C211BB0C281B3F0A00C964F2 /* Model */,
@@ -435,11 +437,14 @@
 				DEVELOPMENT_TEAM = K4ZA43UN7X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TennisTracker/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "$(PRODUCT_NAME) photo use";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -467,11 +472,14 @@
 				DEVELOPMENT_TEAM = K4ZA43UN7X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TennisTracker/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "$(PRODUCT_NAME) photo use";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
