@@ -15,7 +15,6 @@ struct signIn: View {
     @AppStorage("password") var password = ""
     @State var isUserSignedIn = false
     @State var showPassword = false
-    //@StateObject var fb = FirebaseManager()
     @State var result = ""
     var body: some View {
         if isUserSignedIn{
@@ -46,18 +45,16 @@ extension signIn {
                 VStack{
                     VStack{
                         Spacer()
-                            // EMAIL
-                            emailField
-                            passwordField
-                            
+                        emailField
+                        passwordField
                         Text("Forgot Password?")
                             .foregroundColor(Color.black)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             .font(.body)
                             .padding(.horizontal)
-                            submitButton
+                        submitButton
                         Spacer()
-                            
+                        
                     }
                     Spacer()
                     HStack {
@@ -118,10 +115,6 @@ extension signIn {
                     Image(systemName: "eye.slash")
                         .foregroundColor(.black)
                 }
-//                SecureField("Password", text: $password)
-//                    .foregroundColor(.black)
-//                Image(systemName: "eye.slash")
-//                    .foregroundColor(.black)
             }.padding(.horizontal)
             Rectangle()
                 .frame(maxWidth: .infinity, maxHeight:1)
@@ -155,14 +148,11 @@ extension signIn {
                             .stroke(Color.black, lineWidth: 0.8))
                         .padding()
                         .offset(y: 9)
-                    
                     if result != "" {
                         errorField
                     }
                 }
-                
             }
-            
         }
     }
     private var errorField: some View{
@@ -176,16 +166,4 @@ extension signIn {
             .cornerRadius(21)
             .padding()
     }
-    
-//    private func logIn(email: String, password: String) {
-//        fb.auth.signIn(withEmail: email, password: password) { result, err in
-//            if let err = err {
-//                self.result = "Unable to Create User: \(err.localizedDescription)"
-//            }
-//            else{
-//                self.isUserSignedIn.toggle()
-//                self.result = "DONE"
-//            }
-//        }
-//    }
 }

@@ -154,7 +154,6 @@ extension signUp {
                             .stroke(Color.black, lineWidth: 0.8))
                         .padding()
                         .offset(y: 9)
-                    
                     if result != "" && result != "done" {
                         errorField
                     }
@@ -162,9 +161,7 @@ extension signUp {
                         success
                     }
                 }
-                
             }
-            
         }
     }
     
