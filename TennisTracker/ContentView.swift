@@ -11,8 +11,6 @@ struct ContentView: View {
     @State var isSignedIn = false
     var body: some View {
         ZStack{
-            //if isSignedIn { SHOW HOMEPAGE }
-            //else 
             signIn().colorScheme(.light)
         }
       

@@ -19,7 +19,7 @@ class FirebaseManager: NSObject, ObservableObject {
     static let shared = FirebaseManager()
     override init(){
         if !TennisTrackerApp.isAlreadyLaunched{
-        FirebaseApp.configure()
+            FirebaseApp.configure()
             TennisTrackerApp.isAlreadyLaunched = true
         }
         self.auth = Auth.auth()
@@ -27,6 +27,57 @@ class FirebaseManager: NSObject, ObservableObject {
         self.firestore = Firestore.firestore()
         
         super.init()
+    }
+    
+    func register(email: String, password: String, userName: String, completionHandler: @escaping (_ data: String) -> Void) {
+        auth.createUser(withEmail: email.lowercased(), password: password) { result, err in
+            if let err = err {
+                completionHandler("Unable to Create User: \(err.localizedDescription)")
+                return
+            }
+            else{
+                let userName = userName.trimmingCharacters(in: .whitespacesAndNewlines)
+                self.createUser(email: email, userName: userName) { result in
+                    if result {
+                        completionHandler("done")
+                    } else {
+                        completionHandler("Unable to Create User")
+                    }
+                }
+                
+            }
+        }
+    }
+    
+    private func createUser(email: String, userName: String, completionHandler: @escaping (_ data: Bool) -> Void){
+        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
+            completionHandler(false)
+            return
+        }
+        let userData = ["email" : email.lowercased(), "uid": uid, "profilePicUrl" : "", "username" : userName.lowercased(), "displayName" : userName, "matchesPlayed" : 0, "matchesWon": 0, "trophies" : 0, "friendsUid" : 0] as [String : Any]
+        FirebaseManager.shared.firestore.collection("users").document(uid).setData(userData) { err in
+            if let err = err {
+                print(err.localizedDescription)
+                completionHandler(false)
+            } else {
+                completionHandler(true)
+            }
+        }
+    }
+    
+    func validateUserName(userName: String, completionHandler: @escaping (_ data: Bool) -> Void) {
+        firestore.collection("users").whereField("username", isEqualTo: userName.lowercased()).getDocuments { snapshot, err in
+            if let err = err {
+                print(err.localizedDescription)
+                completionHandler(false)
+            }
+            if snapshot!.isEmpty {
+                completionHandler(true)
+            }
+            else{
+                completionHandler(false)
+            }
+        }
     }
     
     func logIn(email: String, password: String, completionHandler: @escaping (_ data: String) -> Void) {

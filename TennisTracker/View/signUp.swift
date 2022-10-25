@@ -17,8 +17,7 @@ struct signUp: View {
     @State var password = ""
     @State var userName = ""
     @State var result = ""
-    @State var notValid = false
-    @ObservedObject var fb = FirebaseManager()
+    @State var showPassword = false
     @Environment(\.dismiss) var dismiss
     var body: some View {
         ZStack{
@@ -37,8 +36,6 @@ struct signUp: View {
                 }
                 Spacer()
             }
-        }.alert(isPresented: $notValid) {
-            Alert(title: Text("Error"), message: Text("Username already exists"), dismissButton: .default(Text("Got It!")))
         }
     }
 }
@@ -60,7 +57,8 @@ extension signUp {
             HStack{
                 TextField("User Name", text: $userName)
                     .foregroundColor(.black)
-                    .keyboardType(.emailAddress)
+                    .textInputAutocapitalization(.never)
+                    .disableAutocorrection(true)
                 Image(systemName: "person")
                     .foregroundColor(.black)
             }.padding(.horizontal)
@@ -74,7 +72,7 @@ extension signUp {
     
     private var emailField: some View{
         VStack{
-            Text("Email ID*")
+            Text("Email*")
                 .foregroundColor(Color.black)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
@@ -82,6 +80,8 @@ extension signUp {
                 TextField("Email", text: $email)
                     .foregroundColor(.black)
                     .keyboardType(.emailAddress)
+                    .disableAutocorrection(true)
+                    .textInputAutocapitalization(.never)
                 Image(systemName: "at")
                     .foregroundColor(.black)
             }.padding(.horizontal)
@@ -100,10 +100,23 @@ extension signUp {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
             HStack{
-                SecureField("Password", text: $password)
-                    .foregroundColor(.black)
-                Image(systemName: "eye.slash")
-                    .foregroundColor(.black)
+                if showPassword {
+                    TextField("Password", text: $password)
+                        .textInputAutocapitalization(.never)
+                        .disableAutocorrection(true)
+                        .foregroundColor(.black)
+                } else {
+                    SecureField("Password", text: $password)
+                        .textInputAutocapitalization(.never)
+                        .disableAutocorrection(true)
+                        .foregroundColor(.black)
+                }
+                Button {
+                    self.showPassword.toggle()
+                } label: {
+                    Image(systemName: "eye.slash")
+                        .foregroundColor(.black)
+                }
             }.padding(.horizontal)
             Rectangle()
                 .frame(maxWidth: .infinity, maxHeight:1)
@@ -116,17 +129,17 @@ extension signUp {
     private var submitButton: some View {
         VStack{
             Button {
-                //SEND DATA
-                validateUserName { (result) in
+                FirebaseManager.shared.validateUserName(userName: userName) { (result) in
                     if result {
-                register(email: email, password: password)
-                if self.result == "DONE"{
-                    dismiss()
-                }
-                }
-                else {
-                    notValid = true
-                }
+                        FirebaseManager.shared.register(email: email, password: password, userName: userName) { result in
+                            self.result = result
+                            if result == "done"{
+                                dismiss()
+                            }
+                        }
+                    } else {
+                        self.result = "Username already exists"
+                    }
                 }
             } label: {
                 VStack {
@@ -142,10 +155,10 @@ extension signUp {
                         .padding()
                         .offset(y: 9)
                     
-                    if result != "" && result != "DONE" {
+                    if result != "" && result != "done" {
                         errorField
                     }
-                    else if result == "DONE"{
+                    else if result == "done"{
                         success
                     }
                 }
@@ -154,6 +167,7 @@ extension signUp {
             
         }
     }
+    
     private var errorField: some View{
         Text(result)
             .font(.body)
@@ -177,49 +191,6 @@ extension signUp {
                 .background(.ultraThinMaterial)
                 .cornerRadius(21)
                 .padding()
-        }
-    }
-    
-    private func register(email: String, password: String) {
-        fb.auth.createUser(withEmail: email, password: password) { result, err in
-            if let err = err {
-                self.result = "Unable to Create User: \(err.localizedDescription)"
-            }
-            else{
-                self.result = "DONE"
-                userName = userName.trimmingCharacters(in: .whitespacesAndNewlines)
-                createUser(email: email, userName: userName)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1){
-                    dismiss()
-                }
-            }
-        }
-    }
-    
-    private func createUser(email: String, userName: String){
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return}
-        let userData = ["email" : email.lowercased(), "uid": uid, "profilePicUrl" : "", "username" : userName.lowercased(), "displayName" : userName, "matchesPlayed" : 0, "matchesWon": 0, "trophies" : 0, "friendsUid" : 0] as [String : Any]
-        FirebaseManager.shared.firestore.collection("users").document(uid).setData(userData) { err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-        }
-    }
-    
-    private func validateUserName(completionHandler: @escaping (_ data: Bool) -> Void) {
-        //var validate = false
-        FirebaseManager.shared.firestore.collection("users").whereField("username", isEqualTo: userName.lowercased()).getDocuments { snapshot, err in
-            if let err = err {
-                print(err.localizedDescription)
-                completionHandler(false)
-            }
-            if snapshot!.isEmpty {
-                completionHandler(true)
-            }
-            else{
-                completionHandler(false)
-            }
         }
     }
 }

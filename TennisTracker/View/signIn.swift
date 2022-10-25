@@ -14,7 +14,8 @@ struct signIn: View {
     @AppStorage("email") var email = ""
     @AppStorage("password") var password = ""
     @State var isUserSignedIn = false
-    @StateObject var fb = FirebaseManager()
+    @State var showPassword = false
+    //@StateObject var fb = FirebaseManager()
     @State var result = ""
     var body: some View {
         if isUserSignedIn{
@@ -80,6 +81,8 @@ extension signIn {
                 TextField("Email", text: $email)
                     .foregroundColor(.black)
                     .keyboardType(.emailAddress)
+                    .disableAutocorrection(true)
+                    .textInputAutocapitalization(.never)
                 Image(systemName: "at")
                     .foregroundColor(.black)
             }.padding(.horizontal)
@@ -98,10 +101,27 @@ extension signIn {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
             HStack{
-                SecureField("Password", text: $password)
-                    .foregroundColor(.black)
-                Image(systemName: "eye.slash")
-                    .foregroundColor(.black)
+                if showPassword {
+                    TextField("Password", text: $password)
+                        .textInputAutocapitalization(.never)
+                        .disableAutocorrection(true)
+                        .foregroundColor(.black)
+                } else {
+                    SecureField("Password", text: $password)
+                        .textInputAutocapitalization(.never)
+                        .disableAutocorrection(true)
+                        .foregroundColor(.black)
+                }
+                Button {
+                    self.showPassword.toggle()
+                } label: {
+                    Image(systemName: "eye.slash")
+                        .foregroundColor(.black)
+                }
+//                SecureField("Password", text: $password)
+//                    .foregroundColor(.black)
+//                Image(systemName: "eye.slash")
+//                    .foregroundColor(.black)
             }.padding(.horizontal)
             Rectangle()
                 .frame(maxWidth: .infinity, maxHeight:1)
@@ -114,9 +134,7 @@ extension signIn {
     private var submitButton: some View {
         VStack{
             Button {
-                //SEND DATA
-                //logIn(email: email, password: password)
-                fb.logIn(email: email, password: password, completionHandler: { data in
+                FirebaseManager.shared.logIn(email: email, password: password, completionHandler: { data in
                     if data == "Sign In"{
                         isUserSignedIn.toggle()
                     }
