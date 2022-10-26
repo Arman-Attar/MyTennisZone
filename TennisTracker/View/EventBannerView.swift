@@ -11,7 +11,7 @@ import SDWebImageSwiftUI
 struct EventBannerView: View {
     var leagueEvent: League? = nil
     var tournamentEvent: Tournament? = nil
-    @State var pos: Int
+    @State var pos: Int?
     var body: some View {
         VStack{
             if leagueEvent != nil{
@@ -19,8 +19,10 @@ struct EventBannerView: View {
                 leagueSummaryField
                 Divider().padding(.horizontal)
             }
-            else if let tourny = tournamentEvent {
-                
+            else if tournamentEvent != nil {
+                tournyImageField
+                tournySummaryField
+                Divider().padding(.horizontal)
             }
         }
     }
@@ -63,7 +65,44 @@ extension EventBannerView {
             Text("\(leagueEvent!.players.count)")
                 .foregroundColor(.black)
             Rectangle().frame(width: 1, height: 20)
-            Text("Position: \(pos)")
+            Text("Position: \(pos!)")
+                .foregroundColor(.black)
+        }
+        .padding()
+    }
+    private var tournyImageField: some View {
+        VStack{
+            if tournamentEvent!.bannerURL == ""{
+            Image("league")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: UIScreen.main.bounds.width/1.2, height: UIScreen.main.bounds.height/4)
+                .clipShape(Rectangle())
+                .padding(.horizontal)
+            }
+            else {
+                WebImage(url: URL(string: tournamentEvent!.bannerURL!))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: UIScreen.main.bounds.width/1.2, height: UIScreen.main.bounds.height/4)
+                    .clipShape(Rectangle())
+                    .padding(.horizontal)
+            }
+    }
+    }
+    private var tournySummaryField: some View {
+        HStack {
+            Text(tournamentEvent!.name)
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.black)
+            Spacer()
+            Image(systemName: "person.fill")
+                .foregroundColor(.gray)
+            Text("\(tournamentEvent!.players.count)")
+                .foregroundColor(.black)
+            Rectangle().frame(width: 1, height: 20)
+            Text("\(tournamentEvent!.mode)") // PUT IN THE TOURNAMENT TYPE
                 .foregroundColor(.black)
         }
         .padding()

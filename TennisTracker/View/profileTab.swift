@@ -44,40 +44,7 @@ struct profileTab: View {
                             Divider().padding(.horizontal)
                             Spacer()
                             ScrollView {
-                                ForEach(vm.friends, id: \.uid) {friend in
-                                    HStack{
-                                        if friend.profilePicUrl != "" {
-                                            WebImage(url: URL(string: friend.profilePicUrl))
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fill)
-                                                .frame(width: 50, height: 50)
-                                                .clipShape(Circle())
-                                                .padding(.horizontal)
-                                        }
-                                        else {
-                                            Image("profile")
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fill)
-                                                .frame(width: 50, height: 50)
-                                                .clipShape(Circle())
-                                                .padding()
-                                        }
-                                        VStack(alignment: .leading){
-                                            
-                                            Text(friend.displayName)
-                                                .font(.title3)
-                                                .fontWeight(.semibold)
-                                                .foregroundColor(.black)
-                                            Text("@\(friend.username)")
-                                                .font(.callout)
-                                                .fontWeight(.semibold)
-                                                .foregroundColor(.gray)
-                                        }
-                                        Spacer()
-                                    }
-                                    
-                                    Divider().padding(.horizontal)
-                                }
+                                friendsList
                             }
                             Spacer()
                         }
@@ -257,7 +224,7 @@ extension profileTab {
                 .foregroundColor(Color.gray)
         }
     }
-
+    
     private var changeUserRow: some View {
         Button {
             changeDisplayName.toggle()
@@ -353,6 +320,43 @@ extension profileTab {
                     .foregroundColor(Color.red)
                     .padding()
             }.padding(.horizontal)
+        }
+    }
+    
+    private var friendsList: some View {
+        ForEach(vm.friends, id: \.uid) {friend in
+            HStack{
+                if friend.profilePicUrl != "" {
+                    WebImage(url: URL(string: friend.profilePicUrl))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 50, height: 50)
+                        .clipShape(Circle())
+                        .padding(.horizontal)
+                }
+                else {
+                    Image("profile")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 50, height: 50)
+                        .clipShape(Circle())
+                        .padding()
+                }
+                VStack(alignment: .leading){
+                    
+                    Text(friend.displayName)
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.black)
+                    Text("@\(friend.username)")
+                        .font(.callout)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+            }
+            
+            Divider().padding(.horizontal)
         }
     }
 }
