@@ -84,7 +84,6 @@ struct profileTab: View {
                     })
                 }
                 .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
-                    
                     ImagePicker(image: $image)
                 }.navigationTitle("Profile")
                     .toolbar {
@@ -185,7 +184,6 @@ extension profileTab {
                         .foregroundColor(.black)
                 }.padding()
             }
-            
             Spacer()
             VStack {
                 Text("\(vm.user?.matchesPlayed ?? 0)")
@@ -234,7 +232,6 @@ extension profileTab {
                         .shadow(radius: 20)
                         .padding()
                 }
-                
                 else {
                     Image("profile")
                         .resizable()
@@ -244,7 +241,6 @@ extension profileTab {
                         .shadow(radius: 20)
                         .padding()
                 }
-                
             }
             if displayName == "" && vm.user?.displayName != ""{
                 Text(vm.user?.displayName ?? "")
@@ -261,30 +257,7 @@ extension profileTab {
                 .foregroundColor(Color.gray)
         }
     }
-    
-    private var statRow: some View{
-        HStack{
-            NavigationLink(destination: mainPage()) {
-                Image(systemName: "list.number")
-                    .font(.title)
-                    .foregroundColor(Color.black)
-                    .frame(width: 50, height: 50)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .padding(.horizontal)
-                
-                Text("Match History")
-                    .foregroundColor(Color.black)
-                    .font(.body)
-                    .fontWeight(.semibold)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .foregroundColor(Color.black)
-                    .padding()
-                
-            }.padding(.horizontal)
-        }
-    }
-    
+
     private var changeUserRow: some View {
         Button {
             changeDisplayName.toggle()
@@ -318,14 +291,12 @@ extension profileTab {
             }
         } label: {
             HStack{
-                
                 Image(systemName: "camera")
                     .font(.title)
                     .foregroundColor(Color.black)
                     .frame(width: 50, height: 50)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding(.horizontal)
-                
                 Text("Change Profile Picture")
                     .foregroundColor(Color.black)
                     .font(.body)
@@ -334,7 +305,6 @@ extension profileTab {
                 Image(systemName: "chevron.right")
                     .foregroundColor(Color.black)
                     .padding()
-                
             }.padding(.horizontal)
             
         }
@@ -351,7 +321,6 @@ extension profileTab {
                     .frame(width: 50, height: 50)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding(.horizontal)
-                
                 Text("Log Out")
                     .foregroundColor(Color.black)
                     .font(.body)
@@ -360,7 +329,6 @@ extension profileTab {
                 Image(systemName: "chevron.right")
                     .foregroundColor(Color.black)
                     .padding()
-                
             }.padding(.horizontal)
         }
     }
@@ -376,7 +344,6 @@ extension profileTab {
                     .frame(width: 50, height: 50)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding(.horizontal)
-                
                 Text("Delete Account")
                     .foregroundColor(Color.red)
                     .font(.body)
@@ -385,7 +352,6 @@ extension profileTab {
                 Image(systemName: "chevron.right")
                     .foregroundColor(Color.red)
                     .padding()
-                
             }.padding(.horizontal)
         }
     }

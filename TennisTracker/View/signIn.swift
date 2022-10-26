@@ -45,16 +45,16 @@ extension signIn {
                 VStack{
                     VStack{
                         Spacer()
-                        emailField
-                        passwordField
+                            emailField
+                            passwordField
                         Text("Forgot Password?")
                             .foregroundColor(Color.black)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             .font(.body)
                             .padding(.horizontal)
-                        submitButton
+                            submitButton
                         Spacer()
-                        
+                            
                     }
                     Spacer()
                     HStack {

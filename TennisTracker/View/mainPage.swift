@@ -26,7 +26,7 @@ struct mainPage: View {
                 case 4:
                     profileTab()
                 default:
-                    Text("PLACEHOLDER")
+                    Text("Default")
                 }
                 HStack{
                     ForEach(0..<5) { tab in

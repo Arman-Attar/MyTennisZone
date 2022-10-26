@@ -19,45 +19,13 @@ struct leagueView: View {
                         NavigationLink {
                             leagueDetailView(leagueVM: leagueVm, userVm: userVm) .navigationTitle(index.name).onAppear{leagueVm.getCurrentLeague(leagueId: index.id)}
                         } label: {
+                            let pos = leagueVm.getPos(players: index.players, uid: userVm.user!.uid)
                             VStack{
-                                if index.bannerURL == ""{
-                                Image("league")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: UIScreen.main.bounds.width/1.2, height: UIScreen.main.bounds.height/4)
-                                    .clipShape(Rectangle())
-                                    .padding(.horizontal)
-                                }
-                                else {
-                                    WebImage(url: URL(string: index.bannerURL!))
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: UIScreen.main.bounds.width/1.2, height: UIScreen.main.bounds.height/4)
-                                        .clipShape(Rectangle())
-                                        .padding(.horizontal)
-                                }
-                                HStack {
-                                    Text(index.name)
-                                        .font(.title2)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.black)
-                                    Spacer()
-                                    Image(systemName: "person.fill")
-                                        .foregroundColor(.gray)
-                                    Text("\(index.players.count)")
-                                        .foregroundColor(.black)
-                                    Rectangle().frame(width: 1, height: 20)
-                                    let pos = getPos(players: index.players)
-                                    Text("Position: \(pos)")
-                                        .foregroundColor(.black)
-                                }
-                                .padding()
-                                Divider().padding(.horizontal)
+                                EventBannerView(leagueEvent: index, tournamentEvent: nil, pos: pos)
                             }
                             .padding()
                             .shadow(radius: 20)
                         }
-
                     }
                 }
             }.navigationTitle("Leagues")
@@ -68,20 +36,6 @@ struct leagueView: View {
 struct leagueView_Previews: PreviewProvider {
     static var previews: some View {
         leagueView().environmentObject(UserViewModel())
-    }
-}
-
-extension leagueView {
-    func getPos(players: [Player]) -> Int {
-        var pos: Int = 0
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return 0}
-        for player in players {
-            pos += 1
-            if player.uid == uid {
-                break
-            }
-        }
-       return pos
     }
 }
 

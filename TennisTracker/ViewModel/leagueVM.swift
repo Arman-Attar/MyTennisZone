@@ -477,4 +477,16 @@ class LeagueViewModel: ObservableObject {
         
         FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["matches" : FieldValue.arrayRemove([matchData])])
     }
+    
+    func getPos(players: [Player], uid: String) -> Int {
+        var pos: Int = 0
+        //guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return 0}
+        for player in players {
+            pos += 1
+            if player.uid == uid {
+                break
+            }
+        }
+       return pos
+    }
 }
