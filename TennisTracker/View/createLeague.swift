@@ -17,60 +17,39 @@ struct createLeague: View {
     @State var playerId: [String] = []
     @State var showImagePicker = false
     @State var image: UIImage?
+    @State private var isLoading = false
+    @Environment(\.dismiss) var dismiss
     var body: some View {
+        ZStack{
         Form{
             leagueBanner.padding(.vertical)
             leagueNameField.padding(.vertical, 10)
-            VStack {
-                HStack {
-                    Text("Players")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .padding()
-                    Spacer()
-                    Image(systemName: "person.fill.badge.plus")
-                    
-                        .font(.title3)
-                        .onTapGesture {
-                            opponentSelection.toggle()
-                        }
-                        .padding()
-                }
-                    HStack(spacing: -20) {
-                        ForEach(players, id:\.uid) { player in
-                            WebImage(url: URL(string: player.profilePicUrl))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 50, height: 50)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
-                        }
-                    }.padding()
-            }
-            HStack {
-                Spacer()
-                createButton.onTapGesture {
-                    if image != nil{
-                        updateImage() // NEED TO FIX THIS, RIGHT NOW THIS FUNCTION ALSO CREATES THE LEAGUE
-                    }
-                    else{
-                        createLeague(bannerURL: "")
-                    }
-                }
-                Spacer()
-            }
+            opponentSection
+            buttonSection
         }.navigationTitle("Create a tournament")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $opponentSelection) {
                 opponentSelectionView(players: $players, playerId: $playerId, vm: vm)
             }
             .onAppear{
-                players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user?.profilePicUrl ?? "", displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0, played: 0))
-                playerId.append(vm.user?.uid ?? "")
+                players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user!.profilePicUrl, displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0, played: 0))
+                playerId.append(vm.user!.uid)
             }
             .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
                 ImagePicker(image: $image)
             }
+            if isLoading{
+                ZStack{
+                    Color(.systemBackground)
+                        .ignoresSafeArea()
+                        .opacity(0.7)
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                        .scaleEffect(3)
+                    }
+            }
+            
+        }
     }
 }
 
@@ -130,64 +109,72 @@ extension createLeague {
         }
     }
     
-    private var opponentField: some View {
-        HStack{
-            if !players.isEmpty {
-                Text("Opponent:").padding().frame(maxWidth: UIScreen.main.bounds.size.width / 3, maxHeight: 10)
+    private var opponentSection: some View {
+        VStack {
+            HStack {
+                Text("Players")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .padding()
+                Spacer()
+                Image(systemName: "person.fill.badge.plus")
                 
-                HStack(spacing: -20) {
-                    ForEach(players, id:\.uid) { player in
+                    .font(.title3)
+                    .onTapGesture {
+                        opponentSelection.toggle()
+                    }
+                    .padding()
+            }
+            HStack(spacing: -20) {
+                ForEach(players, id:\.uid) { player in
+                    if player.profilePicUrl != "" {
                         WebImage(url: URL(string: player.profilePicUrl))
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(width: 50, height: 50)
                             .clipShape(Circle())
                             .shadow(radius: 20)
+                    } else {
+                        Image("profile")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 50, height: 50)
+                            .clipShape(Circle())
+                            .shadow(radius: 20)
+                }
+                }
+            }.padding()
+        }
+    }
+    
+    private var buttonSection: some View {
+        HStack {
+            Spacer()
+            createButton.onTapGesture {
+                isLoading = true
+                let admin = vm.user?.uid ?? ""
+                var bannerURL = ""
+                if image != nil {
+                    LeagueViewModel.updateImage(image: image) { url in
+                        if url != "" {
+                            bannerURL = url
+                        }
+                        LeagueViewModel.createLeague(bannerURL: bannerURL, leagueName: leagueName, playerId: playerId, admin: admin, players: players) { data in
+                            if data {
+                                dismiss()
+                            }
+                        }
+                    }
+                } else {
+                    LeagueViewModel.createLeague(bannerURL: bannerURL, leagueName: leagueName, playerId: playerId, admin: admin, players: players) { data in
+                        if data {
+                            dismiss()
+                        }
                     }
                 }
-                
-                Button {
-                    opponentSelection.toggle()
-                } label: {
-                    Text("Add")
-                        .font(.subheadline)
-                        .fontWeight(.heavy)
-                        .padding()
-                        .foregroundColor(.black)
-                        .frame(maxWidth: UIScreen.main.bounds.size.width / 3, maxHeight: 10)
-                        .padding()
-                        .overlay(RoundedRectangle(cornerRadius: 100)
-                            .stroke(Color.black, lineWidth: 0.8))
-                        .padding()
-                }
             }
-            else {
-                Text("Opponent:").padding().frame(maxWidth: UIScreen.main.bounds.size.width / 3, maxHeight: 10)
-                Image("profile")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 50, height: 50)
-                    .clipShape(Circle())
-                    .shadow(radius: 20)
-                    .padding(.horizontal)
-                
-                Button {
-                    opponentSelection.toggle()
-                } label: {
-                    Text("Add")
-                        .font(.subheadline)
-                        .fontWeight(.heavy)
-                        .padding()
-                        .foregroundColor(.black)
-                        .frame(maxWidth: UIScreen.main.bounds.size.width / 3, maxHeight: 10)
-                        .padding()
-                        .overlay(RoundedRectangle(cornerRadius: 100)
-                            .stroke(Color.black, lineWidth: 0.8))
-                        .padding()
-                }
-            }
-            
-        }.padding(.horizontal)
+            Spacer()
+        }
     }
     
     private var createButton: some View {
@@ -202,46 +189,6 @@ extension createLeague {
                 .overlay(RoundedRectangle(cornerRadius: 100)
                     .stroke(Color.black, lineWidth: 0.8))
                 .padding()
-        }
-    }
-    
-    private func updateImage(){
-        let uid = UUID().uuidString
-        let ref = FirebaseManager.shared.storage.reference(withPath: uid)
-        guard let imageData = self.image?.jpegData(compressionQuality: 0.5) else {return}
-        ref.putData(imageData, metadata: nil) { metadata, err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-            ref.downloadURL { url, err in
-                if let err = err {
-                    print(err.localizedDescription)
-                    return
-                }
-                guard let url = url else {return}
-                createLeague(bannerURL: url.absoluteString)
-            }
-        }
-    }
-    
-    func createLeague(bannerURL: String){
-        
-        let leagueId = UUID().uuidString
-        let admin = vm.user?.uid ?? ""
-        let leagueData = ["id" : leagueId, "name" : leagueName, "playerId" : playerId ,"players" : [], "matches" : [], "bannerURL" : bannerURL, "admin" : admin] as [String : Any]
-        
-        FirebaseManager.shared.firestore.collection("leagues").document(leagueId).setData(leagueData) { err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-            for player in players{
-                let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
-                
-                FirebaseManager.shared.firestore.collection("leagues").document(leagueId).updateData(["players" : FieldValue.arrayUnion([playerData])])
-                
-            }
         }
     }
 }

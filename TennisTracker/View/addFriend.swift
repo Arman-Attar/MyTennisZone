@@ -34,9 +34,9 @@ struct addFriend: View {
                             .fontWeight(.bold)
                     }
                     else {
-                    header
-                    statBar
-                    add
+                        header
+                        statBar
+                        add
                     }
                     Spacer()
                 }
@@ -44,8 +44,8 @@ struct addFriend: View {
             .alert(isPresented: $userNotFound){
                 Alert(title: Text("Error!"), message: Text("User Not Found"), dismissButton: .default(Text("Got it!")))
             }
-        }
     }
+}
 
 struct addFriend_Previews: PreviewProvider {
     static var previews: some View {
@@ -95,25 +95,25 @@ extension addFriend {
     
     private var header: some View {
         VStack{
-                if vm.userSearch?.profilePicUrl != "" {
-                    WebImage(url: URL(string: vm.userSearch?.profilePicUrl ?? ""))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 200, height: 200)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
-                        .padding()
-                }
-                
-                else {
-                    Image("profile")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 200, height: 200)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
-                        .padding()
-                }
+            if vm.userSearch?.profilePicUrl != "" {
+                WebImage(url: URL(string: vm.userSearch?.profilePicUrl ?? ""))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 200, height: 200)
+                    .clipShape(Circle())
+                    .shadow(radius: 20)
+                    .padding()
+            }
+            
+            else {
+                Image("profile")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 200, height: 200)
+                    .clipShape(Circle())
+                    .shadow(radius: 20)
+                    .padding()
+            }
             Text(vm.userSearch?.displayName ?? "")
                 .font(.title)
                 .fontWeight(.bold)
@@ -122,55 +122,55 @@ extension addFriend {
             Text("@\(vm.userSearch?.username ?? "")")
                 .font(.body)
                 .foregroundColor(Color.gray)
-            }
-
-         
+        }
+        
+        
     }
     
     private var add: some View {
         VStack {
             if userAdded {
                 HStack {
-                        Image(systemName: "person.fill.checkmark").font(.title).foregroundColor(.black)
+                    Image(systemName: "person.fill.checkmark").font(.title).foregroundColor(.black)
                     Text("Friend")
                         .font(.title2)
                         .fontWeight(.heavy)
                         .padding()
                         .foregroundColor(.black)
                         .padding()
-
+                    
                 }.frame(maxWidth: UIScreen.main.bounds.size.width / 1.25, maxHeight: 50)
-                .overlay(RoundedRectangle(cornerRadius: 100)
-                    .stroke(Color.black, lineWidth: 0.8))
-                .padding()
-            .offset(y: 9)
+                    .overlay(RoundedRectangle(cornerRadius: 100)
+                        .stroke(Color.black, lineWidth: 0.8))
+                    .padding()
+                    .offset(y: 9)
             }
             else{
-            Button {
-                vm.addUser(userUid: vm.userSearch?.uid ?? "") { added in
-                    if added{
-                        userAdded = true
+                Button {
+                    vm.addUser(userUid: vm.userSearch?.uid ?? "") { added in
+                        if added{
+                            userAdded = true
+                        }
                     }
+                } label: {
+                    HStack {
+                        Image(systemName: "person.fill.badge.plus").font(.title).foregroundColor(.black)
+                        Text("Add")
+                            .font(.title2)
+                            .fontWeight(.heavy)
+                            .padding()
+                            .foregroundColor(.black)
+                            .padding()
+                        
+                    }.frame(maxWidth: UIScreen.main.bounds.size.width / 1.25, maxHeight: 50)
+                        .overlay(RoundedRectangle(cornerRadius: 100)
+                            .stroke(Color.black, lineWidth: 0.8))
+                        .padding()
+                        .offset(y: 9)
                 }
-            } label: {
-                HStack {
-                    Image(systemName: "person.fill.badge.plus").font(.title).foregroundColor(.black)
-                    Text("Add")
-                        .font(.title2)
-                        .fontWeight(.heavy)
-                        .padding()
-                        .foregroundColor(.black)
-                        .padding()
-
-                }.frame(maxWidth: UIScreen.main.bounds.size.width / 1.25, maxHeight: 50)
-                .overlay(RoundedRectangle(cornerRadius: 100)
-                    .stroke(Color.black, lineWidth: 0.8))
-                .padding()
-            .offset(y: 9)
+            }
         }
-        }
-    }
-
+        
     }
     
     private var searchBar: some View {
@@ -185,18 +185,17 @@ extension addFriend {
             Button{
                 userName = userName.trimmingCharacters(in: .whitespacesAndNewlines)
                 vm.findUser(userName: userName.lowercased()) { found in
-                        if !found {
-                            userNotFound = true
-                        }
-                        else{
-                            vm.friendCheck(friendUid: vm.userSearch?.uid ?? "") { isFriend in
-                                if isFriend {
-                                    userAdded = true
-                                    showSearchBar.toggle()
-
-                                }
+                    if !found {
+                        userNotFound = true
+                    }
+                    else{
+                        vm.friendCheck(friendUid: vm.userSearch?.uid ?? "") { isFriend in
+                            if isFriend {
+                                userAdded = true
+                                showSearchBar.toggle()
                             }
                         }
+                    }
                 }
             } label: {
                 Text("Find")

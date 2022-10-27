@@ -16,7 +16,7 @@ struct opponentSelectionView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var vm = UserViewModel()
     @State var showImagePicker = false
-    @State var image: UIImage?
+    //@State var image: UIImage?
     @State var playerName = ""
     @State var showForm = false
     var body: some View {
@@ -57,9 +57,10 @@ struct opponentSelectionView: View {
                 Rectangle().ignoresSafeArea().opacity(0.5)
                 playerForm
             }
-        }.fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
-            ImagePicker(image: $image)
         }
+                //.fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
+//            ImagePicker(image: $image)
+//        }
     }
 }
 
@@ -197,19 +198,19 @@ extension opponentSelectionView {
                 .fontWeight(.semibold)
                 .padding()
             Spacer()
-            if image != nil {
-                Image(uiImage: image!)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 100, height: 100)
-                    .clipShape(Circle())
-                    .shadow(radius: 20)
-                    .padding()
-                    .onTapGesture {
-                        showImagePicker.toggle()
-                    }
-            }
-            else {
+//            if image != nil {
+//                Image(uiImage: image!)
+//                    .resizable()
+//                    .aspectRatio(contentMode: .fill)
+//                    .frame(width: 100, height: 100)
+//                    .clipShape(Circle())
+//                    .shadow(radius: 20)
+//                    .padding()
+//                    .onTapGesture {
+//                        showImagePicker.toggle()
+//                    }
+//            }
+//            else {
                 Image("profile")
                     .resizable()
                     .aspectRatio(contentMode: .fill)
@@ -217,10 +218,10 @@ extension opponentSelectionView {
                     .clipShape(Circle())
                     .shadow(radius: 20)
                     .padding()
-                    .onTapGesture {
-                        showImagePicker.toggle()
-                    }
-            }
+//                    .onTapGesture {
+//                        showImagePicker.toggle()
+//                    }
+           // }
             Spacer()
         }
     }
@@ -261,34 +262,35 @@ extension opponentSelectionView {
                 .padding()
                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
                 .onTapGesture {
-                    updateImage() // this function uploads the image to storage and then creates a player
+                    createTempPlayer(uid: UUID().uuidString)
                     showForm.toggle()
                 }
         }.padding()
     }
     
-    private func updateImage() {
-        let uid = UUID().uuidString
-        let ref = FirebaseManager.shared.storage.reference(withPath: uid)
-        guard let imageData = self.image?.jpegData(compressionQuality: 0.5) else {return}
-        ref.putData(imageData, metadata: nil) { metadata, err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-            ref.downloadURL { url, err in
-                if let err = err {
-                    print(err.localizedDescription)
-                    return
-                }
-                guard let url = url else {return}
-                createTempPlayer(uid: uid, imageURL: url)
-            }
-        }
-    }
+//    private func updateImage() {
+//        let uid = UUID().uuidString
+//        let ref = FirebaseManager.shared.storage.reference(withPath: uid)
+//        guard let imageData = self.image?.jpegData(compressionQuality: 0.5) else {return}
+//        ref.putData(imageData, metadata: nil) { metadata, err in
+//            if let err = err {
+//                print(err.localizedDescription)
+//                return
+//            }
+//            ref.downloadURL { url, err in
+//                if let err = err {
+//                    print(err.localizedDescription)
+//                    return
+//                }
+//                guard let url = url else {return}
+//                createTempPlayer(uid: uid, imageURL: url)
+//            }
+//        }
+//    }
     
-    private func createTempPlayer(uid: String, imageURL: URL){
-        players.append(Player(uid: uid, profilePicUrl: imageURL.absoluteString, displayName: playerName, points: 0, wins: 0, losses: 0, played: 0))
+    private func createTempPlayer(uid: String){
+        players.append(Player(uid: uid, profilePicUrl: "", displayName: playerName, points: 0, wins: 0, losses: 0, played: 0))
         playerId.append(uid)
+        print(players)
     }
 }

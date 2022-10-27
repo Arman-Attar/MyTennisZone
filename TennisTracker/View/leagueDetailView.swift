@@ -152,6 +152,15 @@ extension leagueDetailView{
                         Text("\(index + 1).")
                             .font(.headline)
                             .padding(.leading)
+                        if player.profilePicUrl == "" {
+                            Image("profile")
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 80, height: 80)
+                                .clipShape(Circle())
+                                .shadow(radius: 20)
+                                .padding()
+                        } else {
                         WebImage(url: URL(string: player.profilePicUrl))
                             .resizable()
                             .aspectRatio(contentMode: .fill)
@@ -159,7 +168,7 @@ extension leagueDetailView{
                             .clipShape(Circle())
                             .shadow(radius: 20)
                             .padding()
-                    
+                        }
                     Divider()
                     VStack {
                         Text(player.displayName)

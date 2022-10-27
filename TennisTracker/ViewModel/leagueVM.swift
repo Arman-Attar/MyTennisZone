@@ -391,6 +391,15 @@ class LeagueViewModel: ObservableObject {
     }
     
     func deleteLeague(leagueId: String){
+        if league?.bannerURL ?? "" != "" {
+            if let url = league!.bannerURL {
+            let storageRef = FirebaseManager.shared.storage.reference(forURL: url)
+                storageRef.delete { err in
+                    print(err?.localizedDescription ?? "Error")
+                }
+            }
+        }
+        
         FirebaseManager.shared.firestore.collection("leagues").document(leagueId).delete { err in
             if let err = err {
                 print(err.localizedDescription)
@@ -480,7 +489,6 @@ class LeagueViewModel: ObservableObject {
     
     func getPos(players: [Player], uid: String) -> Int {
         var pos: Int = 0
-        //guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return 0}
         for player in players {
             pos += 1
             if player.uid == uid {
@@ -488,5 +496,47 @@ class LeagueViewModel: ObservableObject {
             }
         }
        return pos
+    }
+    
+    static func updateImage(image: UIImage?, completionHandler: @escaping (_ data: String) -> Void){
+        let uid = UUID().uuidString
+        let ref = FirebaseManager.shared.storage.reference(withPath: uid)
+        guard let imageData = image?.jpegData(compressionQuality: 0.5) else {
+            completionHandler("")
+            return
+        }
+        ref.putData(imageData, metadata: nil) { metadata, err in
+            if let err = err {
+                print(err.localizedDescription)
+                return
+            }
+            ref.downloadURL { url, err in
+                if let err = err {
+                    print(err.localizedDescription)
+                    return
+                }
+                guard let url = url else {return}
+                print("WE ARE HERE: \(url.absoluteString)")
+                completionHandler(url.absoluteString)
+            }
+        }
+    }
+    
+    static func createLeague(bannerURL: String, leagueName: String, playerId: [String], admin: String, players: [Player], completionHandler: @escaping (_ data: Bool) -> Void){
+        let leagueId = UUID().uuidString
+        let leagueData = ["id" : leagueId, "name" : leagueName, "playerId" : playerId ,"players" : [], "matches" : [], "bannerURL" : bannerURL, "admin" : admin] as [String : Any]
+        
+        FirebaseManager.shared.firestore.collection("leagues").document(leagueId).setData(leagueData) { err in
+            if let err = err {
+                print(err.localizedDescription)
+                completionHandler(false)
+            }
+            for player in players{
+                let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
+                
+                FirebaseManager.shared.firestore.collection("leagues").document(leagueId).updateData(["players" : FieldValue.arrayUnion([playerData])])
+            }
+        }
+        completionHandler(true)
     }
 }
