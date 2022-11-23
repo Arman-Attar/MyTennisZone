@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SDWebImageSwiftUI
+import PhotosUI
 
 struct profileTab: View {
     @State var profileImage = ""
@@ -252,10 +253,13 @@ extension profileTab {
     
     private var changeProfilePicRow: some View {
         Button {
-            showImagePicker.toggle()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1){
-                showSaveButton = true
+            PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
+                showImagePicker.toggle()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1){
+                    showSaveButton = true
+                }
             }
+            
         } label: {
             HStack{
                 Image(systemName: "camera")
