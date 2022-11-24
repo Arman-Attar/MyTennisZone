@@ -8,6 +8,7 @@
 import SwiftUI
 import SDWebImageSwiftUI
 import Firebase
+import PhotosUI
 
 struct createLeague: View {
     @State var leagueName = ""
@@ -19,6 +20,7 @@ struct createLeague: View {
     @State var image: UIImage?
     @State private var isLoading = false
     @Environment(\.dismiss) var dismiss
+    @State var photoPermission = false
     var body: some View {
         ZStack{
         Form{
@@ -37,6 +39,10 @@ struct createLeague: View {
             }
             .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
                 ImagePicker(image: $image)
+            }
+            .alert(isPresented: $photoPermission) {
+                Alert(title: Text("Permission Denied!"), message: Text("Please go into your settings and give photo permissions for TennisTracker"), dismissButton:
+                        .default(Text("Got it!")))
             }
             if isLoading{
                 ZStack{
@@ -72,7 +78,14 @@ extension createLeague {
                         alignment: .topTrailing
                     )
                     .onTapGesture {
-                        showImagePicker.toggle()
+                        PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
+                            if status == .authorized || status == .limited {
+                                showImagePicker.toggle()
+                            } else {
+                                photoPermission = false
+                            }
+                        }
+                       
                     }
             }
             else {
@@ -86,7 +99,13 @@ extension createLeague {
                         alignment: .topTrailing
                     )
                     .onTapGesture {
-                        showImagePicker.toggle()
+                        PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
+                            if status == .authorized || status == .limited {
+                                showImagePicker.toggle()
+                            } else {
+                                photoPermission = false
+                            }
+                        }
                     }
             }
         }

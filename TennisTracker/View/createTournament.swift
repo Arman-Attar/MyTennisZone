@@ -8,6 +8,7 @@
 import SwiftUI
 import SDWebImageSwiftUI
 import Firebase
+import PhotosUI
 
 struct createTournament: View {
     @State var tournamentName = ""
@@ -26,6 +27,7 @@ struct createTournament: View {
     @State var matchGeneration = "Random"
     var bracketGeneration = "Random"
     @State var showAlert = false
+    @State var photoPermission = false
     var body: some View {
         NavigationView {
             Form{
@@ -122,7 +124,10 @@ struct createTournament: View {
             .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
                 ImagePicker(image: $image)
             }
-            
+            .alert(isPresented: $photoPermission) {
+                Alert(title: Text("Permission Denied!"), message: Text("Please go into your settings and give photo permissions for TennisTracker"), dismissButton:
+                        .default(Text("Got it!")))
+            }
         }
         .navigationTitle("Create a tournament")
         .navigationBarTitleDisplayMode(.inline)
@@ -152,7 +157,13 @@ extension createTournament {
                         alignment: .topTrailing
                     )
                     .onTapGesture {
-                        showImagePicker.toggle()
+                        PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
+                            if status == .authorized || status == .limited {
+                                showImagePicker.toggle()
+                            } else {
+                                photoPermission = false
+                            }
+                        }
                     }
             }
             else {
@@ -166,7 +177,13 @@ extension createTournament {
                         alignment: .topTrailing
                     )
                     .onTapGesture {
-                        showImagePicker.toggle()
+                        PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
+                            if status == .authorized || status == .limited {
+                                showImagePicker.toggle()
+                            } else {
+                                photoPermission = false
+                            }
+                        }
                     }
             }
         }
