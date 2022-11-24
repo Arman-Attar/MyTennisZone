@@ -72,7 +72,6 @@ struct Player: Codable{
     var points: Int
     var wins: Int
     var losses: Int
-    //var played: Int
 }
 
 struct Tournament: Codable {
