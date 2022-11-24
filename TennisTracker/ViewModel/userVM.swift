@@ -129,6 +129,13 @@ class UserViewModel: ObservableObject {
     
     func deleteUserData(uid: String, completionHandler: @escaping (_ data: Bool) -> Void){
         
+        FirebaseManager.shared.storage.reference(withPath: uid).delete { err in
+            if let err = err {
+                print(err.localizedDescription)
+                completionHandler(false)
+            }
+        }
+        
         FirebaseManager.shared.firestore.collection("users").document(uid).delete { err in
             if let err = err {
                 print(err.localizedDescription)
@@ -171,7 +178,7 @@ class UserViewModel: ObservableObject {
     func updateImage(image: UIImage?) {
         guard let uid = self.user?.uid else {return}
         let ref = FirebaseManager.shared.storage.reference(withPath: uid)
-        guard let imageData = image?.jpegData(compressionQuality: 0.5) else {return}
+        guard let imageData = image?.jpegData(compressionQuality: 0.25) else {return}
         ref.putData(imageData, metadata: nil) { metadata, err in
             if let err = err {
                 print(err.localizedDescription)
