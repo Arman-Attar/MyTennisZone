@@ -16,6 +16,7 @@ struct signIn: View {
     @State var isUserSignedIn = false
     @State var showPassword = false
     @State var result = ""
+    @State var forgotPassSheet = false
     var body: some View {
         if isUserSignedIn{
             mainPage()
@@ -47,11 +48,14 @@ extension signIn {
                         Spacer()
                             emailField
                             passwordField
-                        Text("Forgot Password?")
-                            .foregroundColor(Color.black)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                            .font(.body)
-                            .padding(.horizontal)
+                        Button {
+                            forgotPassSheet.toggle()
+                        } label: {
+                            Text("Forgot Password?")
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                                .font(.body)
+                                .padding(.horizontal)
+                        }
                             submitButton
                         Spacer()
                             
@@ -66,11 +70,14 @@ extension signIn {
                 }
             }.navigationTitle("Sign In")
         }.navigationViewStyle(StackNavigationViewStyle())
+            .sheet(isPresented: $forgotPassSheet) {
+               resetPasswordView()
+            }
     }
     
     private var emailField: some View{
         VStack{
-            Text("Email ID*")
+            Text("Email*")
                 .foregroundColor(Color.black)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
