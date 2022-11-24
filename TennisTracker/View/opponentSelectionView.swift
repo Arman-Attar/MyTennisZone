@@ -58,9 +58,6 @@ struct opponentSelectionView: View {
                 playerForm
             }
         }
-                //.fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
-//            ImagePicker(image: $image)
-//        }
     }
 }
 
@@ -147,7 +144,7 @@ extension opponentSelectionView {
                     }
                     else {
                         Button {
-                            players.append(Player(uid: friend.uid, profilePicUrl: friend.profilePicUrl, displayName: friend.displayName, points: 0, wins: 0, losses: 0, played: 0))
+                            players.append(Player(uid: friend.uid, profilePicUrl: friend.profilePicUrl, displayName: friend.displayName, points: 0, wins: 0, losses: 0))
                             playerId.append(friend.uid)
                         } label: {
                             HStack{
@@ -157,7 +154,6 @@ extension opponentSelectionView {
                                         .aspectRatio(contentMode: .fill)
                                         .frame(width: 50, height: 50)
                                         .clipShape(Circle())
-                                        //.shadow(radius: 20)
                                         .padding(.horizontal)
                                 }
                                 else {
@@ -198,19 +194,6 @@ extension opponentSelectionView {
                 .fontWeight(.semibold)
                 .padding()
             Spacer()
-//            if image != nil {
-//                Image(uiImage: image!)
-//                    .resizable()
-//                    .aspectRatio(contentMode: .fill)
-//                    .frame(width: 100, height: 100)
-//                    .clipShape(Circle())
-//                    .shadow(radius: 20)
-//                    .padding()
-//                    .onTapGesture {
-//                        showImagePicker.toggle()
-//                    }
-//            }
-//            else {
                 Image("profile")
                     .resizable()
                     .aspectRatio(contentMode: .fill)
@@ -218,10 +201,6 @@ extension opponentSelectionView {
                     .clipShape(Circle())
                     .shadow(radius: 20)
                     .padding()
-//                    .onTapGesture {
-//                        showImagePicker.toggle()
-//                    }
-           // }
             Spacer()
         }
     }
@@ -268,28 +247,8 @@ extension opponentSelectionView {
         }.padding()
     }
     
-//    private func updateImage() {
-//        let uid = UUID().uuidString
-//        let ref = FirebaseManager.shared.storage.reference(withPath: uid)
-//        guard let imageData = self.image?.jpegData(compressionQuality: 0.5) else {return}
-//        ref.putData(imageData, metadata: nil) { metadata, err in
-//            if let err = err {
-//                print(err.localizedDescription)
-//                return
-//            }
-//            ref.downloadURL { url, err in
-//                if let err = err {
-//                    print(err.localizedDescription)
-//                    return
-//                }
-//                guard let url = url else {return}
-//                createTempPlayer(uid: uid, imageURL: url)
-//            }
-//        }
-//    }
-    
     private func createTempPlayer(uid: String){
-        players.append(Player(uid: uid, profilePicUrl: "", displayName: playerName, points: 0, wins: 0, losses: 0, played: 0))
+        players.append(Player(uid: uid, profilePicUrl: "", displayName: playerName, points: 0, wins: 0, losses: 0))
         playerId.append(uid)
         print(players)
     }

@@ -11,7 +11,7 @@ import Firebase
 
 struct addMatchView: View {
     let matchId = UUID().uuidString
-    @ObservedObject var leagueVm = LeagueViewModel()
+    @ObservedObject var leagueVm:LeagueViewModel
     @State var player1: Player?
     @State var player2: Player?
     @State var player1Score: Int = 0
@@ -100,11 +100,11 @@ struct addMatchView: View {
 }
 
 
-struct addMatchView_Previews: PreviewProvider {
-    static var previews: some View {
-        addMatchView()
-    }
-}
+//struct addMatchView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        addMatchView()
+//    }
+//}
 
 extension addMatchView {
     
@@ -120,10 +120,10 @@ extension addMatchView {
                 ForEach(leagueVm.league!.players, id: \.uid) { friend in
                     Button {
                         if playerNumber == 1 {
-                            player1 = Player(uid: friend.uid, profilePicUrl: friend.profilePicUrl, displayName: friend.displayName, points: friend.points, wins: friend.wins, losses: friend.losses, played: friend.played)
+                            player1 = Player(uid: friend.uid, profilePicUrl: friend.profilePicUrl, displayName: friend.displayName, points: friend.points, wins: friend.wins, losses: friend.losses)
                         }
                         else {
-                            player2 = Player(uid: friend.uid, profilePicUrl: friend.profilePicUrl, displayName: friend.displayName, points: friend.points, wins: friend.wins, losses: friend.losses, played: friend.played)
+                            player2 = Player(uid: friend.uid, profilePicUrl: friend.profilePicUrl, displayName: friend.displayName, points: friend.points, wins: friend.wins, losses: friend.losses)
                         }
                         showPlayerList.toggle()
                     } label: {
@@ -529,18 +529,13 @@ extension addMatchView {
                         displayName: player["displayName"] as? String ?? "",
                         points: player["points"] as? Int ?? 0,
                         wins: player["wins"] as? Int ?? 0,
-                        losses: player["losses"] as? Int ?? 0,
-                        played: player["played"] as? Int ?? 0)
+                        losses: player["losses"] as? Int ?? 0)
                 }
                 let winnerIndex = players.firstIndex(where: { $0.uid == winner})
                 let loserIndex = players.firstIndex(where: { $0.uid == loser})
                 players[winnerIndex!].points += 3
                 players[winnerIndex!].wins += 1
                 players[loserIndex!].losses += 1
-                players[winnerIndex!].played += 1
-                players[loserIndex!].played += 1
-                
-                
                 
                 FirebaseManager.shared.firestore.collection("leagues").document(leagueVm.league!.id).updateData(["players" : FieldValue.delete()])
                 

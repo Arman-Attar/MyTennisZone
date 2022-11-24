@@ -19,6 +19,7 @@ struct profileTab: View {
     @State var showFriendsList = false
     @State var confirmDeleteAlert = false
     @State var invalidDisplayName = false
+    @State var permission = false
     @EnvironmentObject private var vm: UserViewModel
     var body: some View {
         ZStack{
@@ -76,6 +77,10 @@ struct profileTab: View {
                 Alert(title: Text("Delete Account"), message: Text("Are you sure you want to delete your account?"), primaryButton: .destructive(Text("Delete")){
                     vm.deleteUser()
                 }, secondaryButton: .cancel())
+            }
+            .alert(isPresented: $permission) {
+                Alert(title: Text("Permission Denied!"), message: Text("Please go into your settings and give photo permissions for TennisTracker"), dismissButton:
+                        .default(Text("Got it!")))
             }
             if changeDisplayName{
                 Rectangle().ignoresSafeArea(.all).opacity(0.5)
@@ -254,9 +259,13 @@ extension profileTab {
     private var changeProfilePicRow: some View {
         Button {
             PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
-                showImagePicker.toggle()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1){
-                    showSaveButton = true
+                if status == .authorized || status == .limited{
+                    showImagePicker.toggle()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1){
+                        showSaveButton = true
+                    }
+                } else {
+                    permission.toggle()
                 }
             }
             

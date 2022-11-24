@@ -105,7 +105,7 @@ struct createTournament: View {
             }
             .onAppear{
                 if playerId.isEmpty {
-                    players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user?.profilePicUrl ?? "", displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0, played: 0))
+                    players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user?.profilePicUrl ?? "", displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0))
                     playerId.append(vm.user?.uid ?? "")
                 }
             }

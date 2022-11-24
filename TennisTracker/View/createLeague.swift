@@ -32,7 +32,7 @@ struct createLeague: View {
                 opponentSelectionView(players: $players, playerId: $playerId, vm: vm)
             }
             .onAppear{
-                players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user!.profilePicUrl, displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0, played: 0))
+                players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user!.profilePicUrl, displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0))
                 playerId.append(vm.user!.uid)
             }
             .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
@@ -48,7 +48,6 @@ struct createLeague: View {
                         .scaleEffect(3)
                     }
             }
-            
         }
     }
 }

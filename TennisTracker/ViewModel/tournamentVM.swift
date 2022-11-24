@@ -44,8 +44,9 @@ class TournamentViewModel: ObservableObject {
                         displayName: player["displayName"] as? String ?? "",
                         points: player["points"] as? Int ?? 0,
                         wins: player["wins"] as? Int ?? 0,
-                        losses: player["losses"] as? Int ?? 0,
-                        played: player["played"] as? Int ?? 0)
+                        losses: player["losses"] as? Int ?? 0
+                        //played: player["played"] as? Int ?? 0
+                    )
                 }
                 
                 let matches = (document["matches"] as! [[String: Any]]).map{ match in
@@ -98,8 +99,8 @@ class TournamentViewModel: ObservableObject {
                     displayName: player["displayName"] as? String ?? "",
                     points: player["points"] as? Int ?? 0,
                     wins: player["wins"] as? Int ?? 0,
-                    losses: player["losses"] as? Int ?? 0,
-                    played: player["played"] as? Int ?? 0)
+                    losses: player["losses"] as? Int ?? 0)
+                    //played: player["played"] as? Int ?? 0)
             }
             let matches = (document["matches"] as! [[String: Any]]).map{ match in
                 return Match(
@@ -285,8 +286,8 @@ class TournamentViewModel: ObservableObject {
                     displayName: player["displayName"] as? String ?? "",
                     points: player["points"] as? Int ?? 0,
                     wins: player["wins"] as? Int ?? 0,
-                    losses: player["losses"] as? Int ?? 0,
-                    played: player["played"] as? Int ?? 0)
+                    losses: player["losses"] as? Int ?? 0)
+                    //played: player["played"] as? Int ?? 0)
             }
             
             self.playerList = []
@@ -455,8 +456,8 @@ class TournamentViewModel: ObservableObject {
                     displayName: player["displayName"] as? String ?? "",
                     points: player["points"] as? Int ?? 0,
                     wins: player["wins"] as? Int ?? 0,
-                    losses: player["losses"] as? Int ?? 0,
-                    played: player["played"] as? Int ?? 0)
+                    losses: player["losses"] as? Int ?? 0)
+                    //played: player["played"] as? Int ?? 0)
             }
             let matches = (document["matches"] as! [[String: Any]]).map{ match in
                 return Match(

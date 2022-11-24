@@ -39,8 +39,8 @@ struct leagueDetailView: View {
     @State private var showSheet = false
     @State private var modifyMatch = false
     @State private var matchInfo = false
-    @ObservedObject var leagueVM = LeagueViewModel()
-    @ObservedObject var userVm = UserViewModel()
+    @ObservedObject var leagueVM: LeagueViewModel
+    @ObservedObject var userVm: UserViewModel
     @State var settingTapped = false
     @State var matchId = ""
     @State var confirmDeleteAlert = false
@@ -137,11 +137,11 @@ struct leagueDetailView: View {
     }
 }
 
-struct leagueDetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        leagueDetailView()
-    }
-}
+//struct leagueDetailView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        leagueDetailView()
+//    }
+//}
 
 extension leagueDetailView{
     private var Standingloop: some View {

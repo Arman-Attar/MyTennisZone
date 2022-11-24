@@ -447,8 +447,7 @@ extension modifyMatchView{
                         displayName: player["displayName"] as? String ?? "",
                         points: player["points"] as? Int ?? 0,
                         wins: player["wins"] as? Int ?? 0,
-                        losses: player["losses"] as? Int ?? 0,
-                        played: player["played"] as? Int ?? 0)
+                        losses: player["losses"] as? Int ?? 0)
                 }
                 let winnerIndex = players.firstIndex(where: { $0.displayName == winner})
                 let loserIndex = players.firstIndex(where: { $0.displayName == loser})
@@ -456,8 +455,6 @@ extension modifyMatchView{
                 players[winnerIndex!].points += 3
                 players[winnerIndex!].wins += 1
                 players[loserIndex!].losses += 1
-                players[winnerIndex!].played += 1
-                players[loserIndex!].played += 1
                 
                 FirebaseManager.shared.firestore.collection(isLeague ? "leagues" : "tournaments").document(isLeague ? leagueVm.league!.id : tournamentVm.tournament!.id).updateData(["players" : FieldValue.delete()])
                 

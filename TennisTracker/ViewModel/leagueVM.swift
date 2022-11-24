@@ -32,43 +32,12 @@ class LeagueViewModel: ObservableObject {
                 return
             }
             for document in snapshot!.documents {
-                let id = document["id"] as? String ?? ""
-                let name = document["name"] as? String ?? ""
-                let playerId = document["playerId"] as? [String] ?? []
-                var players = (document["players"] as! [[String: Any]]).map{ player in
-                    return Player(
-                        uid: player["uid"] as? String ?? "",
-                        profilePicUrl: player["profilePicUrl"] as? String ?? "",
-                        displayName: player["displayName"] as? String ?? "",
-                        points: player["points"] as? Int ?? 0,
-                        wins: player["wins"] as? Int ?? 0,
-                        losses: player["losses"] as? Int ?? 0,
-                        played: player["played"] as? Int ?? 0)
+                do{
+                    let jsonData = try JSONSerialization.data(withJSONObject: document.data())
+                    self.leagues.append(try JSONDecoder().decode(League.self, from: jsonData))
+                }catch{
+                    print(error)
                 }
-                
-                let matches = (document["matches"] as! [[String: Any]]).map{ match in
-                    return Match(
-                        id: match["id"] as? String ?? "",
-                        date: match["date"] as? String ?? "",
-                        player1Pic: match["player1Pic"] as? String ?? "",
-                        player2Pic: match["player2Pic"] as? String ?? "",
-                        player1DisplayName: match["player1DisplayName"] as? String ?? "",
-                        player2DisplayName: match["player2DisplayName"] as? String ?? "",
-                        player1Score: match["player1Score"] as? Int ?? 0,
-                        player2Score: match["player2Score"] as? Int ?? 0,
-                        winner: match["winner"] as? String ?? "",
-                        matchOngoing: match["matchOngoing"] as? Bool ?? false,
-                        setsToWin: match["setsToWin"] as? Int ?? 3,
-                        matchType: match["matchType"] as? String ?? "")
-                }
-                
-                let bannerURL = document["bannerURL"] as? String ?? ""
-                
-                let admin = document["admin"] as? String ?? ""
-                players.sort {
-                    $0.points > $1.points
-                }
-                self.leagues.append(League(id: id, name: name.capitalized, playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin))
             }
         }
     }
@@ -80,50 +49,24 @@ class LeagueViewModel: ObservableObject {
                 print(err.localizedDescription)
                 return
             }
-
+            
             guard let document = snapshot?.data() else {return}
-
-            let id = document["id"] as? String ?? ""
-            let name = document["name"] as? String ?? ""
-            let playerId = document["playerId"] as? [String] ?? []
-            var players = (document["players"] as! [[String: Any]]).map{ player in
-                return Player(
-                    uid: player["uid"] as? String ?? "",
-                    profilePicUrl: player["profilePicUrl"] as? String ?? "",
-                    displayName: player["displayName"] as? String ?? "",
-                    points: player["points"] as? Int ?? 0,
-                    wins: player["wins"] as? Int ?? 0,
-                    losses: player["losses"] as? Int ?? 0,
-                    played: player["played"] as? Int ?? 0)
+            do {
+                let jsonData = try JSONSerialization.data(withJSONObject: document)
+                self.league = try JSONDecoder().decode(League.self, from: jsonData)
+            }catch{
+                print(error)
             }
-            let matches = (document["matches"] as! [[String: Any]]).map{ match in
-                return Match(
-                    id: match["id"] as? String ?? "",
-                    date: match["date"] as? String ?? "",
-                    player1Pic: match["player1Pic"] as? String ?? "",
-                    player2Pic: match["player2Pic"] as? String ?? "",
-                    player1DisplayName: match["player1DisplayName"] as? String ?? "",
-                    player2DisplayName: match["player2DisplayName"] as? String ?? "",
-                    player1Score: match["player1Score"] as? Int ?? 0,
-                    player2Score: match["player2Score"] as? Int ?? 0,
-                    winner: match["winner"] as? String ?? "",
-                    matchOngoing: match["matchOngoing"] as? Bool ?? false,
-                    setsToWin: match["setsToWin"] as? Int ?? 3,
-                    matchType: match["matchType"] as? String ?? "")
+            if var players = self.league?.players{
+                players.sort {
+                    $0.points > $1.points
+                }
+                self.playerList = players
+            } else {
+                self.playerList = []
             }
-
-            let bannerURL = document["bannerURL"] as? String ?? ""
-
-            let admin = document["admin"] as? String ?? ""
-            players.sort {
-                $0.points > $1.points
-            }
-
-            self.league = League(id: id, name: name, playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin)
-
-            self.playerList = self.league?.players ?? []
-
-            self.listOfMatches = matches.reversed()
+            
+            self.listOfMatches = self.league!.matches.reversed()
         }
     }
     
@@ -136,86 +79,22 @@ class LeagueViewModel: ObservableObject {
             }
             
             guard let document = snapshot?.data() else {return}
-            
-            let id = document["id"] as? String ?? ""
-            let name = document["name"] as? String ?? ""
-            let playerId = document["playerId"] as? [String] ?? []
-            var players = (document["players"] as! [[String: Any]]).map{ player in
-                return Player(
-                    uid: player["uid"] as? String ?? "",
-                    profilePicUrl: player["profilePicUrl"] as? String ?? "",
-                    displayName: player["displayName"] as? String ?? "",
-                    points: player["points"] as? Int ?? 0,
-                    wins: player["wins"] as? Int ?? 0,
-                    losses: player["losses"] as? Int ?? 0,
-                    played: player["played"] as? Int ?? 0)
+            do{
+                let jsonData = try JSONSerialization.data(withJSONObject: document)
+                self.league = (try JSONDecoder().decode(League.self, from: jsonData))
+            }catch{
+                print(error)
             }
-            let matches = (document["matches"] as! [[String: Any]]).map{ match in
-                return Match(
-                    id: match["id"] as? String ?? "",
-                    date: match["date"] as? String ?? "",
-                    player1Pic: match["player1Pic"] as? String ?? "",
-                    player2Pic: match["player2Pic"] as? String ?? "",
-                    player1DisplayName: match["player1DisplayName"] as? String ?? "",
-                    player2DisplayName: match["player2DisplayName"] as? String ?? "",
-                    player1Score: match["player1Score"] as? Int ?? 0,
-                    player2Score: match["player2Score"] as? Int ?? 0,
-                    winner: match["winner"] as? String ?? "",
-                    matchOngoing: match["matchOngoing"] as? Bool ?? false,
-                    setsToWin: match["setsToWin"] as? Int ?? 3,
-                    matchType: match["matchType"] as? String ?? "")
-            }
-            
-            let bannerURL = document["bannerURL"] as? String ?? ""
-            
-            let admin = document["admin"] as? String ?? ""
-            players.sort {
-                $0.points > $1.points
-            }
-            
-            self.league = League(id: id, name: name.capitalized, playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin)
-            
-            self.playerList = self.league?.players ?? []
-            
-            self.listOfMatches = matches.reversed()
-        }
-    }
-    
-    private func getMatches(leagueId: String){
-        self.listOfMatches = []
-        FirebaseManager.shared.firestore.collection("leagues").document(leagueId).getDocument { snapshot, err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-            
-            guard let document = snapshot?.data() else {return}
-            let matches = document["matches"] as? [String] ?? []
-            
-            for match in matches {
-                FirebaseManager.shared.firestore.collection("matches").document(match).getDocument { snapshot, err in
-                    if let err = err {
-                        print(err.localizedDescription)
-                        return
-                    }
-                    
-                    guard let doc = snapshot?.data() else {return}
-                    let id = doc["id"] as? String ?? ""
-                    let date = doc["date"] as? String ?? ""
-                    let player1Pic = doc["player1Pic"] as? String ?? ""
-                    let player2Pic = doc["player2Pic"] as? String ?? ""
-                    let player1DisplayName = doc["player1DisplayName"] as? String ?? ""
-                    let player2DisplayName = doc["player2DisplayName"] as? String ?? ""
-                    let player1Score = doc["player1Score"] as? Int ?? 0
-                    let player2Score = doc["player2Score"] as? Int ?? 0
-                    let winner = doc["winner"] as? String ?? ""
-                    let matchOngoing = doc["matchOngoing"] as? Bool ?? false
-                    let setsToWin = doc["setsToWin"] as? Int ?? 3
-                    let matchType = doc["matchType"] as? String ?? ""
-                    
-                    self.listOfMatches.append(Match(id: id, date: date, player1Pic: player1Pic, player2Pic: player2Pic, player1DisplayName: player1DisplayName, player2DisplayName: player2DisplayName ,player1Score: player1Score, player2Score: player2Score, winner: winner, matchOngoing: matchOngoing, setsToWin: setsToWin, matchType: matchType))
+            if var players = self.league?.players{
+                players.sort {
+                    $0.points > $1.points
                 }
+                self.playerList = players
+            } else {
+                self.playerList = []
             }
+            
+            self.listOfMatches = self.league!.matches.reversed()
         }
     }
     
@@ -223,21 +102,7 @@ class LeagueViewModel: ObservableObject {
         self.currentSets = []
         for match in listOfMatches {
             if match.id == matchId{
-                
-                let id = match.id
-                let date = match.date
-                let player1Pic = match.player1Pic
-                let player2Pic = match.player2Pic
-                let player1DisplayName = match.player1DisplayName
-                let player2DisplayName = match.player2DisplayName
-                let player1Score = match.player1Score
-                let player2Score = match.player2Score
-                let winner = match.winner
-                let matchOngoing = match.matchOngoing
-                let setsToWin = match.setsToWin
-                let matchType = match.matchType
-                
-                self.currentMatch = Match(id: id, date: date, player1Pic: player1Pic, player2Pic: player2Pic, player1DisplayName: player1DisplayName, player2DisplayName: player2DisplayName ,player1Score: player1Score, player2Score: player2Score, winner: winner, matchOngoing: matchOngoing, setsToWin: setsToWin, matchType: matchType)
+                self.currentMatch = match
             }
         }
         
@@ -246,16 +111,14 @@ class LeagueViewModel: ObservableObject {
                 print(err.localizedDescription)
                 return
             }
-            for set in snapshot!.documents {
-                let matchId = set["matchId"] as? String ?? ""
-                let player1Points = set["player1Points"] as? Int ?? 0
-                let player1Uid = set["player1Uid"] as? String ?? ""
-                let player2Points = set["player2Points"] as? Int ?? 0
-                let player2Uid = set["player2Uid"] as? String ?? ""
-                let setId = set["setId"] as? String ?? ""
-                let winner = set["winner"] as? String ?? ""
-                
-                self.currentSets.append(Set(setId: setId, matchId: matchId, winner: winner, player1Uid: player1Uid, player2Uid: player2Uid, player1Points: player1Points, player2Points: player2Points))
+            let sets = snapshot!.documents
+            for set in sets {
+                do{
+                    let jsonData = try JSONSerialization.data(withJSONObject: set.data())
+                    self.currentSets.append(try JSONDecoder().decode(Set.self, from: jsonData))
+                } catch {
+                    print(error)
+                }
             }
         }
     }
@@ -272,7 +135,7 @@ class LeagueViewModel: ObservableObject {
                 p2Uid = player.uid
             }
         }
-        
+
         let setInfo = ["setId" : setid, "matchId" : currentMatch!.id, "winner" : p1Points > p2Points ? p1Uid : p2Uid, "player1Uid" : p1Uid, "player2Uid" : p2Uid, "player1Points" : p1Points, "player2Points" : p2Points] as [String:Any]
         
         FirebaseManager.shared.firestore.collection("sets").document(setid).setData(setInfo) { err in
@@ -281,7 +144,6 @@ class LeagueViewModel: ObservableObject {
                 return
             }
         }
-        
         currentSets.append(Set(setId: setid, matchId: currentMatch!.id, winner: p1Points > p2Points ? p1Uid : p2Uid, player1Uid: p1Uid, player2Uid: p2Uid, player1Points: p1Points, player2Points: p2Points))
     }
     
@@ -361,25 +223,25 @@ class LeagueViewModel: ObservableObject {
             guard let data = snapshot?.documents else {return}
             
             for document in data{
-            let id = document["id"] as? String ?? ""
-            let name = document["name"] as? String ?? ""
-            let playerId = document["playerId"] as? [String] ?? []
-            let players = (document["players"] as! [[String: Any]]).map{ player in
-                return Player(
-                    uid: player["uid"] as? String ?? "",
-                    profilePicUrl: player["profilePicUrl"] as? String ?? "",
-                    displayName: player["displayName"] as? String ?? "",
-                    points: player["points"] as? Int ?? 0,
-                    wins: player["wins"] as? Int ?? 0,
-                    losses: player["losses"] as? Int ?? 0,
-                    played: player["played"] as? Int ?? 0)
-            }
-            let bannerURL = document["bannerURL"] as? String ?? ""
-            let admin = document["admin"] as? String ?? ""
+                let id = document["id"] as? String ?? ""
+                let name = document["name"] as? String ?? ""
+                let playerId = document["playerId"] as? [String] ?? []
+                let players = (document["players"] as! [[String: Any]]).map{ player in
+                    return Player(
+                        uid: player["uid"] as? String ?? "",
+                        profilePicUrl: player["profilePicUrl"] as? String ?? "",
+                        displayName: player["displayName"] as? String ?? "",
+                        points: player["points"] as? Int ?? 0,
+                        wins: player["wins"] as? Int ?? 0,
+                        losses: player["losses"] as? Int ?? 0)
+                    //played: player["played"] as? Int ?? 0)
+                }
+                let bannerURL = document["bannerURL"] as? String ?? ""
+                let admin = document["admin"] as? String ?? ""
                 
                 self.league = League(id: id, name: name.capitalized, playerId: playerId, players: players, matches: [], bannerURL: bannerURL, admin: admin)
-            
-            self.playerList = self.league?.players ?? []
+                
+                self.playerList = self.league?.players ?? []
             }
         }
     }
@@ -393,7 +255,7 @@ class LeagueViewModel: ObservableObject {
     func deleteLeague(leagueId: String){
         if league?.bannerURL ?? "" != "" {
             if let url = league!.bannerURL {
-            let storageRef = FirebaseManager.shared.storage.reference(forURL: url)
+                let storageRef = FirebaseManager.shared.storage.reference(forURL: url)
                 storageRef.delete { err in
                     print(err?.localizedDescription ?? "Error")
                 }
@@ -409,68 +271,65 @@ class LeagueViewModel: ObservableObject {
     }
     
     func deleteMatch(){
-            if !currentMatch!.matchOngoing{
-                FirebaseManager.shared.firestore.collection("leagues").document(league!.id).getDocument { snapshot, err in
-                    if let err = err {
-                        print(err.localizedDescription)
-                        return
-                    }
-
-                   guard let document = snapshot?.data() else {return}
-                    var players = (document["players"] as! [[String: Any]]).map{ player in
-                        return Player(
-                            uid: player["uid"] as? String ?? "",
-                            profilePicUrl: player["profilePicUrl"] as? String ?? "",
-                            displayName: player["displayName"] as? String ?? "",
-                            points: player["points"] as? Int ?? 0,
-                            wins: player["wins"] as? Int ?? 0,
-                            losses: player["losses"] as? Int ?? 0,
-                            played: player["played"] as? Int ?? 0)
-                    }
-                    let winnerIndex = players.firstIndex(where: { $0.displayName == self.currentMatch!.winner})
-                    var loser = ""
-                    if self.currentMatch!.player1DisplayName == self.currentMatch!.winner {
-                        loser = self.currentMatch!.player2DisplayName
-                    }
-                    else {
-                        loser = self.currentMatch!.player1DisplayName
-                    }
-                    let loserIndex = players.firstIndex(where: { $0.displayName == loser})
-                    players[winnerIndex!].points -= 3
-                    players[winnerIndex!].wins -= 1
-                    players[loserIndex!].losses -= 1
-                    players[winnerIndex!].played -= 1
-                    players[loserIndex!].played -= 1
-
-                    FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["players" : FieldValue.delete()])
-
-                    for player in players {
-
-                        let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
-
-                        FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["players" : FieldValue.arrayUnion([playerData])])
-                    }
-                    FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(
-                        ["matchesPlayed" : FieldValue.increment(-1.00)])
-
-                    FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(["matchesWon" : FieldValue.increment(-1.00)])
-
-                    FirebaseManager.shared.firestore.collection("users").document(players[loserIndex!].uid).updateData(["matchesPlayed" : FieldValue.increment(-1.00)])
-
+        if !currentMatch!.matchOngoing{
+            FirebaseManager.shared.firestore.collection("leagues").document(league!.id).getDocument { snapshot, err in
+                if let err = err {
+                    print(err.localizedDescription)
+                    return
                 }
+                
+                guard let document = snapshot?.data() else {return}
+                var players = (document["players"] as! [[String: Any]]).map{ player in
+                    return Player(
+                        uid: player["uid"] as? String ?? "",
+                        profilePicUrl: player["profilePicUrl"] as? String ?? "",
+                        displayName: player["displayName"] as? String ?? "",
+                        points: player["points"] as? Int ?? 0,
+                        wins: player["wins"] as? Int ?? 0,
+                        losses: player["losses"] as? Int ?? 0)
+                }
+                let winnerIndex = players.firstIndex(where: { $0.displayName == self.currentMatch!.winner})
+                var loser = ""
+                if self.currentMatch!.player1DisplayName == self.currentMatch!.winner {
+                    loser = self.currentMatch!.player2DisplayName
+                }
+                else {
+                    loser = self.currentMatch!.player1DisplayName
+                }
+                let loserIndex = players.firstIndex(where: { $0.displayName == loser})
+                players[winnerIndex!].points -= 3
+                players[winnerIndex!].wins -= 1
+                players[loserIndex!].losses -= 1
+                
+                FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["players" : FieldValue.delete()])
+                
+                for player in players {
+                    
+                    let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
+                    
+                    FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["players" : FieldValue.arrayUnion([playerData])])
+                }
+                FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(
+                    ["matchesPlayed" : FieldValue.increment(-1.00)])
+                
+                FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(["matchesWon" : FieldValue.increment(-1.00)])
+                
+                FirebaseManager.shared.firestore.collection("users").document(players[loserIndex!].uid).updateData(["matchesPlayed" : FieldValue.increment(-1.00)])
+                
             }
+        }
         let matchData: [String: Any] = [
             "id" : self.currentMatch!.id as Any,
             "date" : self.currentMatch!.date,
             "player1Pic" : self.currentMatch!.player1Pic,
             "player2Pic" : self.currentMatch!.player2Pic,
-             "player1DisplayName" : self.currentMatch!.player1DisplayName,
-             "player2DisplayName" : self.currentMatch!.player2DisplayName,
-             "player1Score" : self.currentMatch!.player1Score,
-             "player2Score" : self.currentMatch!.player2Score,
-             "winner" : self.currentMatch!.winner,
-             "matchOngoing" : self.currentMatch!.matchOngoing,
-             "setsToWin" : self.currentMatch!.setsToWin,
+            "player1DisplayName" : self.currentMatch!.player1DisplayName,
+            "player2DisplayName" : self.currentMatch!.player2DisplayName,
+            "player1Score" : self.currentMatch!.player1Score,
+            "player2Score" : self.currentMatch!.player2Score,
+            "winner" : self.currentMatch!.winner,
+            "matchOngoing" : self.currentMatch!.matchOngoing,
+            "setsToWin" : self.currentMatch!.setsToWin,
             "matchType" : self.currentMatch!.matchType
         ]
         
@@ -495,7 +354,7 @@ class LeagueViewModel: ObservableObject {
                 break
             }
         }
-       return pos
+        return pos
     }
     
     static func updateImage(image: UIImage?, completionHandler: @escaping (_ data: String) -> Void){
@@ -516,7 +375,6 @@ class LeagueViewModel: ObservableObject {
                     return
                 }
                 guard let url = url else {return}
-                print("WE ARE HERE: \(url.absoluteString)")
                 completionHandler(url.absoluteString)
             }
         }

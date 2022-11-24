@@ -55,7 +55,7 @@ struct Match: Codable {
     let matchType: String
 }
 
-struct Set {
+struct Set: Codable {
     let setId: String
     let matchId: String
     let winner: String
@@ -72,7 +72,7 @@ struct Player: Codable{
     var points: Int
     var wins: Int
     var losses: Int
-    var played: Int
+    //var played: Int
 }
 
 struct Tournament: Codable {
