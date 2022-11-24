@@ -6,7 +6,5 @@
 	<string>TennisTracker needs premission to access Photos</string>
 	<key>CFBundleIdentifier</key>
 	<string></string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>TennisTracker needs premission to access Photos</string>
 </dict>
 </plist>
