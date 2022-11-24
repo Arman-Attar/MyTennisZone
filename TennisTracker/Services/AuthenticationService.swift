@@ -91,4 +91,14 @@ class FirebaseManager: NSObject, ObservableObject {
             }
         }
     }
+    
+    func resetPassword(email: String, completionHandler: @escaping (_ data: String) -> Void) {
+        auth.sendPasswordReset(withEmail: email) { err in
+            if let err = err {
+                completionHandler(err.localizedDescription)
+                return
+            }
+            completionHandler("")
+        }
+    }
 }
