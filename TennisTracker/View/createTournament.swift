@@ -73,12 +73,21 @@ struct createTournament: View {
                     }
                     HStack(spacing: -20) {
                         ForEach(players, id:\.uid) { player in
-                            WebImage(url: URL(string: player.profilePicUrl))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 50, height: 50)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
+                            if player.profilePicUrl != "" {
+                                WebImage(url: URL(string: player.profilePicUrl))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(Circle())
+                                    .shadow(radius: 20)
+                            } else {
+                                Image("profile")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(Circle())
+                                    .shadow(radius: 20)
+                        }
                         }
                     }.padding()
                 }

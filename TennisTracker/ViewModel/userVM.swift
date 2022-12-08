@@ -18,15 +18,27 @@ class UserViewModel: ObservableObject {
     @Published var friends: [Friend] = []
     @Published var userSearch: User?
     @Published var isUserSignedOut = false
+    @Published var image: UIImage? = nil
     
     init(){
         getCurrentUser { (done) in
             if done {
+                self.fetchImage()
                 self.getFriends()
             }
         }
     }
     
+    private func fetchImage() {
+        guard let url = user?.profilePicUrl else { return }
+        ImageLoader.shared.getImage(urlString: url) {[weak self] image, error in
+            if let image = image {
+                DispatchQueue.main.async {
+                    self?.image = image
+                }
+            }
+        }
+    }
     
     private func getCurrentUser(completionHandler: @escaping (_ data: Bool) -> Void){
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return}

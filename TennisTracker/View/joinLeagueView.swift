@@ -144,8 +144,8 @@ extension joinLeagueView {
                 .padding(.leading)
             Button {
                 let trimmedName = leagueName.trimmingCharacters(in: .whitespacesAndNewlines)
-                leagueVm.findLeague(leagueName: trimmedName.lowercased())
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                Task {
+                    await leagueVm.findLeague(leagueName: trimmedName.lowercased())
                     if leagueVm.league?.id ?? "" == ""{
                         notFoundAlert = true
                     }
@@ -153,6 +153,7 @@ extension joinLeagueView {
                     showSheet.toggle()
                     }
                 }
+              
             } label: {
                 Text("Find")
                     .padding()

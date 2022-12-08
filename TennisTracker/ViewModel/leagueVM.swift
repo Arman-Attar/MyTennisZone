@@ -11,92 +11,78 @@ import Firebase
 import FirebaseFirestoreSwift
 
 class LeagueViewModel: ObservableObject {
-    @Published var leagues: [League] = []
+    @Published var leagues: [League]?
     @Published var league: League?
     @Published var playerList: [Player] = []
     @State var topPlayer = ""
     @Published var listOfMatches: [Match] = []
     @Published var currentMatch: Match?
     @Published var currentSets: [Set] = []
+    @Published var playerImages: [UIImage?] = []
+    @Published var leagueLoaded = false
     
-    init(){
-        getLeagues()
-    }
-    
-    func getLeagues(){
-        leagues = []
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return}
-        FirebaseManager.shared.firestore.collection("leagues").whereField("playerId", arrayContains: uid).getDocuments { snapshot, err  in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-            for document in snapshot!.documents {
-                do{
-                    let jsonData = try JSONSerialization.data(withJSONObject: document.data())
-                    self.leagues.append(try JSONDecoder().decode(League.self, from: jsonData))
-                }catch{
-                    print(error)
-                }
-            }
+    // REFACTORED
+    func getLeagues() async{
+        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
+        do {
+            let leagues = try await DatabaseManager.shared.getLeagues(userID: uid)
+            await MainActor.run(body: {
+                self.leagues = leagues
+            })
+        } catch {
+            print(error.localizedDescription)
         }
     }
-    
-    func refreshData(leagueId: String){
-        playerList = []
-        FirebaseManager.shared.firestore.collection("leagues").document(leagueId).getDocument { snapshot, err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-            
-            guard let document = snapshot?.data() else {return}
-            do {
-                let jsonData = try JSONSerialization.data(withJSONObject: document)
-                self.league = try JSONDecoder().decode(League.self, from: jsonData)
-            }catch{
-                print(error)
-            }
-            if var players = self.league?.players{
+    func getCurrentLeague(leagueId: String) async {
+        do {
+            let league = try await DatabaseManager.shared.getLeague(leagueID: leagueId)
+            await MainActor.run(body: { [weak self] in
+                playerList.removeAll()
+                self?.league = league
+                var players = league.players
                 players.sort {
                     $0.points > $1.points
                 }
-                self.playerList = players
-            } else {
-                self.playerList = []
+                self?.playerList = players
+                self?.listOfMatches = league.matches.reversed()
+            })
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    func loadImages() async{
+        do {
+            let images = try await ImageLoader.shared.getImages(playerList: self.playerList)
+            await MainActor.run(body: {
+                self.playerImages = images
+                self.leagueLoaded = true
+            })
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    func findLeague(leagueName: String) async {
+        await MainActor.run(body: {
+            self.league = nil
+        })
+        do {
+            if let league = try await DatabaseManager.shared.searchLeague(leagueName: leagueName) {
+                await MainActor.run(body: { [weak self] in
+                    self?.league = league
+                    self?.playerList = league.players
+                })
             }
-            
-            self.listOfMatches = self.league!.matches.reversed()
+        } catch {
+            print(error.localizedDescription)
+            await MainActor.run(body: {
+                self.league = nil
+
+            })
         }
     }
     
-    func getCurrentLeague(leagueId: String) {
-        playerList = []
-        FirebaseManager.shared.firestore.collection("leagues").document(leagueId).getDocument { snapshot, err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-            
-            guard let document = snapshot?.data() else {return}
-            do{
-                let jsonData = try JSONSerialization.data(withJSONObject: document)
-                self.league = (try JSONDecoder().decode(League.self, from: jsonData))
-            }catch{
-                print(error)
-            }
-            if var players = self.league?.players{
-                players.sort {
-                    $0.points > $1.points
-                }
-                self.playerList = players
-            } else {
-                self.playerList = []
-            }
-            
-            self.listOfMatches = self.league!.matches.reversed()
-        }
-    }
+    
+    // TO BE REFACTORED
     
     func getCurrentMatch(matchId: String) {
         self.currentSets = []
@@ -135,7 +121,7 @@ class LeagueViewModel: ObservableObject {
                 p2Uid = player.uid
             }
         }
-
+        
         let setInfo = ["setId" : setid, "matchId" : currentMatch!.id, "winner" : p1Points > p2Points ? p1Uid : p2Uid, "player1Uid" : p1Uid, "player2Uid" : p2Uid, "player1Points" : p1Points, "player2Points" : p2Points] as [String:Any]
         
         FirebaseManager.shared.firestore.collection("sets").document(setid).setData(setInfo) { err in
@@ -212,39 +198,7 @@ class LeagueViewModel: ObservableObject {
         }
         
     }
-    
-    func findLeague(leagueName: String) {
-        league = nil
-        FirebaseManager.shared.firestore.collection("leagues").whereField("name", isEqualTo: leagueName).getDocuments { snapshot, err in
-            if let err = err{
-                print(err.localizedDescription)
-                return
-            }
-            guard let data = snapshot?.documents else {return}
-            
-            for document in data{
-                let id = document["id"] as? String ?? ""
-                let name = document["name"] as? String ?? ""
-                let playerId = document["playerId"] as? [String] ?? []
-                let players = (document["players"] as! [[String: Any]]).map{ player in
-                    return Player(
-                        uid: player["uid"] as? String ?? "",
-                        profilePicUrl: player["profilePicUrl"] as? String ?? "",
-                        displayName: player["displayName"] as? String ?? "",
-                        points: player["points"] as? Int ?? 0,
-                        wins: player["wins"] as? Int ?? 0,
-                        losses: player["losses"] as? Int ?? 0)
-                    //played: player["played"] as? Int ?? 0)
-                }
-                let bannerURL = document["bannerURL"] as? String ?? ""
-                let admin = document["admin"] as? String ?? ""
-                
-                self.league = League(id: id, name: name.capitalized, playerId: playerId, players: players, matches: [], bannerURL: bannerURL, admin: admin)
-                
-                self.playerList = self.league?.players ?? []
-            }
-        }
-    }
+
     
     func joinLeague(uid: String, profilePic: String, displayName: String){
         let playerData = ["uid" : uid, "profilePicUrl" : profilePic, "displayName" : displayName, "points" : 0, "wins" : 0, "losses" : 0] as [String: Any]

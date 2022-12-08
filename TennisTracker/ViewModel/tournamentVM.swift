@@ -287,7 +287,6 @@ class TournamentViewModel: ObservableObject {
                     points: player["points"] as? Int ?? 0,
                     wins: player["wins"] as? Int ?? 0,
                     losses: player["losses"] as? Int ?? 0)
-                    //played: player["played"] as? Int ?? 0)
             }
             
             self.playerList = []

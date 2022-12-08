@@ -13,22 +13,33 @@ struct leagueView: View {
     @EnvironmentObject var userVm: UserViewModel
     var body: some View {
         NavigationView {
-            ScrollView(showsIndicators: false){
-                VStack{
-                    ForEach(leagueVm.leagues, id: \.id){ index in
-                        NavigationLink {
-                            leagueDetailView(leagueVM: leagueVm, userVm: userVm) .navigationTitle(index.name).onAppear{leagueVm.getCurrentLeague(leagueId: index.id)}
-                        } label: {
-                            let pos = leagueVm.getPos(players: index.players, uid: userVm.user!.uid)
-                            VStack{
-                                EventBannerView(leagueEvent: index, tournamentEvent: nil, pos: pos)
+            if leagueVm.leagues != nil {
+                ScrollView(showsIndicators: false){
+                    VStack{
+                        ForEach(leagueVm.leagues!, id: \.id){ index in
+                            NavigationLink {
+                                leagueDetailView(leagueVM: leagueVm, userVm: userVm) .navigationTitle(index.name).onAppear{
+                                    Task {
+                                        await leagueVm.getCurrentLeague(leagueId: index.id)
+                                        await leagueVm.loadImages()
+                                    }
+                                }
+                            } label: {
+                                let pos = leagueVm.getPos(players: index.players, uid: userVm.user!.uid)
+                                VStack{
+                                    EventBannerView(leagueEvent: index, tournamentEvent: nil, pos: pos)
+                                }
+                                .padding()
+                                .shadow(radius: 20)
                             }
-                            .padding()
-                            .shadow(radius: 20)
                         }
                     }
-                }
-            }.navigationTitle("Leagues")
+                }.navigationTitle("Leagues")
+            } else {
+                ProgressView()
+            }
+        }.task {
+            await leagueVm.getLeagues()
         }
     }
 }

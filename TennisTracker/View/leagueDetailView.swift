@@ -47,92 +47,105 @@ struct leagueDetailView: View {
     @Environment(\.dismiss) var dismiss
     var body: some View {
         VStack(alignment: .leading) {
-            Picker("Tab View", selection: $selectedIndex, content: {
-                Text("Table").tag(0)
-                Text("Matches").tag(1)
-            })
-            .pickerStyle(SegmentedPickerStyle())
-            .padding()
-            if selectedIndex == 0 {
-                HStack {
-                    Text("Standings")
+            if !leagueVM.playerImages.isEmpty {
+                Picker("Tab View", selection: $selectedIndex, content: {
+                    Text("Table").tag(0)
+                    Text("Matches").tag(1)
+                })
+                .pickerStyle(SegmentedPickerStyle())
+                .padding()
+                if selectedIndex == 0 {
+                    HStack {
+                        Text("Standings")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .padding()
+                        Spacer()
+                        Button {
+                            showSheet.toggle()
+                        } label: {
+                            Text("Add Match")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color.black)
+                        }.padding()
+                        
+                    }
+                    ScrollView {
+                        Standingloop
+                    }
+//                    RefreshableScrollView {
+//                        Standingloop
+//                    } onRefresh: {
+//                        leagueVM.refreshData(leagueId: leagueVM.league!.id)
+//                    }
+                }
+                else {
+                    Text("Match History")
                         .font(.title2)
                         .fontWeight(.bold)
                         .padding()
-                    Spacer()
-                    Button {
-                        showSheet.toggle()
-                    } label: {
-                        Text("Add Match")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(Color.black)
-                    }.padding()
-                    
-                }
-                RefreshableScrollView {
-                    Standingloop
-                } onRefresh: {
-                    leagueVM.refreshData(leagueId: leagueVM.league!.id)
-                }
-            }
-            else {
-                Text("Match History")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .padding()
-                VStack{
-                    ScrollView {
-                        matchHistory
+                    VStack{
+                        ScrollView {
+                            matchHistory
+                        }
                     }
                 }
+                Spacer()
+                
+                    .sheet(isPresented: $showSheet) {
+                        addMatchView(leagueVm: leagueVM)
+                    }
+                    .sheet(isPresented: $modifyMatch) {
+                        modifyMatchView(leagueVm: leagueVM, userVm: userVm)
+                    }
+                    .sheet(isPresented: $matchInfo) {
+                        matchResultView(leagueVm: leagueVM, userVm: userVm)
+                    }
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            if leagueVM.league?.admin ?? "" == userVm.user!.uid{
+                                Button {
+                                    settingTapped.toggle()
+                                } label: {
+                                    Image(systemName: "gear")
+                                }
+                            }
+                        }
+                        ToolbarItem(placement: .navigationBarTrailing){
+                            Button {
+                                Task {
+                                    await leagueVM.getCurrentLeague(leagueId: leagueVM.league!.id)
+                                }
+                            } label: {
+                                Image(systemName: "arrow.clockwise")
+                            }
+                        }
+                    }
+                    .confirmationDialog("Settings", isPresented: $settingTapped) {
+                        Button(role: .destructive) {
+                            confirmDeleteAlert.toggle()
+                        } label: {
+                            Text("Delete league")
+                        }
+                        
+                    }
+                    .alert(isPresented: $confirmDeleteAlert) {
+                        Alert(title: Text("Delete league"), message: Text("Are you sure you want to delete this league?"), primaryButton: .destructive(Text("Delete")){
+                            leagueVM.deleteLeague(leagueId: leagueVM.league!.id)
+                            //leagueVM.getLeagues()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                dismiss()
+                            }
+                        }, secondaryButton: .cancel())
+                    }
+            } else {
+                ProgressView()
             }
-            Spacer()
-            
-        }
-        .sheet(isPresented: $showSheet) {
-            addMatchView(leagueVm: leagueVM)
-        }
-        .sheet(isPresented: $modifyMatch) {
-            modifyMatchView(leagueVm: leagueVM, userVm: userVm)
-        }
-        .sheet(isPresented: $matchInfo) {
-            matchResultView(leagueVm: leagueVM, userVm: userVm)
-        }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                if leagueVM.league?.admin ?? "" == userVm.user!.uid{
-                Button {
-                    settingTapped.toggle()
-                } label: {
-                    Image(systemName: "gear")
-                }
+        }.refreshable {
+            Task {
+                await leagueVM.getCurrentLeague(leagueId: leagueVM.league!.id)
             }
-            }
-            ToolbarItem(placement: .navigationBarTrailing){
-                Button {
-                    leagueVM.refreshData(leagueId: leagueVM.league!.id)
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                }
-            }
-        }
-        .confirmationDialog("Settings", isPresented: $settingTapped) {
-            Button(role: .destructive) {
-                confirmDeleteAlert.toggle()
-            } label: {
-                Text("Delete league")
-            }
-
-        }
-        .alert(isPresented: $confirmDeleteAlert) {
-            Alert(title: Text("Delete league"), message: Text("Are you sure you want to delete this league?"), primaryButton: .destructive(Text("Delete")){
-                leagueVM.deleteLeague(leagueId: leagueVM.league!.id)
-                leagueVM.getLeagues()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    dismiss()
-                }
-            }, secondaryButton: .cancel())
         }
     }
 }
@@ -152,7 +165,16 @@ extension leagueDetailView{
                         Text("\(index + 1).")
                             .font(.headline)
                             .padding(.leading)
-                        if player.profilePicUrl == "" {
+                        if let image = leagueVM.playerImages[index] {
+                            Image(uiImage: image)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 80, height: 80)
+                                .clipShape(Circle())
+                                .shadow(radius: 20)
+                                .padding()
+                            
+                        } else {
                             Image("profile")
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
@@ -160,14 +182,6 @@ extension leagueDetailView{
                                 .clipShape(Circle())
                                 .shadow(radius: 20)
                                 .padding()
-                        } else {
-                        WebImage(url: URL(string: player.profilePicUrl))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 80, height: 80)
-                            .clipShape(Circle())
-                            .shadow(radius: 20)
-                            .padding()
                         }
                     Divider()
                     VStack {
