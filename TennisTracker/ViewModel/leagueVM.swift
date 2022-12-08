@@ -20,6 +20,7 @@ class LeagueViewModel: ObservableObject {
     @Published var currentSets: [Set] = []
     @Published var playerImages: [UIImage?] = []
     @Published var leagueLoaded = false
+    @Published var playerIsJoined = false
     
     // REFACTORED
     func getLeagues() async{
@@ -61,7 +62,7 @@ class LeagueViewModel: ObservableObject {
             print(error.localizedDescription)
         }
     }
-    func findLeague(leagueName: String) async {
+    func findLeague(leagueName: String, playerID: String) async{
         await MainActor.run(body: {
             self.league = nil
         })
@@ -79,10 +80,25 @@ class LeagueViewModel: ObservableObject {
 
             })
         }
+        let userStatus = await isUserJoined(playerID: playerID)
+        await MainActor.run(body: {
+            self.playerIsJoined = userStatus
+        })
+    }
+    
+    func isUserJoined(playerID: String) async -> Bool {
+        let result = self.playerList.filter{playerID == $0.uid}
+        return !result.isEmpty
     }
     
     
     // TO BE REFACTORED
+    
+    func joinLeague(uid: String, profilePic: String, displayName: String){
+        let playerData = Player(uid: uid, profilePicUrl: profilePic, displayName: displayName, points: 0, wins: 0, losses: 0)
+        guard let currentLeague = league else {return}
+        DatabaseManager.shared.joinLeague(playerData: playerData, leagueID: currentLeague.id)
+    }
     
     func getCurrentMatch(matchId: String) {
         self.currentSets = []
@@ -200,11 +216,7 @@ class LeagueViewModel: ObservableObject {
     }
 
     
-    func joinLeague(uid: String, profilePic: String, displayName: String){
-        let playerData = ["uid" : uid, "profilePicUrl" : profilePic, "displayName" : displayName, "points" : 0, "wins" : 0, "losses" : 0] as [String: Any]
-        FirebaseManager.shared.firestore.collection("leagues").document(league!.id).updateData(["players" : FieldValue.arrayUnion([playerData])])
-        FirebaseManager.shared.firestore.collection("leagues").document(league!.id).updateData(["playerId" : FieldValue.arrayUnion([uid])])
-    }
+    
     
     func deleteLeague(leagueId: String){
         if league?.bannerURL ?? "" != "" {

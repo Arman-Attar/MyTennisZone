@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Firebase
 
 class DatabaseManager {
     static let shared = DatabaseManager()
@@ -46,5 +47,11 @@ class DatabaseManager {
             throw (error)
         }
         return league
+    }
+    
+    func joinLeague(playerData: Player, leagueID: String) {
+        FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["players" : FieldValue.arrayUnion([playerData])])
+        FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["playerId" : FieldValue.arrayUnion([playerData.uid])])
+        print("DONE")
     }
 }

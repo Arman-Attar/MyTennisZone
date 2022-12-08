@@ -10,7 +10,7 @@ import SDWebImageSwiftUI
 
 struct joinLeagueView: View {
     @State var leagueName = ""
-    @ObservedObject var leagueVm = LeagueViewModel()
+    @StateObject var leagueVm = LeagueViewModel()
     @State var showSheet = false
     @EnvironmentObject var vm: UserViewModel
     @State var notFoundAlert = false
@@ -58,13 +58,13 @@ extension joinLeagueView {
             }.padding()
             Spacer()
             HStack{
-            VStack {
-                Text("\(leagueVm.playerList[0].displayName)")
-                    .font(.callout)
-                    .fontWeight(.bold)
-                Text("Admin")
-                    .font(.caption)
-            }
+                VStack {
+                    Text("\(leagueVm.playerList[0].displayName)")
+                        .font(.callout)
+                        .fontWeight(.bold)
+                    Text("Admin")
+                        .font(.caption)
+                }
                 VStack{
                     if leagueVm.playerList[0].profilePicUrl != "" {
                         WebImage(url: URL(string: leagueVm.playerList[0].profilePicUrl))
@@ -76,12 +76,28 @@ extension joinLeagueView {
                             .padding()
                     }
                 }.padding(.trailing)
-        }
+            }
         }.padding(.horizontal)
     }
     
     private var joinButton: some View {
         VStack {
+            if leagueVm.playerIsJoined {
+                HStack {
+                    Image(systemName: "person.fill.checkmark").font(.title).foregroundColor(.black)
+                    Text("Joined")
+                        .font(.title2)
+                        .fontWeight(.heavy)
+                        .padding()
+                        .foregroundColor(.black)
+                        .padding()
+                    
+                }.frame(maxWidth: UIScreen.main.bounds.size.width / 1.25, maxHeight: 50)
+                    .overlay(RoundedRectangle(cornerRadius: 100)
+                        .stroke(Color.black, lineWidth: 0.8))
+                    .padding()
+                    .offset(y: 9)
+            } else {
                 Button {
                     leagueVm.joinLeague(uid: vm.user!.uid, profilePic: vm.user!.profilePicUrl, displayName: vm.user!.displayName)
                 } label: {
@@ -102,6 +118,7 @@ extension joinLeagueView {
                 }
             }
         }
+    }
     
     private var header: some View {
         VStack{
@@ -145,15 +162,15 @@ extension joinLeagueView {
             Button {
                 let trimmedName = leagueName.trimmingCharacters(in: .whitespacesAndNewlines)
                 Task {
-                    await leagueVm.findLeague(leagueName: trimmedName.lowercased())
+                    await leagueVm.findLeague(leagueName: trimmedName.lowercased(), playerID: vm.user!.uid)
                     if leagueVm.league?.id ?? "" == ""{
                         notFoundAlert = true
                     }
                     else{
-                    showSheet.toggle()
+                        showSheet.toggle()
                     }
                 }
-              
+                
             } label: {
                 Text("Find")
                     .padding()
