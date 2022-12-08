@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C2081DC229416DDC009C1414 /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2081DC129416DDC009C1414 /* DatabaseManager.swift */; };
 		C21CF04428277E9400292C9F /* mainPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21CF04328277E9400292C9F /* mainPage.swift */; };
 		C21CF0462828BC9100292C9F /* profileTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21CF0452828BC9100292C9F /* profileTab.swift */; };
 		C22E524528335A4A00987437 /* createLeague.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22E524428335A4A00987437 /* createLeague.swift */; };
@@ -43,9 +44,11 @@
 		C2E64BD628974E3500501252 /* bracketDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E64BD528974E3500501252 /* bracketDetailView.swift */; };
 		C2E64BD928A4100F00501252 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C2E64BD828A4100F00501252 /* FirebaseFirestoreSwift */; };
 		C2F0D73A2821AC14009792CD /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F0D7392821AC14009792CD /* AuthenticationService.swift */; };
+		C2F65FEA293E70DE00013404 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F65FE9293E70DE00013404 /* ImageLoader.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C2081DC129416DDC009C1414 /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
 		C211BB0A281B3D3C00C964F2 /* TennisTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TennisTracker.entitlements; sourceTree = "<group>"; };
 		C21CF04328277E9400292C9F /* mainPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mainPage.swift; sourceTree = "<group>"; };
 		C21CF0452828BC9100292C9F /* profileTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = profileTab.swift; sourceTree = "<group>"; };
@@ -80,6 +83,7 @@
 		C2E64BD32889D80F00501252 /* tournamentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tournamentDetailView.swift; sourceTree = "<group>"; };
 		C2E64BD528974E3500501252 /* bracketDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = bracketDetailView.swift; sourceTree = "<group>"; };
 		C2F0D7392821AC14009792CD /* AuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
+		C2F65FE9293E70DE00013404 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -198,6 +202,8 @@
 			children = (
 				C2F0D7392821AC14009792CD /* AuthenticationService.swift */,
 				C24C4BEE282D9B6A004FA8A5 /* imagePicker.swift */,
+				C2F65FE9293E70DE00013404 /* ImageLoader.swift */,
+				C2081DC129416DDC009C1414 /* DatabaseManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -286,7 +292,9 @@
 			files = (
 				C2E64BD42889D80F00501252 /* tournamentDetailView.swift in Sources */,
 				C22E524528335A4A00987437 /* createLeague.swift in Sources */,
+				C2081DC229416DDC009C1414 /* DatabaseManager.swift in Sources */,
 				C2E64BD0286A6DE900501252 /* opponentSelectionView.swift in Sources */,
+				C2F65FEA293E70DE00013404 /* ImageLoader.swift in Sources */,
 				C22E817A281B351F009593BE /* ContentView.swift in Sources */,
 				C21CF0462828BC9100292C9F /* profileTab.swift in Sources */,
 				C22E8178281B351F009593BE /* TennisTrackerApp.swift in Sources */,
