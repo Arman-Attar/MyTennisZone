@@ -13,15 +13,17 @@ struct leagueView: View {
     @EnvironmentObject var userVm: UserViewModel
     var body: some View {
         NavigationView {
-            if leagueVm.leagues != nil {
-                ScrollView(showsIndicators: false){
-                    VStack{
+            ScrollView(showsIndicators: false){
+                VStack{
+                    if leagueVm.leagues != nil {
                         ForEach(leagueVm.leagues!, id: \.id){ index in
                             NavigationLink {
                                 leagueDetailView(leagueVM: leagueVm, userVm: userVm) .navigationTitle(index.name).onAppear{
                                     Task {
-                                        await leagueVm.getCurrentLeague(leagueId: index.id)
-                                        await leagueVm.loadImages()
+                                        if let leagueID = index.id {
+                                            await leagueVm.getCurrentLeague(leagueId: leagueID)
+                                            await leagueVm.loadImages()
+                                        }
                                     }
                                 }
                             } label: {
@@ -33,11 +35,11 @@ struct leagueView: View {
                                 .shadow(radius: 20)
                             }
                         }
+                    } else {
+                        ProgressView()
                     }
-                }.navigationTitle("Leagues")
-            } else {
-                ProgressView()
-            }
+                }
+            }.navigationTitle("Leagues")
         }.task {
             await leagueVm.getLeagues()
         }

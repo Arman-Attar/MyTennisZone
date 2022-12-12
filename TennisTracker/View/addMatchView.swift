@@ -467,8 +467,8 @@ extension addMatchView {
         let date = convertDateToString(date: matchDate)
         
         let matchData = ["id" : matchId, "date" : date, "player1Pic" : player1!.profilePicUrl, "player2Pic" : player2!.profilePicUrl, "player1DisplayName" : player1!.displayName, "player2DisplayName" : player2!.displayName ,"player1Score" : player1Score, "player2Score" : player2Score, "winner" : winner, "matchOngoing" : matchOngoing, "setsToWin" : numberOfSets, "matchType" : "League"] as [String: Any]
-        
-        FirebaseManager.shared.firestore.collection("leagues").document(leagueVm.league!.id).updateData(["matches" : FieldValue.arrayUnion([matchData])])
+        guard let leagueID = leagueVm.league?.id else { return }
+        FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["matches" : FieldValue.arrayUnion([matchData])])
         
         addSet()
         
@@ -514,8 +514,9 @@ extension addMatchView {
     }
     
     private func updateStats() {
+        guard let leagueID = leagueVm.league?.id else { return }
         if !matchOngoing {
-            FirebaseManager.shared.firestore.collection("leagues").document(leagueVm.league!.id).getDocument { snapshot, err in
+            FirebaseManager.shared.firestore.collection("leagues").document(leagueID).getDocument { snapshot, err in
                 if let err = err {
                     print(err.localizedDescription)
                     return
@@ -537,13 +538,13 @@ extension addMatchView {
                 players[winnerIndex!].wins += 1
                 players[loserIndex!].losses += 1
                 
-                FirebaseManager.shared.firestore.collection("leagues").document(leagueVm.league!.id).updateData(["players" : FieldValue.delete()])
+                FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["players" : FieldValue.delete()])
                 
                 for player in players {
                     
                     let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
                     
-                    FirebaseManager.shared.firestore.collection("leagues").document(leagueVm.league!.id).updateData(["players" : FieldValue.arrayUnion([playerData])])
+                    FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["players" : FieldValue.arrayUnion([playerData])])
                 }
                 
                 FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(

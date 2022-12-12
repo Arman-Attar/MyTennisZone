@@ -12,9 +12,6 @@ struct TennisTrackerApp: App {
     static var isAlreadyLaunched = false
     var body: some Scene {
         WindowGroup {
-//            Button("TAP"){
-//            print("COUNT IS \(CFGetRetainCount(FirebaseManager.shared))")
-//            }
             signIn()
         }
     }

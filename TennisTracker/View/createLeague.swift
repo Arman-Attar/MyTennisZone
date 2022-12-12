@@ -14,6 +14,7 @@ struct createLeague: View {
     @State var leagueName = ""
     @State var opponentSelection = false
     @EnvironmentObject var vm: UserViewModel
+    @StateObject var leagueVM = LeagueViewModel()
     @State var players: [Player] = []
     @State var playerId: [String] = []
     @State var showImagePicker = false
@@ -171,23 +172,10 @@ extension createLeague {
             createButton.onTapGesture {
                 isLoading = true
                 let admin = vm.user?.uid ?? ""
-                var bannerURL = ""
-                if image != nil {
-                    LeagueViewModel.updateImage(image: image) { url in
-                        if url != "" {
-                            bannerURL = url
-                        }
-                        LeagueViewModel.createLeague(bannerURL: bannerURL, leagueName: leagueName, playerId: playerId, admin: admin, players: players) { data in
-                            if data {
-                                dismiss()
-                            }
-                        }
-                    }
-                } else {
-                    LeagueViewModel.createLeague(bannerURL: bannerURL, leagueName: leagueName, playerId: playerId, admin: admin, players: players) { data in
-                        if data {
-                            dismiss()
-                        }
+                Task{
+                    let result = await leagueVM.createLeague(leagueName: leagueName, playerId: playerId, admin: admin, players: players, bannerImage: image)
+                    if result {
+                        dismiss()
                     }
                 }
             }

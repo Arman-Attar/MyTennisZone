@@ -432,9 +432,10 @@ extension modifyMatchView{
     }
     
     private func updateStats() {
+        guard let leagueID = leagueVm.league?.id else { return }
         if !matchOngoing {
             
-            FirebaseManager.shared.firestore.collection(isLeague ? "leagues" : "tournaments").document(isLeague ? leagueVm.league!.id : tournamentVm.tournament!.id).getDocument { snapshot, err in
+            FirebaseManager.shared.firestore.collection(isLeague ? "leagues" : "tournaments").document(isLeague ? leagueID : tournamentVm.tournament!.id).getDocument { snapshot, err in
                 if let err = err {
                     print(err.localizedDescription)
                     return
@@ -456,13 +457,13 @@ extension modifyMatchView{
                 players[winnerIndex!].wins += 1
                 players[loserIndex!].losses += 1
                 
-                FirebaseManager.shared.firestore.collection(isLeague ? "leagues" : "tournaments").document(isLeague ? leagueVm.league!.id : tournamentVm.tournament!.id).updateData(["players" : FieldValue.delete()])
+                FirebaseManager.shared.firestore.collection(isLeague ? "leagues" : "tournaments").document(isLeague ? leagueID : tournamentVm.tournament!.id).updateData(["players" : FieldValue.delete()])
                 
                 for player in players {
                     
                     let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
                     
-                    FirebaseManager.shared.firestore.collection(isLeague ? "leagues" : "tournaments").document(isLeague ? leagueVm.league!.id : tournamentVm.tournament!.id).updateData(["players" : FieldValue.arrayUnion([playerData])])
+                    FirebaseManager.shared.firestore.collection(isLeague ? "leagues" : "tournaments").document(isLeague ? leagueID : tournamentVm.tournament!.id).updateData(["players" : FieldValue.arrayUnion([playerData])])
                 }
                 }
                 FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(

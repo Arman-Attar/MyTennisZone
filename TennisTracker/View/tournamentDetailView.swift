@@ -38,11 +38,11 @@ struct tournamentDetailView: View {
                         .padding()
                     Spacer()
                 }
-                RefreshableScrollView {
-                    Standingloop
-                } onRefresh: {
-                    tournamentVm.refreshData(tournamentId: tournamentVm.tournament!.id)
-                }
+//                RefreshableScrollView {
+//                    Standingloop
+//                } onRefresh: {
+//                    tournamentVm.refreshData(tournamentId: tournamentVm.tournament!.id)
+//                }
 //                ScrollView {
 //                    Standingloop
 //                }

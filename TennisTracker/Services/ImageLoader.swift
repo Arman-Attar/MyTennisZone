@@ -15,12 +15,16 @@ class ImageLoader {
     func getImages(playerList: [Player]) async throws -> [UIImage?] {
         var images: [UIImage?] = []
         for player in playerList {
-            guard let url = URL(string: player.profilePicUrl) else {
-                throw(URLError(.badURL))
-            }
-            let (data, _) = try await URLSession.shared.data(from: url)
-            if let image = UIImage(data: data) {
-                images.append(image)
+            if player.profilePicUrl != "" {
+                guard let url = URL(string: player.profilePicUrl) else {
+                    throw(URLError(.badURL))
+                }
+                let (data, _) = try await URLSession.shared.data(from: url)
+                if let image = UIImage(data: data) {
+                    images.append(image)
+                } else {
+                    images.append(nil)
+                }
             } else {
                 images.append(nil)
             }

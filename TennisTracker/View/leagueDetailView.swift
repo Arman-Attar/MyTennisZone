@@ -9,28 +9,28 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 // CODE WAS TAKEN FROM STACKOVERFLOW BY Jishnu Raj T
-public struct RefreshableScrollView<Content: View>: View {
-    var content: Content
-    var onRefresh: () -> Void
-
-    public init(content: @escaping () -> Content, onRefresh: @escaping () -> Void) {
-        self.content = content()
-        self.onRefresh = onRefresh
-    }
-
-    public var body: some View {
-        List {
-            content
-                .listRowSeparatorTint(.clear)
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-        }
-        .listStyle(.plain)
-        .refreshable {
-            onRefresh()
-        }
-    }
-}
+//public struct RefreshableScrollView<Content: View>: View {
+//    var content: Content
+//    var onRefresh: () -> Void
+//
+//    public init(content: @escaping () -> Content, onRefresh: @escaping () -> Void) {
+//        self.content = content()
+//        self.onRefresh = onRefresh
+//    }
+//
+//    public var body: some View {
+//        List {
+//            content
+//                .listRowSeparatorTint(.clear)
+//                .listRowBackground(Color.clear)
+//                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+//        }
+//        .listStyle(.plain)
+//        .refreshable {
+//            onRefresh()
+//        }
+//    }
+//}
 
 
 struct leagueDetailView: View {
@@ -74,11 +74,6 @@ struct leagueDetailView: View {
                     ScrollView {
                         Standingloop
                     }
-//                    RefreshableScrollView {
-//                        Standingloop
-//                    } onRefresh: {
-//                        leagueVM.refreshData(leagueId: leagueVM.league!.id)
-//                    }
                 }
                 else {
                     Text("Match History")
@@ -115,7 +110,9 @@ struct leagueDetailView: View {
                         ToolbarItem(placement: .navigationBarTrailing){
                             Button {
                                 Task {
-                                    await leagueVM.getCurrentLeague(leagueId: leagueVM.league!.id)
+                                    if let leagueID = leagueVM.league?.id {
+                                        await leagueVM.getCurrentLeague(leagueId: leagueID)
+                                    }
                                 }
                             } label: {
                                 Image(systemName: "arrow.clockwise")
@@ -132,11 +129,18 @@ struct leagueDetailView: View {
                     }
                     .alert(isPresented: $confirmDeleteAlert) {
                         Alert(title: Text("Delete league"), message: Text("Are you sure you want to delete this league?"), primaryButton: .destructive(Text("Delete")){
-                            leagueVM.deleteLeague(leagueId: leagueVM.league!.id)
-                            //leagueVM.getLeagues()
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                dismiss()
+                            Task {
+                                if let leagueID = leagueVM.league?.id {
+                                    let result = await leagueVM.deleteLeague(leagueID: leagueID)
+                                    if result {
+                                        dismiss()
+                                    }
+                                }
                             }
+                            //leagueVM.getLeagues()
+//                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+//                                dismiss()
+//                            }
                         }, secondaryButton: .cancel())
                     }
             } else {
@@ -144,7 +148,9 @@ struct leagueDetailView: View {
             }
         }.refreshable {
             Task {
-                await leagueVM.getCurrentLeague(leagueId: leagueVM.league!.id)
+                if let leagueID = leagueVM.league?.id {
+                    await leagueVM.getCurrentLeague(leagueId: leagueID)
+                }
             }
         }
     }

@@ -31,7 +31,7 @@ class LeagueViewModel: ObservableObject {
                 self.leagues = leagues
             })
         } catch {
-            print(error.localizedDescription)
+            print(error)
         }
     }
     func getCurrentLeague(leagueId: String) async {
@@ -48,7 +48,7 @@ class LeagueViewModel: ObservableObject {
                 self?.listOfMatches = league.matches.reversed()
             })
         } catch {
-            print(error.localizedDescription)
+            print(error)
         }
     }
     func loadImages() async{
@@ -59,7 +59,7 @@ class LeagueViewModel: ObservableObject {
                 self.leagueLoaded = true
             })
         } catch {
-            print(error.localizedDescription)
+            print(error)
         }
     }
     func findLeague(leagueName: String, playerID: String) async{
@@ -74,10 +74,10 @@ class LeagueViewModel: ObservableObject {
                 })
             }
         } catch {
-            print(error.localizedDescription)
+            print(error)
             await MainActor.run(body: {
                 self.league = nil
-
+                
             })
         }
         let userStatus = await isUserJoined(playerID: playerID)
@@ -85,20 +85,57 @@ class LeagueViewModel: ObservableObject {
             self.playerIsJoined = userStatus
         })
     }
-    
     func isUserJoined(playerID: String) async -> Bool {
         let result = self.playerList.filter{playerID == $0.uid}
         return !result.isEmpty
     }
-    
+
+    func joinLeague(uid: String, profilePic: String, displayName: String){
+        let playerData = ["uid": uid, "profilePicUrl": profilePic, "displayName": displayName, "points": 0, "wins": 0, "losses": 0] as [String: Any]
+        if let currentLeague = league,
+           let leagueID = currentLeague.id {
+            do {
+                try DatabaseManager.shared.joinLeague(playerData: playerData, leagueID: leagueID, playerID: uid)
+            } catch {
+                print(error)
+            }
+            
+        }
+    }
+    func deleteLeague(leagueID: String) async -> Bool {
+        var deleted = false
+        if let league = self.league {
+            do {
+                if league.bannerURL != "" {
+                    try await deleted = DatabaseManager.shared.deleteLeague(leagueID: leagueID, bannerURL: league.bannerURL)
+                } else {
+                    try await deleted = DatabaseManager.shared.deleteLeague(leagueID: leagueID, bannerURL: nil)
+                }
+            } catch {
+                print(error)
+            }
+            
+        }
+        return deleted
+    }
     
     // TO BE REFACTORED
     
-    func joinLeague(uid: String, profilePic: String, displayName: String){
-        let playerData = Player(uid: uid, profilePicUrl: profilePic, displayName: displayName, points: 0, wins: 0, losses: 0)
-        guard let currentLeague = league else {return}
-        DatabaseManager.shared.joinLeague(playerData: playerData, leagueID: currentLeague.id)
+    func createLeague(leagueName: String, playerId: [String], admin: String, players: [Player], bannerImage: UIImage?) async -> Bool {
+        do {
+            var bannerURL = ""
+            if let bannerImage = bannerImage {
+                bannerURL = try await DatabaseManager.shared.uploadBanner(image: bannerImage)
+            }
+            let leagueData = League(name: leagueName.lowercased(), playerId: playerId, players: players, matches: [], bannerURL: bannerURL, admin: admin)
+            try DatabaseManager.shared.createLeague(league: leagueData)
+            return true
+        } catch  {
+            print(error)
+            return false
+        }
     }
+    
     
     func getCurrentMatch(matchId: String) {
         self.currentSets = []
@@ -169,7 +206,8 @@ class LeagueViewModel: ObservableObject {
                 winner = currentMatch!.player2DisplayName
             }
         }
-        FirebaseManager.shared.firestore.collection("leagues").document(league!.id).getDocument { snapshot, err in
+        guard let leagueID = league?.id else { return }
+        FirebaseManager.shared.firestore.collection("leagues").document(leagueID).getDocument { snapshot, err in
             if let err = err {
                 print(err.localizedDescription)
                 return
@@ -204,41 +242,22 @@ class LeagueViewModel: ObservableObject {
             matches[matchIndex].matchOngoing = ongoing
             matches[matchIndex].winner = winner
             
-            FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["matches" : FieldValue.delete()])
+            
+            FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["matches" : FieldValue.delete()])
             
             for match in matches {
                 let matchData = ["id" : match.id, "date" : match.date, "player1Pic" : match.player1Pic, "player2Pic" : match.player2Pic, "player1DisplayName" : match.player1DisplayName, "player2DisplayName" : match.player2DisplayName, "player1Score" : match.player1Score, "player2Score" : match.player2Score, "winner" : match.winner, "matchOngoing" : match.matchOngoing, "setsToWin" : match.setsToWin, "matchType" : match.matchType] as [String: Any]
                 
-                FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["matches" : FieldValue.arrayUnion([matchData])])
+                FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["matches" : FieldValue.arrayUnion([matchData])])
             }
         }
         
-    }
-
-    
-    
-    
-    func deleteLeague(leagueId: String){
-        if league?.bannerURL ?? "" != "" {
-            if let url = league!.bannerURL {
-                let storageRef = FirebaseManager.shared.storage.reference(forURL: url)
-                storageRef.delete { err in
-                    print(err?.localizedDescription ?? "Error")
-                }
-            }
-        }
-        
-        FirebaseManager.shared.firestore.collection("leagues").document(leagueId).delete { err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-        }
     }
     
     func deleteMatch(){
+        guard let leagueID = league?.id else { return }
         if !currentMatch!.matchOngoing{
-            FirebaseManager.shared.firestore.collection("leagues").document(league!.id).getDocument { snapshot, err in
+            FirebaseManager.shared.firestore.collection("leagues").document(leagueID).getDocument { snapshot, err in
                 if let err = err {
                     print(err.localizedDescription)
                     return
@@ -267,13 +286,13 @@ class LeagueViewModel: ObservableObject {
                 players[winnerIndex!].wins -= 1
                 players[loserIndex!].losses -= 1
                 
-                FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["players" : FieldValue.delete()])
+                FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["players" : FieldValue.delete()])
                 
                 for player in players {
                     
                     let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
                     
-                    FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["players" : FieldValue.arrayUnion([playerData])])
+                    FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["players" : FieldValue.arrayUnion([playerData])])
                 }
                 FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(
                     ["matchesPlayed" : FieldValue.increment(-1.00)])
@@ -309,7 +328,7 @@ class LeagueViewModel: ObservableObject {
             }
         }
         
-        FirebaseManager.shared.firestore.collection("leagues").document(self.league!.id).updateData(["matches" : FieldValue.arrayRemove([matchData])])
+        FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["matches" : FieldValue.arrayRemove([matchData])])
     }
     
     func getPos(players: [Player], uid: String) -> Int {
@@ -321,46 +340,5 @@ class LeagueViewModel: ObservableObject {
             }
         }
         return pos
-    }
-    
-    static func updateImage(image: UIImage?, completionHandler: @escaping (_ data: String) -> Void){
-        let uid = UUID().uuidString
-        let ref = FirebaseManager.shared.storage.reference(withPath: uid)
-        guard let imageData = image?.jpegData(compressionQuality: 0.5) else {
-            completionHandler("")
-            return
-        }
-        ref.putData(imageData, metadata: nil) { metadata, err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-            ref.downloadURL { url, err in
-                if let err = err {
-                    print(err.localizedDescription)
-                    return
-                }
-                guard let url = url else {return}
-                completionHandler(url.absoluteString)
-            }
-        }
-    }
-    
-    static func createLeague(bannerURL: String, leagueName: String, playerId: [String], admin: String, players: [Player], completionHandler: @escaping (_ data: Bool) -> Void){
-        let leagueId = UUID().uuidString
-        let leagueData = ["id" : leagueId, "name" : leagueName, "playerId" : playerId ,"players" : [], "matches" : [], "bannerURL" : bannerURL, "admin" : admin] as [String : Any]
-        
-        FirebaseManager.shared.firestore.collection("leagues").document(leagueId).setData(leagueData) { err in
-            if let err = err {
-                print(err.localizedDescription)
-                completionHandler(false)
-            }
-            for player in players{
-                let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
-                
-                FirebaseManager.shared.firestore.collection("leagues").document(leagueId).updateData(["players" : FieldValue.arrayUnion([playerData])])
-            }
-        }
-        completionHandler(true)
     }
 }
