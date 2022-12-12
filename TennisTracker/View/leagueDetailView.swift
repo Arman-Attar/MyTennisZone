@@ -235,11 +235,13 @@ extension leagueDetailView{
         VStack {
             ForEach(leagueVM.listOfMatches, id: \.id) { match in
                 Button {
-                    leagueVM.getCurrentMatch(matchId: match.id)
-                    if match.matchOngoing {
-                        modifyMatch.toggle()
-                    } else {
-                        matchInfo.toggle()
+                    Task {
+                        await leagueVM.getCurrentMatch(matchId: match.id)
+                        if match.matchOngoing {
+                            modifyMatch.toggle()
+                        } else {
+                            matchInfo.toggle()
+                        }
                     }
                 } label: {
                     VStack {

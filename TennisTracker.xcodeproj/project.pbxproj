@@ -232,6 +232,14 @@
 			path = Tournament;
 			sourceTree = "<group>";
 		};
+		C25D39392947AD8000B6520B /* Database */ = {
+			isa = PBXGroup;
+			children = (
+				C2081DC129416DDC009C1414 /* DatabaseManager.swift */,
+			);
+			path = Database;
+			sourceTree = "<group>";
+		};
 		C2E64BD728A4100F00501252 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -242,10 +250,10 @@
 		C2F0D7382821ABF8009792CD /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				C25D39392947AD8000B6520B /* Database */,
 				C2F0D7392821AC14009792CD /* AuthenticationService.swift */,
 				C24C4BEE282D9B6A004FA8A5 /* imagePicker.swift */,
 				C2F65FE9293E70DE00013404 /* ImageLoader.swift */,
-				C2081DC129416DDC009C1414 /* DatabaseManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";

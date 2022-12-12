@@ -23,6 +23,7 @@ class LeagueViewModel: ObservableObject {
     @Published var playerIsJoined = false
     
     // REFACTORED
+    
     func getLeagues() async{
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
         do {
@@ -62,7 +63,7 @@ class LeagueViewModel: ObservableObject {
             print(error)
         }
     }
-    func findLeague(leagueName: String, playerID: String) async{
+    func findLeague(leagueName: String, playerID: String) async {
         await MainActor.run(body: {
             self.league = nil
         })
@@ -89,17 +90,11 @@ class LeagueViewModel: ObservableObject {
         let result = self.playerList.filter{playerID == $0.uid}
         return !result.isEmpty
     }
-
     func joinLeague(uid: String, profilePic: String, displayName: String){
         let playerData = ["uid": uid, "profilePicUrl": profilePic, "displayName": displayName, "points": 0, "wins": 0, "losses": 0] as [String: Any]
         if let currentLeague = league,
            let leagueID = currentLeague.id {
-            do {
-                try DatabaseManager.shared.joinLeague(playerData: playerData, leagueID: leagueID, playerID: uid)
-            } catch {
-                print(error)
-            }
-            
+            DatabaseManager.shared.joinLeague(playerData: playerData, leagueID: leagueID, playerID: uid)
         }
     }
     func deleteLeague(leagueID: String) async -> Bool {
@@ -118,9 +113,6 @@ class LeagueViewModel: ObservableObject {
         }
         return deleted
     }
-    
-    // TO BE REFACTORED
-    
     func createLeague(leagueName: String, playerId: [String], admin: String, players: [Player], bannerImage: UIImage?) async -> Bool {
         do {
             var bannerURL = ""
@@ -135,32 +127,67 @@ class LeagueViewModel: ObservableObject {
             return false
         }
     }
-    
-    
-    func getCurrentMatch(matchId: String) {
-        self.currentSets = []
+    func getCurrentMatch(matchId: String) async {
+        await MainActor.run(body: {
+            self.currentSets = []
+        })
         for match in listOfMatches {
             if match.id == matchId{
-                self.currentMatch = match
+                await MainActor.run(body: {
+                    self.currentMatch = match
+                })
             }
         }
-        
-        FirebaseManager.shared.firestore.collection("sets").whereField("matchId", isEqualTo: matchId).getDocuments { snapshot, err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-            let sets = snapshot!.documents
-            for set in sets {
-                do{
-                    let jsonData = try JSONSerialization.data(withJSONObject: set.data())
-                    self.currentSets.append(try JSONDecoder().decode(Set.self, from: jsonData))
-                } catch {
-                    print(error)
-                }
-            }
+        do {
+            let setData = try await DatabaseManager.shared.getSets(matchID: matchId)
+            await MainActor.run(body: {
+                self.currentSets = setData
+            })
+        } catch {
+            print(error)
         }
     }
+    
+    
+    // UTILITY FUNCTIONS
+    func getPos(players: [Player], uid: String) -> Int {
+        var pos: Int = 0
+        for player in players {
+            pos += 1
+            if player.uid == uid {
+                break
+            }
+        }
+        return pos
+    }
+    
+    // TO BE REFACTORED
+    
+  
+//    func getCurrentMatch(matchId: String) {
+//        self.currentSets = []
+//        for match in listOfMatches {
+//            if match.id == matchId{
+//                self.currentMatch = match
+//            }
+//        }
+//
+//        FirebaseManager.shared.firestore.collection("sets").whereField("matchId", isEqualTo: matchId).getDocuments { snapshot, err in
+//            if let err = err {
+//                print(err.localizedDescription)
+//                return
+//            }
+//            let sets = snapshot!.documents
+//            for set in sets {
+//                do{
+//                    let jsonData = try JSONSerialization.data(withJSONObject: set.data())
+//                    self.currentSets.append(try JSONDecoder().decode(Set.self, from: jsonData))
+//                } catch {
+//                    print(error)
+//                }
+//            }
+//        }
+//    }
     
     func addSet(p1Points: Int, p2Points: Int) {
         var p1Uid = ""
@@ -329,16 +356,5 @@ class LeagueViewModel: ObservableObject {
         }
         
         FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["matches" : FieldValue.arrayRemove([matchData])])
-    }
-    
-    func getPos(players: [Player], uid: String) -> Int {
-        var pos: Int = 0
-        for player in players {
-            pos += 1
-            if player.uid == uid {
-                break
-            }
-        }
-        return pos
     }
 }

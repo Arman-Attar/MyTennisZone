@@ -43,8 +43,6 @@ class DatabaseManager {
             let data = try await FirebaseManager.shared.firestore.collection("leagues").whereField("name", isEqualTo: leagueName).getDocuments()
             if let document = data.documents.first {
                 league = try document.data(as: League.self)
-//                let jsonData = try JSONSerialization.data(withJSONObject: document.data())
-//                league = try JSONDecoder().decode(League.self, from: jsonData)
             }
         } catch {
             throw (error)
@@ -52,16 +50,10 @@ class DatabaseManager {
         return league
     }
     
-    func joinLeague(playerData: [String: Any], leagueID: String, playerID: String) throws {
-        do {
-            FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["players" : FieldValue.arrayUnion([playerData])])
-            FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["playerId" : FieldValue.arrayUnion([playerID])])
-            print("DONE")
-        } catch {
-            throw error
-        }
-
-    } // make sure this is async
+    func joinLeague(playerData: [String: Any], leagueID: String, playerID: String){
+        FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["players" : FieldValue.arrayUnion([playerData])])
+        FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["playerId" : FieldValue.arrayUnion([playerID])])
+    }
     
     func deleteLeague(leagueID: String, bannerURL: String?) async throws -> Bool {
         do {
@@ -80,7 +72,6 @@ class DatabaseManager {
     func createLeague(league: League) throws{
         do {
             let leagueID = try FirebaseManager.shared.firestore.collection("leagues").addDocument(from: league)
-//            FirebaseManager.shared.firestore.collection("leagues").document(leagueID.documentID).setData(["id" : leagueID.documentID], merge: true)
         } catch  {
             throw error
         }
@@ -98,5 +89,18 @@ class DatabaseManager {
         } catch {
             throw error
         }
+    }
+    
+    func getSets(matchID: String) async throws -> [Set] {
+        var sets: [Set] = []
+        let data = try await FirebaseManager.shared.firestore.collection("sets").whereField("matchId", isEqualTo: matchID).getDocuments()
+        for set in data.documents {
+            do {
+                sets.append(try set.data(as: Set.self))
+            } catch {
+                throw error
+            }
+        }
+        return sets
     }
 }
