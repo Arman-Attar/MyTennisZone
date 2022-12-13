@@ -99,8 +99,12 @@ struct modifyMatchView: View {
         .alert(isPresented: $confirmDeleteAlert) {
             Alert(title: Text("Delete match"), message: Text("Are you sure you want to delete this match?"), primaryButton: .destructive(Text("Delete")){
                // DELETE MATCH FUNCTION AND REMOVE STATS FROM PLAYERS
-                if isLeague { leagueVm.deleteMatch() }
-                dismiss()
+                Task {
+                    if isLeague {
+                        await leagueVm.deleteMatch()
+                    }
+                    dismiss()
+                }
             }, secondaryButton: .cancel())
         }
             if showSetSheet{
@@ -420,65 +424,21 @@ extension modifyMatchView{
                         showAlert = true
                     }
                     else{
-                        updateStats()
-                        if isLeague {
-                            leagueVm.updateMatch(ongoing: matchOngoing)
+                        Task {
+                            //updateStats()
+                            if isLeague {
+                                await leagueVm.updateMatch(ongoing: matchOngoing, sets: leagueVm.currentSets, player1DisplayName: leagueVm.currentMatch!.player1DisplayName, player2DisplayName: leagueVm.currentMatch!.player2DisplayName, matchID: leagueVm.currentMatch!.id)
+                            }
+                            else {
+                                tournamentVm.updateMatch(ongoing: matchOngoing)
+                            }
+                            dismiss()
                         }
-                        else {
-                            tournamentVm.updateMatch(ongoing: matchOngoing)
-                        }
-                        dismiss()
                     }
                 }
         }.padding()
     }
-    
-    private func updateStats() {
-        guard let leagueID = leagueVm.league?.id else { return }
-        if !matchOngoing {
-            
-            FirebaseManager.shared.firestore.collection(isLeague ? "leagues" : "tournaments").document(isLeague ? leagueID : tournamentVm.tournament!.id).getDocument { snapshot, err in
-                if let err = err {
-                    print(err.localizedDescription)
-                    return
-                }
-               guard let document = snapshot?.data() else {return}
-                var players = (document["players"] as! [[String: Any]]).map{ player in
-                    return Player(
-                        uid: player["uid"] as? String ?? "",
-                        profilePicUrl: player["profilePicUrl"] as? String ?? "",
-                        displayName: player["displayName"] as? String ?? "",
-                        points: player["points"] as? Int ?? 0,
-                        wins: player["wins"] as? Int ?? 0,
-                        losses: player["losses"] as? Int ?? 0)
-                }
-                let winnerIndex = players.firstIndex(where: { $0.displayName == winner})
-                let loserIndex = players.firstIndex(where: { $0.displayName == loser})
-                if isLeague || (!isLeague && tournamentVm.tournament!.mode == "Round Robin"){
-                players[winnerIndex!].points += 3
-                players[winnerIndex!].wins += 1
-                players[loserIndex!].losses += 1
-                
-                FirebaseManager.shared.firestore.collection(isLeague ? "leagues" : "tournaments").document(isLeague ? leagueID : tournamentVm.tournament!.id).updateData(["players" : FieldValue.delete()])
-                
-                for player in players {
-                    
-                    let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
-                    
-                    FirebaseManager.shared.firestore.collection(isLeague ? "leagues" : "tournaments").document(isLeague ? leagueID : tournamentVm.tournament!.id).updateData(["players" : FieldValue.arrayUnion([playerData])])
-                }
-                }
-                FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(
-                    ["matchesPlayed" : FieldValue.increment(1.00)])
-                
-                FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(["matchesWon" : FieldValue.increment(1.00)])
-                
-                FirebaseManager.shared.firestore.collection("users").document(players[loserIndex!].uid).updateData(["matchesPlayed" : FieldValue.increment(1.00)])
         
-            }
-    }
-    }
-    
     private func verifyScore() -> Bool{
         var player1Score = 0
         var player2Score = 0

@@ -274,8 +274,12 @@ extension addMatchView {
                             showAlert = true
                         }
                         else{
-                            createMatch()
-                            dismiss()
+                            Task {
+                                await leagueVm.createMatch(matchOngoing: matchOngoing, player1: player1!, player2: player2!, date: matchDate, setsToWin: numberOfSets, matchType: "league" , sets: sets, matchID: matchId)
+                                dismiss()
+                            }
+                            //                            createMatch()
+//                            dismiss()
                         }
                     }
             }

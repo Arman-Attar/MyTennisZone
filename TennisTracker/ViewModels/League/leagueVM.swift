@@ -14,7 +14,6 @@ class LeagueViewModel: ObservableObject {
     @Published var leagues: [League]?
     @Published var league: League?
     @Published var playerList: [Player] = []
-    @State var topPlayer = ""
     @Published var listOfMatches: [Match] = []
     @Published var currentMatch: Match?
     @Published var currentSets: [Set] = []
@@ -163,7 +162,7 @@ class LeagueViewModel: ObservableObject {
         
         let setInfo = Set(matchId: currentMatch!.id, winner: setWinner, player1Uid: p1Uid, player2Uid: p2Uid, player1Points: p1Points, player2Points: p2Points)
         do {
-            try DatabaseManager.shared.addSet(set: setInfo)
+            try DatabaseManager.shared.addSet(set: setInfo, sets: nil)
             await MainActor.run(body: {
                 self.currentSets.append(setInfo)
             })
@@ -173,15 +172,18 @@ class LeagueViewModel: ObservableObject {
     }
     
     //MUST BE TESTED
-    func updateMatch(ongoing: Bool) async {
-        let (player1Score, player2Score) = calculatePlayerScores()
+    func updateMatch(ongoing: Bool, sets: [Set], player1DisplayName: String, player2DisplayName: String, matchID: String) async {
+        let (player1Score, player2Score) = calculatePlayerScores(sets: sets)
         var winner = ""
+        var loser = ""
         if !ongoing {
             if player1Score > player2Score {
-                winner = currentMatch!.player1DisplayName
+                winner = player1DisplayName
+                loser = player2DisplayName
             }
             else{
-                winner = currentMatch!.player2DisplayName
+                winner = player2DisplayName
+                loser = player1DisplayName
             }
         }
         guard let leagueID = league?.id else { return }
@@ -190,7 +192,7 @@ class LeagueViewModel: ObservableObject {
             var matchIndex = -1
             for match in matches {
                 matchIndex += 1
-                if match.id == self.currentMatch!.id{
+                if match.id == matchID{
                     break
                 }
             }
@@ -200,6 +202,7 @@ class LeagueViewModel: ObservableObject {
             matches[matchIndex].winner = winner
             
             try await DatabaseManager.shared.updateMatchList(matches: matches, leagueID: leagueID)
+            await updateStats(matchOngoing: ongoing, winner: winner, loser: loser)
         } catch  {
             print(error)
             return
@@ -244,7 +247,6 @@ class LeagueViewModel: ObservableObject {
             ]
             
             try await DatabaseManager.shared.deleteMatch(leagueID: leagueID, matchData: matchData)
-            
         } catch {
             print(error)
             return
@@ -262,10 +264,10 @@ class LeagueViewModel: ObservableObject {
         }
         return pos
     }
-    private func calculatePlayerScores() -> (Int, Int) {
+    private func calculatePlayerScores(sets: [Set]) -> (Int, Int) {
         var player1Score = 0
         var player2Score = 0
-        for set in self.currentSets {
+        for set in sets {
             if set.player1Points > set.player2Points {
                 player1Score += 1
             }
@@ -275,4 +277,67 @@ class LeagueViewModel: ObservableObject {
         }
         return (player1Score, player2Score)
     }
+    private func convertDateToString(date: Date) -> String{
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, y"
+        let result = formatter.string(from: date)
+        return result
+    }
+    
+    
+    func createMatch(matchOngoing: Bool, player1: Player, player2: Player, date: Date, setsToWin: Int, matchType: String, sets: [Set], matchID: String) async {
+        let (player1Score, player2Score) = calculatePlayerScores(sets: sets)
+        var winner = ""
+        var loser = ""
+        if !matchOngoing{
+            if player1Score > player2Score {
+                winner = player1.displayName
+                loser = player2.displayName
+            }
+            else {
+                winner = player2.displayName
+                loser = player1.displayName
+            }
+        }
+        let date = convertDateToString(date: date)
+    
+        let matchData = ["id" : matchID, "date" : date, "player1Pic" : player1.profilePicUrl, "player2Pic" : player2.profilePicUrl, "player1DisplayName" : player1.displayName, "player2DisplayName" : player2.displayName ,"player1Score" : player1Score, "player2Score" : player2Score, "winner" : winner, "matchOngoing" : matchOngoing, "setsToWin" : setsToWin, "matchType" : "League"] as [String: Any]
+        
+        
+        guard let leagueID = self.league?.id else { return }
+         
+         do {
+             try await DatabaseManager.shared.createMatch(matchData: matchData, leagueID: leagueID)
+             try DatabaseManager.shared.addSet(set: nil, sets: sets)
+             await updateMatch(ongoing: matchOngoing, sets: sets, player1DisplayName: player1.displayName, player2DisplayName: player2.displayName, matchID: matchID)
+             await updateStats(matchOngoing: matchOngoing, winner: winner, loser: loser)
+         } catch {
+             print(error)
+             return
+         }
+        
+    }
+    
+    func updateStats(matchOngoing: Bool, winner: String, loser: String) async {
+        guard let leagueID = self.league?.id else {return}
+        if !matchOngoing {
+            do {
+                var players = try await DatabaseManager.shared.getPlayers(leagueID: leagueID)
+                let winnerIndex = players.firstIndex(where: { $0.displayName == winner})
+                let loserIndex = players.firstIndex(where: { $0.displayName == loser})
+                players[winnerIndex!].points += 3
+                players[winnerIndex!].wins += 1
+                players[loserIndex!].losses += 1
+                
+                try await DatabaseManager.shared.updateStats(leagueID: leagueID, winnerID: winner, loserID: loser, players: players)
+            } catch {
+                print(error)
+                return
+            }
+           
+        }
+    }
+    
 }
+
+

@@ -104,9 +104,15 @@ class DatabaseManager {
         return sets
     }
     
-    func addSet(set: Set) throws {
+    func addSet(set: Set?, sets:[Set]?) throws {
         do {
-            try FirebaseManager.shared.firestore.collection("sets").addDocument(from: set)
+            if let set = set {
+                try FirebaseManager.shared.firestore.collection("sets").addDocument(from: set)
+            } else if let sets = sets {
+                for set in sets {
+                   try FirebaseManager.shared.firestore.collection("sets").addDocument(from: set)
+                }
+            }
         } catch  {
             throw error
         }
@@ -162,12 +168,31 @@ class DatabaseManager {
                 
                try await FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["players" : FieldValue.arrayUnion([playerData])])
             }
-            try await FirebaseManager.shared.firestore.collection("users").document(winnerID).updateData(
+            try? await FirebaseManager.shared.firestore.collection("users").document(winnerID).updateData(
                 ["matchesPlayed" : FieldValue.increment(-1.00)])
             
-            try await FirebaseManager.shared.firestore.collection("users").document(winnerID).updateData(["matchesWon" : FieldValue.increment(-1.00)])
+            try? await FirebaseManager.shared.firestore.collection("users").document(winnerID).updateData(["matchesWon" : FieldValue.increment(-1.00)])
             
-            try await FirebaseManager.shared.firestore.collection("users").document(loserID).updateData(["matchesPlayed" : FieldValue.increment(-1.00)])
+            try? await FirebaseManager.shared.firestore.collection("users").document(loserID).updateData(["matchesPlayed" : FieldValue.increment(-1.00)])
+        } catch {
+            throw error
+        }
+    }
+    
+    func updateStats(leagueID: String, winnerID: String, loserID: String, players: [Player]) async throws {
+        do {
+            try await FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["players" : FieldValue.delete()])
+            for player in players {
+                let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
+                
+                try await FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["players" : FieldValue.arrayUnion([playerData])])
+            }
+                try await FirebaseManager.shared.firestore.collection("users").document(winnerID).updateData(
+                    ["matchesPlayed" : FieldValue.increment(1.00)])
+                
+                try await FirebaseManager.shared.firestore.collection("users").document(winnerID).updateData(["matchesWon" : FieldValue.increment(1.00)])
+                
+                try await FirebaseManager.shared.firestore.collection("users").document(loserID).updateData(["matchesPlayed" : FieldValue.increment(1.00)])
         } catch {
             throw error
         }
@@ -176,6 +201,14 @@ class DatabaseManager {
     func deleteMatch(leagueID: String, matchData: [String : Any]) async throws {
         do {
             try await FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["matches" : FieldValue.arrayRemove([matchData])])
+        } catch {
+            throw error
+        }
+    }
+    
+    func createMatch(matchData: [String : Any], leagueID: String) async throws {
+        do {
+            try await  FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["matches" : FieldValue.arrayUnion([matchData])])
         } catch {
             throw error
         }
