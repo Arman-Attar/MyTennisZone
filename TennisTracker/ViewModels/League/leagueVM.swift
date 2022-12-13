@@ -21,8 +21,6 @@ class LeagueViewModel: ObservableObject {
     @Published var leagueLoaded = false
     @Published var playerIsJoined = false
     
-    // REFACTORED
-    
     func getLeagues() async{
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
         do {
@@ -34,6 +32,7 @@ class LeagueViewModel: ObservableObject {
             print(error)
         }
     }
+    
     func getCurrentLeague(leagueId: String) async {
         do {
             let league = try await DatabaseManager.shared.getLeague(leagueID: leagueId)
@@ -51,6 +50,7 @@ class LeagueViewModel: ObservableObject {
             print(error)
         }
     }
+    
     func loadImages() async{
         do {
             let images = try await ImageLoader.shared.getImages(playerList: self.playerList)
@@ -62,6 +62,7 @@ class LeagueViewModel: ObservableObject {
             print(error)
         }
     }
+    
     func findLeague(leagueName: String, playerID: String) async {
         await MainActor.run(body: {
             self.league = nil
@@ -85,10 +86,12 @@ class LeagueViewModel: ObservableObject {
             self.playerIsJoined = userStatus
         })
     }
+    
     func isUserJoined(playerID: String) async -> Bool {
         let result = self.playerList.filter{playerID == $0.uid}
         return !result.isEmpty
     }
+    
     func joinLeague(uid: String, profilePic: String, displayName: String){
         let playerData = ["uid": uid, "profilePicUrl": profilePic, "displayName": displayName, "points": 0, "wins": 0, "losses": 0] as [String: Any]
         if let currentLeague = league,
@@ -96,6 +99,7 @@ class LeagueViewModel: ObservableObject {
             DatabaseManager.shared.joinLeague(playerData: playerData, leagueID: leagueID, playerID: uid)
         }
     }
+    
     func deleteLeague(leagueID: String) async -> Bool {
         var deleted = false
         if let league = self.league {
@@ -112,6 +116,7 @@ class LeagueViewModel: ObservableObject {
         }
         return deleted
     }
+    
     func createLeague(leagueName: String, playerId: [String], admin: String, players: [Player], bannerImage: UIImage?) async -> Bool {
         do {
             var bannerURL = ""
@@ -126,6 +131,7 @@ class LeagueViewModel: ObservableObject {
             return false
         }
     }
+    
     func getCurrentMatch(matchId: String) async {
         await MainActor.run(body: {
             self.currentSets = []
@@ -146,6 +152,7 @@ class LeagueViewModel: ObservableObject {
             print(error)
         }
     }
+    
     func addSet(p1Points: Int, p2Points: Int) async {
         var p1Uid = ""
         var p2Uid = ""
@@ -171,7 +178,6 @@ class LeagueViewModel: ObservableObject {
         }
     }
     
-    //MUST BE TESTED
     func updateMatch(ongoing: Bool, sets: [Set], player1DisplayName: String, player2DisplayName: String, matchID: String) async {
         let (player1Score, player2Score) = calculatePlayerScores(sets: sets)
         var winner = ""
@@ -209,6 +215,7 @@ class LeagueViewModel: ObservableObject {
         }
         
     }
+    
     func deleteMatch() async {
         guard let leagueID = league?.id else { return }
         do {
@@ -253,38 +260,6 @@ class LeagueViewModel: ObservableObject {
         }
     }
     
-    // UTILITY FUNCTIONS
-    func getPos(players: [Player], uid: String) -> Int {
-        var pos: Int = 0
-        for player in players {
-            pos += 1
-            if player.uid == uid {
-                break
-            }
-        }
-        return pos
-    }
-    private func calculatePlayerScores(sets: [Set]) -> (Int, Int) {
-        var player1Score = 0
-        var player2Score = 0
-        for set in sets {
-            if set.player1Points > set.player2Points {
-                player1Score += 1
-            }
-            else{
-                player2Score += 1
-            }
-        }
-        return (player1Score, player2Score)
-    }
-    private func convertDateToString(date: Date) -> String{
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, y"
-        let result = formatter.string(from: date)
-        return result
-    }
-    
-    
     func createMatch(matchOngoing: Bool, player1: Player, player2: Player, date: Date, setsToWin: Int, matchType: String, sets: [Set], matchID: String) async {
         let (player1Score, player2Score) = calculatePlayerScores(sets: sets)
         var winner = ""
@@ -300,21 +275,21 @@ class LeagueViewModel: ObservableObject {
             }
         }
         let date = convertDateToString(date: date)
-    
+        
         let matchData = ["id" : matchID, "date" : date, "player1Pic" : player1.profilePicUrl, "player2Pic" : player2.profilePicUrl, "player1DisplayName" : player1.displayName, "player2DisplayName" : player2.displayName ,"player1Score" : player1Score, "player2Score" : player2Score, "winner" : winner, "matchOngoing" : matchOngoing, "setsToWin" : setsToWin, "matchType" : "League"] as [String: Any]
         
         
         guard let leagueID = self.league?.id else { return }
-         
-         do {
-             try await DatabaseManager.shared.createMatch(matchData: matchData, leagueID: leagueID)
-             try DatabaseManager.shared.addSet(set: nil, sets: sets)
-             await updateMatch(ongoing: matchOngoing, sets: sets, player1DisplayName: player1.displayName, player2DisplayName: player2.displayName, matchID: matchID)
-             await updateStats(matchOngoing: matchOngoing, winner: winner, loser: loser)
-         } catch {
-             print(error)
-             return
-         }
+        
+        do {
+            try await DatabaseManager.shared.createMatch(matchData: matchData, leagueID: leagueID)
+            try DatabaseManager.shared.addSet(set: nil, sets: sets)
+            await updateMatch(ongoing: matchOngoing, sets: sets, player1DisplayName: player1.displayName, player2DisplayName: player2.displayName, matchID: matchID)
+            await updateStats(matchOngoing: matchOngoing, winner: winner, loser: loser)
+        } catch {
+            print(error)
+            return
+        }
         
     }
     
@@ -334,8 +309,41 @@ class LeagueViewModel: ObservableObject {
                 print(error)
                 return
             }
-           
+            
         }
+    }
+    
+    // UTILITY FUNCTIONS
+    func getPos(players: [Player], uid: String) -> Int {
+        var pos: Int = 0
+        for player in players {
+            pos += 1
+            if player.uid == uid {
+                break
+            }
+        }
+        return pos
+    }
+    
+    private func calculatePlayerScores(sets: [Set]) -> (Int, Int) {
+        var player1Score = 0
+        var player2Score = 0
+        for set in sets {
+            if set.player1Points > set.player2Points {
+                player1Score += 1
+            }
+            else{
+                player2Score += 1
+            }
+        }
+        return (player1Score, player2Score)
+    }
+    
+    private func convertDateToString(date: Date) -> String{
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, y"
+        let result = formatter.string(from: date)
+        return result
     }
     
 }
