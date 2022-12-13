@@ -218,7 +218,9 @@ class TournamentViewModel: ObservableObject {
                 let setId = set["setId"] as? String ?? ""
                 let winner = set["winner"] as? String ?? ""
                 
-                self.currentSets.append(Set(setId: setId, matchId: matchId, winner: winner, player1Uid: player1Uid, player2Uid: player2Uid, player1Points: player1Points, player2Points: player2Points))
+                
+                // REMOVED SET ID FROM CONSTRUCTOR
+                self.currentSets.append(Set(matchId: matchId, winner: winner, player1Uid: player1Uid, player2Uid: player2Uid, player1Points: player1Points, player2Points: player2Points))
             }
         }
     }
@@ -245,7 +247,8 @@ class TournamentViewModel: ObservableObject {
             }
         }
         
-        currentSets.append(Set(setId: setid, matchId: currentMatch!.id, winner: p1Points > p2Points ? p1Uid : p2Uid, player1Uid: p1Uid, player2Uid: p2Uid, player1Points: p1Points, player2Points: p2Points))
+        // REMOVED SET ID FROM CONSTRUCTOR
+        currentSets.append(Set(matchId: currentMatch!.id, winner: p1Points > p2Points ? p1Uid : p2Uid, player1Uid: p1Uid, player2Uid: p2Uid, player1Points: p1Points, player2Points: p2Points))
     }
     
     func updateMatch(ongoing: Bool){

@@ -366,7 +366,8 @@ extension addMatchView {
                                 var setWinner = ""
                                 if player1SetScore > player2SetScore { setWinner = player1?.uid ?? ""}
                                 else { setWinner = player2?.uid ?? ""}
-                                sets.append(Set(setId: UUID().uuidString, matchId: matchId, winner: setWinner, player1Uid: player1!.uid, player2Uid: player2!.uid, player1Points: player1SetScore, player2Points: player2SetScore))
+                                // REMOVED SETID FROM CONSTR
+                                sets.append(Set(matchId: matchId, winner: setWinner, player1Uid: player1!.uid, player2Uid: player2!.uid, player1Points: player1SetScore, player2Points: player2SetScore))
                                 showSetSheet.toggle()
                             }
                     }.padding()
@@ -477,10 +478,10 @@ extension addMatchView {
     
     private func addSet() {
         for set in sets {
+            // REMOVED SETID FROM CONSTR
+            let setInfo = ["matchId" : matchId, "winner" : set.winner, "player1Uid" : set.player1Uid, "player2Uid" : set.player2Uid, "player1Points" : set.player1Points, "player2Points" : set.player2Points] as [String:Any]
             
-            let setInfo = ["setId" : set.setId, "matchId" : matchId, "winner" : set.winner, "player1Uid" : set.player1Uid, "player2Uid" : set.player2Uid, "player1Points" : set.player1Points, "player2Points" : set.player2Points] as [String:Any]
-            
-            FirebaseManager.shared.firestore.collection("sets").document(set.setId).setData(setInfo) { err in
+            FirebaseManager.shared.firestore.collection("sets").document(set.id!).setData(setInfo) { err in
                 if let err = err {
                     print(err.localizedDescription)
                     return
@@ -504,7 +505,7 @@ extension addMatchView {
             }
             HStack{
                 if !sets.isEmpty{
-                    ForEach(sets, id: \.setId) { set in
+                    ForEach(sets, id: \.id) { set in
                         Text("\(set.player1Points)-\(set.player2Points)").font(.headline).fontWeight(.bold)
                         Divider()
                     }

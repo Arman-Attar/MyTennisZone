@@ -214,7 +214,7 @@ extension modifyMatchView{
             }
             HStack{
                 if !leagueVm.currentSets.isEmpty || !tournamentVm.currentSets.isEmpty{
-                    ForEach(isLeague ? leagueVm.currentSets : tournamentVm.currentSets, id: \.setId) { set in
+                    ForEach(isLeague ? leagueVm.currentSets : tournamentVm.currentSets, id: \.id) { set in
                     Text("\(set.player1Points)-\(set.player2Points)").font(.headline).fontWeight(.bold)
                     Divider()
                 }
@@ -304,13 +304,15 @@ extension modifyMatchView{
                             .padding()
                             .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
                             .onTapGesture {
-                                if isLeague{
-                                    leagueVm.addSet(p1Points: player1SetScore, p2Points: player2SetScore)
+                                Task{
+                                    if isLeague{
+                                        await leagueVm.addSet(p1Points: player1SetScore, p2Points: player2SetScore)
+                                    }
+                                    else {
+                                        tournamentVm.addSet(p1Points: player1SetScore, p2Points: player2SetScore)
+                                    }
+                                    showSetSheet.toggle()
                                 }
-                                else {
-                                    tournamentVm.addSet(p1Points: player1SetScore, p2Points: player2SetScore)
-                                }
-                                showSetSheet.toggle()
                             }
                     }.padding()
                 }.navigationBarHidden(true)

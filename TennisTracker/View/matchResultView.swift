@@ -54,7 +54,7 @@ struct matchResultView: View {
                                 Spacer()
                             }.padding(.bottom)
                             ScrollView {
-                                ForEach(isLeague ? leagueVm.currentSets : tournamentVm.currentSets, id: \.setId) { set in
+                                ForEach(isLeague ? leagueVm.currentSets : tournamentVm.currentSets, id: \.id) { set in
                                     HStack{
                                         Spacer()
                                         Text("\(set.player1Points)").font(.system(size: 40, weight: .black))

@@ -147,52 +147,9 @@ class LeagueViewModel: ObservableObject {
             print(error)
         }
     }
-    
-    
-    // UTILITY FUNCTIONS
-    func getPos(players: [Player], uid: String) -> Int {
-        var pos: Int = 0
-        for player in players {
-            pos += 1
-            if player.uid == uid {
-                break
-            }
-        }
-        return pos
-    }
-    
-    // TO BE REFACTORED
-    
-  
-//    func getCurrentMatch(matchId: String) {
-//        self.currentSets = []
-//        for match in listOfMatches {
-//            if match.id == matchId{
-//                self.currentMatch = match
-//            }
-//        }
-//
-//        FirebaseManager.shared.firestore.collection("sets").whereField("matchId", isEqualTo: matchId).getDocuments { snapshot, err in
-//            if let err = err {
-//                print(err.localizedDescription)
-//                return
-//            }
-//            let sets = snapshot!.documents
-//            for set in sets {
-//                do{
-//                    let jsonData = try JSONSerialization.data(withJSONObject: set.data())
-//                    self.currentSets.append(try JSONDecoder().decode(Set.self, from: jsonData))
-//                } catch {
-//                    print(error)
-//                }
-//            }
-//        }
-//    }
-    
-    func addSet(p1Points: Int, p2Points: Int) {
+    func addSet(p1Points: Int, p2Points: Int) async {
         var p1Uid = ""
         var p2Uid = ""
-        let setid = UUID().uuidString
         for player in league!.players {
             if player.displayName == currentMatch!.player1DisplayName{
                 p1Uid = player.uid
@@ -202,28 +159,22 @@ class LeagueViewModel: ObservableObject {
             }
         }
         
-        let setInfo = ["setId" : setid, "matchId" : currentMatch!.id, "winner" : p1Points > p2Points ? p1Uid : p2Uid, "player1Uid" : p1Uid, "player2Uid" : p2Uid, "player1Points" : p1Points, "player2Points" : p2Points] as [String:Any]
+        let setWinner = p1Points > p2Points ? p1Uid : p2Uid
         
-        FirebaseManager.shared.firestore.collection("sets").document(setid).setData(setInfo) { err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
+        let setInfo = Set(matchId: currentMatch!.id, winner: setWinner, player1Uid: p1Uid, player2Uid: p2Uid, player1Points: p1Points, player2Points: p2Points)
+        do {
+            try DatabaseManager.shared.addSet(set: setInfo)
+            await MainActor.run(body: {
+                self.currentSets.append(setInfo)
+            })
+        } catch  {
+            print(error)
         }
-        currentSets.append(Set(setId: setid, matchId: currentMatch!.id, winner: p1Points > p2Points ? p1Uid : p2Uid, player1Uid: p1Uid, player2Uid: p2Uid, player1Points: p1Points, player2Points: p2Points))
     }
     
-    func updateMatch(ongoing: Bool){
-        var player1Score = 0
-        var player2Score = 0
-        for set in currentSets {
-            if set.player1Points > set.player2Points {
-                player1Score += 1
-            }
-            else{
-                player2Score += 1
-            }
-        }
+    //MUST BE TESTED
+    func updateMatch(ongoing: Bool) async {
+        let (player1Score, player2Score) = calculatePlayerScores()
         var winner = ""
         if !ongoing {
             if player1Score > player2Score {
@@ -234,29 +185,8 @@ class LeagueViewModel: ObservableObject {
             }
         }
         guard let leagueID = league?.id else { return }
-        FirebaseManager.shared.firestore.collection("leagues").document(leagueID).getDocument { snapshot, err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-            
-            guard let doc = snapshot?.data() else {return}
-            var matches = (doc["matches"] as! [[String: Any]]).map{ match in
-                return Match(
-                    id: match["id"] as? String ?? "",
-                    date: match["date"] as? String ?? "",
-                    player1Pic: match["player1Pic"] as? String ?? "",
-                    player2Pic: match["player2Pic"] as? String ?? "",
-                    player1DisplayName: match["player1DisplayName"] as? String ?? "",
-                    player2DisplayName: match["player2DisplayName"] as? String ?? "",
-                    player1Score: match["player1Score"] as? Int ?? 0,
-                    player2Score: match["player2Score"] as? Int ?? 0,
-                    winner: match["winner"] as? String ?? "",
-                    matchOngoing: match["matchOngoing"] as? Bool ?? false,
-                    setsToWin: match["setsToWin"] as? Int ?? 0,
-                    matchType: match["matchType"] as? String ?? "")
-            }
-            
+        do {
+            var matches = try await DatabaseManager.shared.getMatches(leagueID: leagueID)
             var matchIndex = -1
             for match in matches {
                 matchIndex += 1
@@ -269,37 +199,18 @@ class LeagueViewModel: ObservableObject {
             matches[matchIndex].matchOngoing = ongoing
             matches[matchIndex].winner = winner
             
-            
-            FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["matches" : FieldValue.delete()])
-            
-            for match in matches {
-                let matchData = ["id" : match.id, "date" : match.date, "player1Pic" : match.player1Pic, "player2Pic" : match.player2Pic, "player1DisplayName" : match.player1DisplayName, "player2DisplayName" : match.player2DisplayName, "player1Score" : match.player1Score, "player2Score" : match.player2Score, "winner" : match.winner, "matchOngoing" : match.matchOngoing, "setsToWin" : match.setsToWin, "matchType" : match.matchType] as [String: Any]
-                
-                FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["matches" : FieldValue.arrayUnion([matchData])])
-            }
+            try await DatabaseManager.shared.updateMatchList(matches: matches, leagueID: leagueID)
+        } catch  {
+            print(error)
+            return
         }
         
     }
-    
-    func deleteMatch(){
+    func deleteMatch() async {
         guard let leagueID = league?.id else { return }
-        if !currentMatch!.matchOngoing{
-            FirebaseManager.shared.firestore.collection("leagues").document(leagueID).getDocument { snapshot, err in
-                if let err = err {
-                    print(err.localizedDescription)
-                    return
-                }
-                
-                guard let document = snapshot?.data() else {return}
-                var players = (document["players"] as! [[String: Any]]).map{ player in
-                    return Player(
-                        uid: player["uid"] as? String ?? "",
-                        profilePicUrl: player["profilePicUrl"] as? String ?? "",
-                        displayName: player["displayName"] as? String ?? "",
-                        points: player["points"] as? Int ?? 0,
-                        wins: player["wins"] as? Int ?? 0,
-                        losses: player["losses"] as? Int ?? 0)
-                }
+        do {
+            if !currentMatch!.matchOngoing{
+                var players = try await DatabaseManager.shared.getPlayers(leagueID: leagueID)
                 let winnerIndex = players.firstIndex(where: { $0.displayName == self.currentMatch!.winner})
                 var loser = ""
                 if self.currentMatch!.player1DisplayName == self.currentMatch!.winner {
@@ -313,48 +224,55 @@ class LeagueViewModel: ObservableObject {
                 players[winnerIndex!].wins -= 1
                 players[loserIndex!].losses -= 1
                 
-                FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["players" : FieldValue.delete()])
-                
-                for player in players {
-                    
-                    let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
-                    
-                    FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["players" : FieldValue.arrayUnion([playerData])])
-                }
-                FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(
-                    ["matchesPlayed" : FieldValue.increment(-1.00)])
-                
-                FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(["matchesWon" : FieldValue.increment(-1.00)])
-                
-                FirebaseManager.shared.firestore.collection("users").document(players[loserIndex!].uid).updateData(["matchesPlayed" : FieldValue.increment(-1.00)])
-                
+                try await DatabaseManager.shared.updateDeletedStats(leagueID: leagueID, winnerID: players[winnerIndex!].uid, loserID: players[loserIndex!].uid, players: players)
+                try await DatabaseManager.shared.deleteSets(matchID: currentMatch!.id)
+            }
+            
+            let matchData: [String: Any] = [
+                "id" : self.currentMatch!.id as Any,
+                "date" : self.currentMatch!.date,
+                "player1Pic" : self.currentMatch!.player1Pic,
+                "player2Pic" : self.currentMatch!.player2Pic,
+                "player1DisplayName" : self.currentMatch!.player1DisplayName,
+                "player2DisplayName" : self.currentMatch!.player2DisplayName,
+                "player1Score" : self.currentMatch!.player1Score,
+                "player2Score" : self.currentMatch!.player2Score,
+                "winner" : self.currentMatch!.winner,
+                "matchOngoing" : self.currentMatch!.matchOngoing,
+                "setsToWin" : self.currentMatch!.setsToWin,
+                "matchType" : self.currentMatch!.matchType
+            ]
+            
+            try await DatabaseManager.shared.deleteMatch(leagueID: leagueID, matchData: matchData)
+            
+        } catch {
+            print(error)
+            return
+        }
+    }
+    
+    // UTILITY FUNCTIONS
+    func getPos(players: [Player], uid: String) -> Int {
+        var pos: Int = 0
+        for player in players {
+            pos += 1
+            if player.uid == uid {
+                break
             }
         }
-        let matchData: [String: Any] = [
-            "id" : self.currentMatch!.id as Any,
-            "date" : self.currentMatch!.date,
-            "player1Pic" : self.currentMatch!.player1Pic,
-            "player2Pic" : self.currentMatch!.player2Pic,
-            "player1DisplayName" : self.currentMatch!.player1DisplayName,
-            "player2DisplayName" : self.currentMatch!.player2DisplayName,
-            "player1Score" : self.currentMatch!.player1Score,
-            "player2Score" : self.currentMatch!.player2Score,
-            "winner" : self.currentMatch!.winner,
-            "matchOngoing" : self.currentMatch!.matchOngoing,
-            "setsToWin" : self.currentMatch!.setsToWin,
-            "matchType" : self.currentMatch!.matchType
-        ]
-        
-        FirebaseManager.shared.firestore.collection("sets").whereField("matchId", isEqualTo: currentMatch!.id).getDocuments { snapshot, err in
-            if let err = err{
-                print(err.localizedDescription)
-                return
+        return pos
+    }
+    private func calculatePlayerScores() -> (Int, Int) {
+        var player1Score = 0
+        var player2Score = 0
+        for set in self.currentSets {
+            if set.player1Points > set.player2Points {
+                player1Score += 1
             }
-            for set in snapshot!.documents{
-                set.reference.delete()
+            else{
+                player2Score += 1
             }
         }
-        
-        FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["matches" : FieldValue.arrayRemove([matchData])])
+        return (player1Score, player2Score)
     }
 }
