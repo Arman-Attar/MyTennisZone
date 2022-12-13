@@ -89,10 +89,10 @@ struct tournamentDetailView: View {
         }
         .alert(isPresented: $confirmDeleteAlert) {
             Alert(title: Text("Delete league"), message: Text("Are you sure you want to delete this league?"), primaryButton: .destructive(Text("Delete")){
-                tournamentVm.deleteTournament(tournamentId: tournamentVm.tournament!.id)
-                tournamentVm.getTournaments()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    dismiss()
+                Task {
+                    tournamentVm.deleteTournament(tournamentId: tournamentVm.tournament!.id)
+                    await tournamentVm.getTournaments()
+                        dismiss()
                 }
             }, secondaryButton: .cancel())
         }

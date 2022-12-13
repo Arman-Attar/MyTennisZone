@@ -20,12 +20,18 @@ struct tournyView: View {
                             if index.mode == "Round Robin"{
                                 tournamentDetailView(userVm: userVm, tournamentVm: tournamentVm)
                                     .navigationTitle(index.name).onAppear{
-                                        tournamentVm.getCurrentTournament(tournamentId: index.id)
+                                        Task {
+                                            await tournamentVm.getCurrentTournament(tournamentID: index.id)
+                                        }
+                                        
                                     }
                             } else {
                                 bracketDetailView(tournamentVm: tournamentVm, userVm: userVm)
                                     .navigationTitle(index.name).onAppear{
-                                        tournamentVm.getCurrentTournament(tournamentId: index.id)
+                                        Task {
+                                            await tournamentVm.getCurrentTournament(tournamentID: index.id)
+                                        }
+                                        
                                     }
                             }
                         } label: {
@@ -38,6 +44,8 @@ struct tournyView: View {
                     }
                 }
             }.navigationTitle("Tournaments")
+        }.task {
+            await tournamentVm.getTournaments()
         }
     }
 }
