@@ -39,6 +39,7 @@
 		C277D26F283F326D0072814A /* matchResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C277D26E283F326D0072814A /* matchResultView.swift */; };
 		C277D273284719520072814A /* modifyMatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C277D272284719520072814A /* modifyMatchView.swift */; };
 		C277D275284AADA10072814A /* joinLeagueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C277D274284AADA10072814A /* joinLeagueView.swift */; };
+		C282C2A0294921560044D09E /* matchVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C282C29F294921560044D09E /* matchVM.swift */; };
 		C293B66B2820D4DA00BAA853 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C293B66A2820D4DA00BAA853 /* User.swift */; };
 		C2BADEA3281B8B4D001FFD83 /* signUp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2BADEA2281B8B4D001FFD83 /* signUp.swift */; };
 		C2BADEA5281B91B2001FFD83 /* signIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2BADEA4281B91B2001FFD83 /* signIn.swift */; };
@@ -85,6 +86,7 @@
 		C277D26E283F326D0072814A /* matchResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = matchResultView.swift; sourceTree = "<group>"; };
 		C277D272284719520072814A /* modifyMatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = modifyMatchView.swift; sourceTree = "<group>"; };
 		C277D274284AADA10072814A /* joinLeagueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = joinLeagueView.swift; sourceTree = "<group>"; };
+		C282C29F294921560044D09E /* matchVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = matchVM.swift; sourceTree = "<group>"; };
 		C293B66A2820D4DA00BAA853 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		C2BADEA2281B8B4D001FFD83 /* signUp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = signUp.swift; sourceTree = "<group>"; };
 		C2BADEA4281B91B2001FFD83 /* signIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = signIn.swift; sourceTree = "<group>"; };
@@ -158,6 +160,7 @@
 		C211BB0D281B3F0F00C964F2 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				C282C29E294921390044D09E /* Match */,
 				C25D392C2947A9D900B6520B /* Tournament */,
 				C25D392B2947A9C200B6520B /* User */,
 				C25D392A2947A9A000B6520B /* League */,
@@ -238,6 +241,14 @@
 				C2081DC129416DDC009C1414 /* DatabaseManager.swift */,
 			);
 			path = Database;
+			sourceTree = "<group>";
+		};
+		C282C29E294921390044D09E /* Match */ = {
+			isa = PBXGroup;
+			children = (
+				C282C29F294921560044D09E /* matchVM.swift */,
+			);
+			path = Match;
 			sourceTree = "<group>";
 		};
 		C2E64BD728A4100F00501252 /* Frameworks */ = {
@@ -369,6 +380,7 @@
 				C252162728320309004C124A /* addFriend.swift in Sources */,
 				C25D39302947AA2A00B6520B /* Tournament.swift in Sources */,
 				C252161F282DFD7E004C124A /* userVM.swift in Sources */,
+				C282C2A0294921560044D09E /* matchVM.swift in Sources */,
 				C2BADEA5281B91B2001FFD83 /* signIn.swift in Sources */,
 				C2F0D73A2821AC14009792CD /* AuthenticationService.swift in Sources */,
 				C21CF04428277E9400292C9F /* mainPage.swift in Sources */,
