@@ -8,31 +8,6 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
-// CODE WAS TAKEN FROM STACKOVERFLOW BY Jishnu Raj T
-//public struct RefreshableScrollView<Content: View>: View {
-//    var content: Content
-//    var onRefresh: () -> Void
-//
-//    public init(content: @escaping () -> Content, onRefresh: @escaping () -> Void) {
-//        self.content = content()
-//        self.onRefresh = onRefresh
-//    }
-//
-//    public var body: some View {
-//        List {
-//            content
-//                .listRowSeparatorTint(.clear)
-//                .listRowBackground(Color.clear)
-//                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-//        }
-//        .listStyle(.plain)
-//        .refreshable {
-//            onRefresh()
-//        }
-//    }
-//}
-
-
 struct leagueDetailView: View {
     @State private var selectedIndex = 0
     var position = 1
@@ -137,10 +112,6 @@ struct leagueDetailView: View {
                                     }
                                 }
                             }
-                            //leagueVM.getLeagues()
-//                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-//                                dismiss()
-//                            }
                         }, secondaryButton: .cancel())
                     }
             } else {
