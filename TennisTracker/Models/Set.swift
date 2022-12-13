@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import FirebaseFirestoreSwift
 
 struct Set: Codable {
-    let setId: String
+    @DocumentID var id: String?
     let matchId: String
     let winner: String
     let player1Uid: String
