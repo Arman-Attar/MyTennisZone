@@ -22,7 +22,8 @@ class TournamentViewModel: ObservableObject {
     @Published var currentRound: String = ""
     @Published var firstRound: String = ""
 
-    
+        // REFACTORED
+     
     func getTournaments() async {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return}
         do {
@@ -97,25 +98,46 @@ class TournamentViewModel: ObservableObject {
         }
     }
     
+    func deleteTournament(tournamentId: String) async -> Bool {
+        var deleted = false
+        if let tournament = self.tournament {
+            do {
+                if tournament.bannerURL != "" {
+                    try await deleted = TournamentDatabaseManager.shared.deleteTournament(tournamentID: tournamentId, bannerURL: tournament.bannerURL)
+                } else {
+                    try await deleted = TournamentDatabaseManager.shared.deleteTournament(tournamentID: tournamentId, bannerURL: nil)
+                }
+            } catch {
+                print(error)
+            }
+            
+        }
+        return deleted
+    }
+    
+        // TO BE REFACTORED
+    
     func getCurrentMatch(matchId: String) {
         self.currentSets = []
         for match in listOfMatches {
             if match.id == matchId{
                 
-                let id = match.id
-                let date = match.date
-                let player1Pic = match.player1Pic
-                let player2Pic = match.player2Pic
-                let player1DisplayName = match.player1DisplayName
-                let player2DisplayName = match.player2DisplayName
-                let player1Score = match.player1Score
-                let player2Score = match.player2Score
-                let winner = match.winner
-                let matchOngoing = match.matchOngoing
-                let setsToWin = match.setsToWin
-                let matchType = match.matchType
+//                let id = match.id
+//                let date = match.date
+//                let player1Pic = match.player1Pic
+//                let player2Pic = match.player2Pic
+//                let player1DisplayName = match.player1DisplayName
+//                let player2DisplayName = match.player2DisplayName
+//                let player1Score = match.player1Score
+//                let player2Score = match.player2Score
+//                let winner = match.winner
+//                let matchOngoing = match.matchOngoing
+//                let setsToWin = match.setsToWin
+//                let matchType = match.matchType
                 
-                self.currentMatch = Match(id: id, date: date, player1Pic: player1Pic, player2Pic: player2Pic, player1DisplayName: player1DisplayName, player2DisplayName: player2DisplayName ,player1Score: player1Score, player2Score: player2Score, winner: winner, matchOngoing: matchOngoing, setsToWin: setsToWin, matchType: matchType)
+                self.currentMatch = match
+                
+//                self.currentMatch = Match(id: id, date: date, player1Pic: player1Pic, player2Pic: player2Pic, player1DisplayName: player1DisplayName, player2DisplayName: player2DisplayName ,player1Score: player1Score, player2Score: player2Score, winner: winner, matchOngoing: matchOngoing, setsToWin: setsToWin, matchType: matchType)
             }
         }
         
@@ -268,14 +290,7 @@ class TournamentViewModel: ObservableObject {
         }
     }
     
-    func deleteTournament(tournamentId: String){
-        FirebaseManager.shared.firestore.collection("tournaments").document(tournamentId).delete { err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-        }
-    }
+    
     
     func allMatchesFinished() -> Bool {
         for match in listOfMatches {
@@ -342,7 +357,7 @@ class TournamentViewModel: ObservableObject {
                 FirebaseManager.shared.firestore.collection("users").document(self.playerList[0].uid).updateData(["trophies" : FieldValue.increment(1.00)])
             }
     }
-        refreshData(tournamentId: tournament!.id)
+        //refreshData(tournamentId: tournament!.id)
     }
     
     private func convertDateToString(date: Date) -> String{
@@ -352,106 +367,106 @@ class TournamentViewModel: ObservableObject {
         return result
     }
     
-    func refreshData(tournamentId: String){
-        tournament = nil
-        FirebaseManager.shared.firestore.collection("tournaments").document(tournamentId).getDocument { snapshot, err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-            
-            guard let document = snapshot?.data() else {return}
-            
-            let id = document["id"] as? String ?? ""
-            let name = document["name"] as? String ?? ""
-            let playerId = document["playerId"] as? [String] ?? []
-            var players = (document["players"] as! [[String: Any]]).map{ player in
-                return Player(
-                    uid: player["uid"] as? String ?? "",
-                    profilePicUrl: player["profilePicUrl"] as? String ?? "",
-                    displayName: player["displayName"] as? String ?? "",
-                    points: player["points"] as? Int ?? 0,
-                    wins: player["wins"] as? Int ?? 0,
-                    losses: player["losses"] as? Int ?? 0)
-                    //played: player["played"] as? Int ?? 0)
-            }
-            let matches = (document["matches"] as! [[String: Any]]).map{ match in
-                return Match(
-                    id: match["id"] as? String ?? "",
-                    date: match["date"] as? String ?? "",
-                    player1Pic: match["player1Pic"] as? String ?? "",
-                    player2Pic: match["player2Pic"] as? String ?? "",
-                    player1DisplayName: match["player1DisplayName"] as? String ?? "",
-                    player2DisplayName: match["player2DisplayName"] as? String ?? "",
-                    player1Score: match["player1Score"] as? Int ?? 0,
-                    player2Score: match["player2Score"] as? Int ?? 0,
-                    winner: match["winner"] as? String ?? "",
-                    matchOngoing: match["matchOngoing"] as? Bool ?? false,
-                    setsToWin: match["setsToWin"] as? Int ?? 3,
-                    matchType: match["matchType"] as? String ?? "")
-            }
-            
-            let bannerURL = document["bannerURL"] as? String ?? ""
-            
-            let admin = document["admin"] as? String ?? ""
-            
-            let mode = document["mode"] as? String ?? ""
-            
-            let winner = document["winner"] as? String ?? ""
-            players.sort {
-                $0.points > $1.points
-            }
-            
-            self.tournament = Tournament(id: id, name: name, playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin, mode: mode, winner: winner)
-            
-            self.playerList = self.tournament?.players ?? []
-            
-            self.listOfMatches = matches
-            
-            if !self.listOfMatches.isEmpty {
-                self.firstRound = self.listOfMatches[0].matchType
-            }
-            else{
-                if self.playerList.count == 32 || self.playerList.count == 31 {
-                    self.firstRound = "R32"
-                }
-                else if self.playerList.count == 16 || self.playerList.count == 15 {
-                    self.firstRound = "R16"
-                }
-                else if self.playerList.count == 8 || self.playerList.count == 7 {
-                    self.firstRound = "QF"
-                }
-                else if self.playerList.count == 4 || self.playerList.count == 3 {
-                    self.firstRound = "SEMI"
-                }
-                else {
-                    self.firstRound = "FINAL"
-                }
-            }
-            
-            
-            if !self.listOfMatches.isEmpty {
-                let last = self.listOfMatches.endIndex - 1
-                self.currentRound = self.listOfMatches[last].matchType
-            }
-            else{
-                if self.playerList.count == 32 || self.playerList.count == 31 {
-                    self.currentRound = "R32"
-                }
-                else if self.playerList.count == 16 || self.playerList.count == 15 {
-                    self.currentRound = "R16"
-                }
-                else if self.playerList.count == 8 || self.playerList.count == 7 {
-                    self.currentRound = "QF"
-                }
-                else if self.playerList.count == 4 || self.playerList.count == 3 {
-                    self.currentRound = "SEMI"
-                }
-                else {
-                    self.currentRound = "FINAL"
-                }
-            }
-            self.playersEntered = self.playerList
-        }
-    }
+//    func refreshData(tournamentId: String){
+//        tournament = nil
+//        FirebaseManager.shared.firestore.collection("tournaments").document(tournamentId).getDocument { snapshot, err in
+//            if let err = err {
+//                print(err.localizedDescription)
+//                return
+//            }
+//
+//            guard let document = snapshot?.data() else {return}
+//
+//            let id = document["id"] as? String ?? ""
+//            let name = document["name"] as? String ?? ""
+//            let playerId = document["playerId"] as? [String] ?? []
+//            var players = (document["players"] as! [[String: Any]]).map{ player in
+//                return Player(
+//                    uid: player["uid"] as? String ?? "",
+//                    profilePicUrl: player["profilePicUrl"] as? String ?? "",
+//                    displayName: player["displayName"] as? String ?? "",
+//                    points: player["points"] as? Int ?? 0,
+//                    wins: player["wins"] as? Int ?? 0,
+//                    losses: player["losses"] as? Int ?? 0)
+//                    //played: player["played"] as? Int ?? 0)
+//            }
+//            let matches = (document["matches"] as! [[String: Any]]).map{ match in
+//                return Match(
+//                    id: match["id"] as? String ?? "",
+//                    date: match["date"] as? String ?? "",
+//                    player1Pic: match["player1Pic"] as? String ?? "",
+//                    player2Pic: match["player2Pic"] as? String ?? "",
+//                    player1DisplayName: match["player1DisplayName"] as? String ?? "",
+//                    player2DisplayName: match["player2DisplayName"] as? String ?? "",
+//                    player1Score: match["player1Score"] as? Int ?? 0,
+//                    player2Score: match["player2Score"] as? Int ?? 0,
+//                    winner: match["winner"] as? String ?? "",
+//                    matchOngoing: match["matchOngoing"] as? Bool ?? false,
+//                    setsToWin: match["setsToWin"] as? Int ?? 3,
+//                    matchType: match["matchType"] as? String ?? "")
+//            }
+//
+//            let bannerURL = document["bannerURL"] as? String ?? ""
+//
+//            let admin = document["admin"] as? String ?? ""
+//
+//            let mode = document["mode"] as? String ?? ""
+//
+//            let winner = document["winner"] as? String ?? ""
+//            players.sort {
+//                $0.points > $1.points
+//            }
+//
+//            self.tournament = Tournament(id: id, name: name, playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin, mode: mode, winner: winner)
+//
+//            self.playerList = self.tournament?.players ?? []
+//
+//            self.listOfMatches = matches
+//
+//            if !self.listOfMatches.isEmpty {
+//                self.firstRound = self.listOfMatches[0].matchType
+//            }
+//            else{
+//                if self.playerList.count == 32 || self.playerList.count == 31 {
+//                    self.firstRound = "R32"
+//                }
+//                else if self.playerList.count == 16 || self.playerList.count == 15 {
+//                    self.firstRound = "R16"
+//                }
+//                else if self.playerList.count == 8 || self.playerList.count == 7 {
+//                    self.firstRound = "QF"
+//                }
+//                else if self.playerList.count == 4 || self.playerList.count == 3 {
+//                    self.firstRound = "SEMI"
+//                }
+//                else {
+//                    self.firstRound = "FINAL"
+//                }
+//            }
+//
+//
+//            if !self.listOfMatches.isEmpty {
+//                let last = self.listOfMatches.endIndex - 1
+//                self.currentRound = self.listOfMatches[last].matchType
+//            }
+//            else{
+//                if self.playerList.count == 32 || self.playerList.count == 31 {
+//                    self.currentRound = "R32"
+//                }
+//                else if self.playerList.count == 16 || self.playerList.count == 15 {
+//                    self.currentRound = "R16"
+//                }
+//                else if self.playerList.count == 8 || self.playerList.count == 7 {
+//                    self.currentRound = "QF"
+//                }
+//                else if self.playerList.count == 4 || self.playerList.count == 3 {
+//                    self.currentRound = "SEMI"
+//                }
+//                else {
+//                    self.currentRound = "FINAL"
+//                }
+//            }
+//            self.playersEntered = self.playerList
+//        }
+//    }
 }

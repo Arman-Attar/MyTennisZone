@@ -64,7 +64,12 @@ struct leagueDetailView: View {
                 Spacer()
                 
                     .sheet(isPresented: $showSheet) {
-                        addMatchView(leagueVm: leagueVM)
+                        let matchVM = MatchViewModel(id: leagueVM.league!.id!, listOfMatches: leagueVM.listOfMatches, player1: nil, player2: nil)
+                        addMatchView(leagueVm: leagueVM, matchVM: matchVM).onAppear{
+                            Task {
+                                await matchVM.getCurrentMatch(matchID: matchId)
+                            }
+                        }
                     }
                     .sheet(isPresented: $modifyMatch) {
                         modifyMatchView(leagueVm: leagueVM, userVm: userVm)
@@ -207,6 +212,7 @@ extension leagueDetailView{
             ForEach(leagueVM.listOfMatches, id: \.id) { match in
                 Button {
                     Task {
+                        matchId = match.id
                         await leagueVM.getCurrentMatch(matchId: match.id)
                         if match.matchOngoing {
                             modifyMatch.toggle()

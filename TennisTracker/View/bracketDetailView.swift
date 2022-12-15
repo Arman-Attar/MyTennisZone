@@ -211,7 +211,7 @@ struct bracketDetailView: View {
             }
             ToolbarItem(placement: .navigationBarTrailing){
                 Button {
-                    tournamentVm.refreshData(tournamentId: tournamentVm.tournament!.id)
+                    //tournamentVm.refreshData(tournamentId: tournamentVm.tournament!.id)
                     selectedIndex = -1
                 } label: {
                     Image(systemName: "arrow.clockwise")
@@ -228,8 +228,12 @@ struct bracketDetailView: View {
         }
         .alert(isPresented: $confirmDeleteAlert) {
             Alert(title: Text("Delete league"), message: Text("Are you sure you want to delete this league?"), primaryButton: .destructive(Text("Delete")){
-                tournamentVm.deleteTournament(tournamentId: tournamentVm.tournament!.id)
-                dismiss()
+                Task {
+                    if await tournamentVm.deleteTournament(tournamentId: tournamentVm.tournament!.id) {
+                        await tournamentVm.getTournaments()
+                        dismiss()
+                    }
+                }
             }, secondaryButton: .cancel())
         }
     }
