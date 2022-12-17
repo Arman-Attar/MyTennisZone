@@ -27,7 +27,7 @@ struct leagueView: View {
                                     }
                                 }
                             } label: {
-                                let pos = leagueVm.getPos(players: index.players, uid: userVm.user!.uid)
+                                let pos = Utilities.getPos(players: index.players, uid: userVm.user!.uid)
                                 VStack{
                                     EventBannerView(leagueEvent: index, tournamentEvent: nil, pos: pos)
                                 }

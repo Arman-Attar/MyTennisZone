@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import FirebaseFirestoreSwift
 
 struct Tournament: Codable {
-    let id: String // use firestore DocumentID wrapper
+    @DocumentID var id: String? 
     let name: String
     let playerId: [String]
     var players: [Player]

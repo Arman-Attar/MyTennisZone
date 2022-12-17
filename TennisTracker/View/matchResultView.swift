@@ -9,15 +9,15 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct matchResultView: View {
-    @ObservedObject var leagueVm = LeagueViewModel()
+    @StateObject var matchVM: MatchViewModel
     @Environment(\.dismiss) var dismiss
     @State var settingTapped = false
     @State var confirmDeleteAlert = false
-    @ObservedObject var userVm = UserViewModel()
-    @ObservedObject var tournamentVm = TournamentViewModel()
+    @EnvironmentObject var userVm: UserViewModel
     @State var isLeague = true
     var body: some View {
             VStack{
+                if matchVM.finishedLoading {
                     HStack{
                         Button {
                             dismiss()
@@ -27,48 +27,55 @@ struct matchResultView: View {
                         }.padding()
                         Spacer()
                         if isLeague{
-                        if leagueVm.league!.admin == userVm.user!.uid {
-                        Button {
-                            settingTapped.toggle()
-                        } label: {
-                            Image(systemName: "gear").font(.title3)
-                        }.padding([.top, .horizontal])
-                        }
+                            if matchVM.admin == userVm.user!.uid {
+                                Button {
+                                    settingTapped.toggle()
+                                } label: {
+                                    Image(systemName: "gear").font(.title3)
+                                }.padding([.top, .horizontal])
+                            }
                         }
                     }.padding()
                     
                     
                     HStack {
                         Text("Match Result")
-                                    .font(.title)
-                                    .fontWeight(.bold)
-                                .padding(.horizontal)
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .padding(.horizontal)
                     }.padding(.bottom)
-                            vsSection
+                    vsSection
+                    HStack{
+                        Spacer()
+                        Text("Set Scores")
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .padding()
+                        Spacer()
+                    }.padding(.bottom)
+                    ScrollView {
+                        ForEach(matchVM.currentSets, id: \.id) { set in
                             HStack{
                                 Spacer()
-                                Text("Set Scores")
-                                    .font(.title)
-                                    .fontWeight(.bold)
-                                    .padding()
+                                Text("\(set.player1Points)").font(.system(size: 40, weight: .black))
                                 Spacer()
-                            }.padding(.bottom)
-                            ScrollView {
-                                ForEach(isLeague ? leagueVm.currentSets : tournamentVm.currentSets, id: \.id) { set in
-                                    HStack{
-                                        Spacer()
-                                        Text("\(set.player1Points)").font(.system(size: 40, weight: .black))
-                                        Spacer()
-                                        Text("-").font(.system(size: 40, weight: .black))
-                                        Spacer()
-                                        Text("\(set.player2Points)").font(.system(size: 40, weight: .black))
-                                        Spacer()
-                                    }
-                                    Divider().padding()
-                                }
+                                Text("-").font(.system(size: 40, weight: .black))
+                                Spacer()
+                                Text("\(set.player2Points)").font(.system(size: 40, weight: .black))
+                                Spacer()
                             }
+                            Divider().padding()
+                        }
+                    }
                     Spacer()
-            }.confirmationDialog("Settings", isPresented: $settingTapped) {
+                } else {
+                    ProgressView()
+                }
+            }
+            .task {
+                await matchVM.getCurrentMatch()
+            }
+            .confirmationDialog("Settings", isPresented: $settingTapped) {
                 Button(role: .destructive) {
                     confirmDeleteAlert.toggle()
                 } label: {
@@ -78,12 +85,11 @@ struct matchResultView: View {
             }
             .alert(isPresented: $confirmDeleteAlert) {
                 Alert(title: Text("Delete match"), message: Text("Are you sure you want to delete this match?"), primaryButton: .destructive(Text("Delete")){
-                   // DELETE MATCH FUNCTION AND REMOVE STATS FROM PLAYERS
                     Task {
                         if isLeague {
-                           await leagueVm.deleteMatch()
+                            await matchVM.deleteMatch()
+                            dismiss()
                         }
-                        dismiss()
                     }
                     
                 }, secondaryButton: .cancel())
@@ -91,11 +97,11 @@ struct matchResultView: View {
     }
 }
 
-struct addSetsView_Previews: PreviewProvider {
-    static var previews: some View {
-        matchResultView()
-    }
-}
+//struct addSetsView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        matchResultView()
+//    }
+//}
 
 extension matchResultView{
     
@@ -103,8 +109,8 @@ extension matchResultView{
         HStack{
             VStack
             {
-                if leagueVm.currentMatch?.player1Pic ?? "" != "" || tournamentVm.currentMatch?.player1Pic ?? "" != ""{
-                    WebImage(url: isLeague ? URL(string: leagueVm.currentMatch!.player1Pic) : URL(string: tournamentVm.currentMatch!.player1Pic))
+                if matchVM.player1?.profilePicUrl ?? "" != ""{
+                    WebImage(url: URL(string: matchVM.player1!.profilePicUrl))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 100, height: 100)
@@ -123,19 +129,19 @@ extension matchResultView{
                         .shadow(radius: 20)
                         .padding(.horizontal)
                 }
-                
-                Text(isLeague ? leagueVm.currentMatch?.player1DisplayName ?? "Oponent" : tournamentVm.currentMatch?.player1DisplayName ?? "Oponent")
+                Text(matchVM.player1?.displayName ?? "Oponent")
                     .font(.system(size: 15, weight: .bold))
                     .multilineTextAlignment(.leading)
                     .frame(width: 100, height: 50)
+                
             }
             Text("VS")
                 .font(.system(size: 20, weight: .bold))
                 .offset(y: -25)
             
             VStack{
-                if leagueVm.currentMatch?.player2Pic ?? "" != "" || tournamentVm.currentMatch?.player2Pic ?? "" != ""{
-                    WebImage(url: isLeague ? URL(string: leagueVm.currentMatch!.player2Pic) : URL(string: tournamentVm.currentMatch!.player2Pic))
+                if matchVM.player2?.profilePicUrl ?? "" != ""{
+                    WebImage(url: URL(string: matchVM.player2!.profilePicUrl))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 100, height: 100)
@@ -143,6 +149,7 @@ extension matchResultView{
                         .shadow(radius: 20)
                         .padding(.horizontal)
                         .padding(.top)
+                        
                 }
                 else {
                     Image("profile")
@@ -153,9 +160,7 @@ extension matchResultView{
                         .shadow(radius: 20)
                         .padding(.horizontal)
                 }
-                
-                
-                Text(isLeague ? leagueVm.currentMatch?.player2DisplayName ?? "Oponent" : tournamentVm.currentMatch?.player2DisplayName ?? "Oponent")
+                Text(matchVM.player2?.displayName ?? "Oponent")
                     .font(.system(size: 15, weight: .bold))
                     .multilineTextAlignment(.leading)
                     .frame(width: 100, height: 50)

@@ -30,4 +30,14 @@ final class Utilities {
         return (player1Score, player2Score)
     }
     
+    static func getPos(players: [Player], uid: String) -> Int {
+        var pos: Int = 0
+        for player in players {
+            pos += 1
+            if player.uid == uid {
+                break
+            }
+        }
+        return pos
+    }
 }

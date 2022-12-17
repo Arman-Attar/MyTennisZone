@@ -171,33 +171,33 @@ struct bracketDetailView: View {
                 }
             }
             else{
-            ScrollView{
-                if selectedIndex == 0 {
-                    matchContentField
-                }
-                else if selectedIndex == 1{
-                    matchContentField
-                }
-                else if selectedIndex == 2{
-                    matchContentField
-                }
-                else if selectedIndex == 3{
-                    matchContentField
-                }
-                else if selectedIndex == 4{
-                    matchContentField
-                }
-                else if selectedIndex == 5{
-                    winnerPage
-                }
-            }
+//            ScrollView{
+//                if selectedIndex == 0 {
+//                    matchContentField
+//                }
+//                else if selectedIndex == 1{
+//                    matchContentField
+//                }
+//                else if selectedIndex == 2{
+//                    matchContentField
+//                }
+//                else if selectedIndex == 3{
+//                    matchContentField
+//                }
+//                else if selectedIndex == 4{
+//                    matchContentField
+//                }
+//                else if selectedIndex == 5{
+//                    winnerPage
+//                }
+//            }
             }
         }
         .sheet(isPresented: $modifyMatch) {
-            modifyMatchView(tournamentVm: tournamentVm ,isLeague: false)
+           // modifyMatchView(tournamentVm: tournamentVm ,isLeague: false)
         }
         .sheet(isPresented: $matchInfo) {
-            matchResultView(userVm: userVm, tournamentVm: tournamentVm, isLeague: false)
+            //matchResultView(tournamentVm: tournamentVm, isLeague: false)
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -229,7 +229,7 @@ struct bracketDetailView: View {
         .alert(isPresented: $confirmDeleteAlert) {
             Alert(title: Text("Delete league"), message: Text("Are you sure you want to delete this league?"), primaryButton: .destructive(Text("Delete")){
                 Task {
-                    if await tournamentVm.deleteTournament(tournamentId: tournamentVm.tournament!.id) {
+                    if await tournamentVm.deleteTournament(tournamentId: tournamentVm.tournament!.id!) {
                         await tournamentVm.getTournaments()
                         dismiss()
                     }
@@ -246,78 +246,78 @@ struct bracketDetailView_Previews: PreviewProvider {
 }
 
 extension bracketDetailView {
-    private var matchContentField: some View {
-        VStack{
-            ForEach(tournamentVm.listOfMatches, id: \.id) { match in
-                if selectedIndex == 0 && match.matchType == "R32"{
-                    Divider().padding(.horizontal)
-                    Button {
-                        tournamentVm.getCurrentMatch(matchId: match.id)
-                        if match.matchOngoing {
-                            modifyMatch.toggle()
-                        } else {
-                            matchInfo.toggle()
-                        }
-                    } label: {
-                        matchBubble(match: match)
-                    }.padding()
-                }
-                else if selectedIndex == 1 && match.matchType == "R16"{
-                    Divider().padding(.horizontal)
-                    Button {
-                        tournamentVm.getCurrentMatch(matchId: match.id)
-                        if match.matchOngoing {
-                            modifyMatch.toggle()
-                        } else {
-                            matchInfo.toggle()
-                        }
-                    } label: {
-                        matchBubble(match: match)
-                    }.padding()
-                }
-                else if selectedIndex == 2 && match.matchType == "QF"{
-                    Divider().padding(.horizontal)
-                    Button {
-                        tournamentVm.getCurrentMatch(matchId: match.id)
-                        if match.matchOngoing {
-                            modifyMatch.toggle()
-                        } else {
-                            matchInfo.toggle()
-                        }
-                    } label: {
-                        matchBubble(match: match)
-                    }.padding()
-                }
-                
-                else if selectedIndex == 3 && match.matchType == "SEMI"{
-                    Divider().padding(.horizontal)
-                    Button {
-                        tournamentVm.getCurrentMatch(matchId: match.id)
-                        if match.matchOngoing {
-                            modifyMatch.toggle()
-                        } else {
-                            matchInfo.toggle()
-                        }
-                    } label: {
-                        matchBubble(match: match)
-                    }.padding()
-                }
-                else if selectedIndex == 4 && match.matchType == "FINAL"{
-                    Divider().padding(.horizontal)
-                    Button {
-                        tournamentVm.getCurrentMatch(matchId: match.id)
-                        if match.matchOngoing {
-                            modifyMatch.toggle()
-                        } else {
-                            matchInfo.toggle()
-                        }
-                    } label: {
-                        matchBubble(match: match)
-                    }.padding()
-                }
-            }
-        }
-    }
+//    private var matchContentField: some View {
+//        VStack{
+//            ForEach(tournamentVm.listOfMatches, id: \.id) { match in
+//                if selectedIndex == 0 && match.matchType == "R32"{
+//                    Divider().padding(.horizontal)
+//                    Button {
+//                        tournamentVm.getCurrentMatch(matchId: match.id)
+//                        if match.matchOngoing {
+//                            modifyMatch.toggle()
+//                        } else {
+//                            matchInfo.toggle()
+//                        }
+//                    } label: {
+//                        matchBubble(match: match)
+//                    }.padding()
+//                }
+//                else if selectedIndex == 1 && match.matchType == "R16"{
+//                    Divider().padding(.horizontal)
+//                    Button {
+//                        tournamentVm.getCurrentMatch(matchId: match.id)
+//                        if match.matchOngoing {
+//                            modifyMatch.toggle()
+//                        } else {
+//                            matchInfo.toggle()
+//                        }
+//                    } label: {
+//                        matchBubble(match: match)
+//                    }.padding()
+//                }
+//                else if selectedIndex == 2 && match.matchType == "QF"{
+//                    Divider().padding(.horizontal)
+//                    Button {
+//                        tournamentVm.getCurrentMatch(matchId: match.id)
+//                        if match.matchOngoing {
+//                            modifyMatch.toggle()
+//                        } else {
+//                            matchInfo.toggle()
+//                        }
+//                    } label: {
+//                        matchBubble(match: match)
+//                    }.padding()
+//                }
+//
+//                else if selectedIndex == 3 && match.matchType == "SEMI"{
+//                    Divider().padding(.horizontal)
+//                    Button {
+//                        tournamentVm.getCurrentMatch(matchId: match.id)
+//                        if match.matchOngoing {
+//                            modifyMatch.toggle()
+//                        } else {
+//                            matchInfo.toggle()
+//                        }
+//                    } label: {
+//                        matchBubble(match: match)
+//                    }.padding()
+//                }
+//                else if selectedIndex == 4 && match.matchType == "FINAL"{
+//                    Divider().padding(.horizontal)
+//                    Button {
+//                        tournamentVm.getCurrentMatch(matchId: match.id)
+//                        if match.matchOngoing {
+//                            modifyMatch.toggle()
+//                        } else {
+//                            matchInfo.toggle()
+//                        }
+//                    } label: {
+//                        matchBubble(match: match)
+//                    }.padding()
+//                }
+//            }
+//        }
+//    }
     
     struct matchBubble: View {
         @State var match: Match

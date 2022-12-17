@@ -17,7 +17,7 @@ struct leagueDetailView: View {
     @ObservedObject var leagueVM: LeagueViewModel
     @ObservedObject var userVm: UserViewModel
     @State var settingTapped = false
-    @State var matchId = ""
+    @State var matchId: String = ""
     @State var confirmDeleteAlert = false
     @Environment(\.dismiss) var dismiss
     var body: some View {
@@ -62,20 +62,18 @@ struct leagueDetailView: View {
                     }
                 }
                 Spacer()
-                
                     .sheet(isPresented: $showSheet) {
-                        let matchVM = MatchViewModel(id: leagueVM.league!.id!, listOfMatches: leagueVM.listOfMatches, player1: nil, player2: nil)
-                        addMatchView(leagueVm: leagueVM, matchVM: matchVM).onAppear{
-                            Task {
-                                await matchVM.getCurrentMatch(matchID: matchId)
-                            }
-                        }
+                        addMatchView(matchVM: MatchViewModel(id: leagueVM.league!.id!, listOfMatches: leagueVM.listOfMatches, playerList: leagueVM.playerList, admin: leagueVM.league!.admin, matchID: nil))
                     }
                     .sheet(isPresented: $modifyMatch) {
-                        modifyMatchView(leagueVm: leagueVM, userVm: userVm)
+                        if matchId != "" {
+                            modifyMatchView(matchVM: MatchViewModel(id: leagueVM.league!.id!, listOfMatches: leagueVM.listOfMatches, playerList: leagueVM.playerList, admin: leagueVM.league!.admin, matchID: matchId))
+                        }
                     }
                     .sheet(isPresented: $matchInfo) {
-                        matchResultView(leagueVm: leagueVM, userVm: userVm)
+                        if matchId != "" {
+                            matchResultView(matchVM: MatchViewModel(id: leagueVM.league!.id!, listOfMatches: leagueVM.listOfMatches, playerList: leagueVM.playerList, admin: leagueVM.league!.admin, matchID: matchId))
+                        }
                     }
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
@@ -211,15 +209,12 @@ extension leagueDetailView{
         VStack {
             ForEach(leagueVM.listOfMatches, id: \.id) { match in
                 Button {
-                    Task {
                         matchId = match.id
-                        await leagueVM.getCurrentMatch(matchId: match.id)
                         if match.matchOngoing {
                             modifyMatch.toggle()
                         } else {
                             matchInfo.toggle()
                         }
-                    }
                 } label: {
                     VStack {
                         HStack {

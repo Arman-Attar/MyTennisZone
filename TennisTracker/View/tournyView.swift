@@ -21,7 +21,10 @@ struct tournyView: View {
                                 tournamentDetailView(userVm: userVm, tournamentVm: tournamentVm)
                                     .navigationTitle(index.name).onAppear{
                                         Task {
-                                            await tournamentVm.getCurrentTournament(tournamentID: index.id)
+                                            if let tournamentID = index.id {
+                                                await tournamentVm.getCurrentTournament(tournamentID: tournamentID)
+                                                await tournamentVm.loadImages()
+                                            }
                                         }
                                         
                                     }
@@ -29,7 +32,7 @@ struct tournyView: View {
                                 bracketDetailView(tournamentVm: tournamentVm, userVm: userVm)
                                     .navigationTitle(index.name).onAppear{
                                         Task {
-                                            await tournamentVm.getCurrentTournament(tournamentID: index.id)
+                                            await tournamentVm.getCurrentTournament(tournamentID: index.id!)
                                         }
                                         
                                     }

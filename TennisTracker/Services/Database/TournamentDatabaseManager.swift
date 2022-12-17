@@ -46,4 +46,21 @@ class TournamentDatabaseManager {
         }
     }
     
+    func createLeague(tournament: Tournament) throws {
+        do {
+            try FirebaseManager.shared.firestore.collection("tournaments").addDocument(from: tournament)
+        } catch  {
+            throw error
+        }
+    }
+    
+    func getMatches(tournamentID: String) async throws -> [Match] {
+        do {
+            let tournament = try await FirebaseManager.shared.firestore.collection("tournaments").document(tournamentID).getDocument(as: Tournament.self)
+            return tournament.matches
+        } catch {
+            throw error
+        }
+    }
+    
 }

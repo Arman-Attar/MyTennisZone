@@ -11,7 +11,6 @@ import Firebase
 
 struct addMatchView: View {
     let matchId = UUID().uuidString
-    @ObservedObject var leagueVm:LeagueViewModel
     @State var player1: Player?
     @State var player2: Player?
     @State var player1Score: Int = 0
@@ -23,7 +22,6 @@ struct addMatchView: View {
     @State var numberOfSets = 3
     @State var sets: [Set] = []
     @State var winner = ""
-    @State var loser = ""
     @State var showWinnerSheet = false
     @State var showSetSheet = false
     @State var player1SetScore = 0
@@ -81,9 +79,9 @@ struct addMatchView: View {
                     }
                     buttons
                 }.navigationBarHidden(true)
-                .sheet(isPresented: $showPlayerList) {
-                    selectOpponent
-            }
+                    .sheet(isPresented: $showPlayerList) {
+                        selectOpponent
+                    }
             }
             if showSetSheet{
                 Rectangle().ignoresSafeArea().opacity(0.5)
@@ -118,7 +116,7 @@ extension addMatchView {
             Divider().padding(.horizontal)
             Spacer()
             ScrollView {
-                ForEach(leagueVm.league!.players, id: \.uid) { friend in
+                ForEach(matchVM.playerList, id: \.uid) { friend in
                     Button {
                         if playerNumber == 1 {
                             player1 = Player(uid: friend.uid, profilePicUrl: friend.profilePicUrl, displayName: friend.displayName, points: friend.points, wins: friend.wins, losses: friend.losses)
@@ -277,11 +275,8 @@ extension addMatchView {
                         else{
                             Task {
                                 await matchVM.createMatch(matchOngoing: matchOngoing, player1: player1!, player2: player2!, date: matchDate, setsToWin: numberOfSets, matchType: "league" , sets: sets, matchID: matchId)
-//                                await leagueVm.createMatch(matchOngoing: matchOngoing, player1: player1!, player2: player2!, date: matchDate, setsToWin: numberOfSets, matchType: "league" , sets: sets, matchID: matchId)
                                 dismiss()
                             }
-                            //                            createMatch()
-//                            dismiss()
                         }
                     }
             }
@@ -372,8 +367,11 @@ extension addMatchView {
                                 var setWinner = ""
                                 if player1SetScore > player2SetScore { setWinner = player1?.uid ?? ""}
                                 else { setWinner = player2?.uid ?? ""}
-                                // REMOVED SETID FROM CONSTR
-                                sets.append(Set(matchId: matchId, winner: setWinner, player1Uid: player1!.uid, player2Uid: player2!.uid, player1Points: player1SetScore, player2Points: player2SetScore))
+                                let set = Set(matchId: matchId, winner: setWinner, player1Uid: player1!.uid, player2Uid: player2!.uid, player1Points: player1SetScore, player2Points: player2SetScore)
+                                sets.append(set)
+                                Task {
+                                    await matchVM.addSet(p1Points: player1Score, p2Points: player2Score, set: set)
+                                }
                                 showSetSheet.toggle()
                             }
                     }.padding()
@@ -411,7 +409,6 @@ extension addMatchView {
                     Text(player1?.displayName ?? "").font(.headline).padding()
                 }.onTapGesture {
                     winner = player1?.uid ?? ""
-                    loser = player2?.uid ?? ""
                     showWinnerSheet.toggle()
                 }
                 HStack{
@@ -438,7 +435,6 @@ extension addMatchView {
                     Text(player2?.displayName ?? "").font(.headline).padding()
                 }.onTapGesture {
                     winner = player2?.uid ?? ""
-                    loser = player1?.uid ?? ""
                     showWinnerSheet.toggle()
                 }
                 HStack{
@@ -458,43 +454,6 @@ extension addMatchView {
                 .position(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.maxY - 300)
         }
     }
-    
-//    private func createMatch(){
-//        
-//        setPlayerScores()
-//        var winner = ""
-//        if !matchOngoing{
-//            if player1Score > player2Score {
-//                winner = player1!.displayName
-//            }
-//            else {
-//                winner = player2!.displayName
-//            }
-//        }
-//        let date = convertDateToString(date: matchDate)
-//        
-//        let matchData = ["id" : matchId, "date" : date, "player1Pic" : player1!.profilePicUrl, "player2Pic" : player2!.profilePicUrl, "player1DisplayName" : player1!.displayName, "player2DisplayName" : player2!.displayName ,"player1Score" : player1Score, "player2Score" : player2Score, "winner" : winner, "matchOngoing" : matchOngoing, "setsToWin" : numberOfSets, "matchType" : "League"] as [String: Any]
-//        guard let leagueID = leagueVm.league?.id else { return }
-//        FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["matches" : FieldValue.arrayUnion([matchData])])
-//        
-//        addSet()
-//        
-//        updateStats()
-//    }
-    
-//    private func addSet() {
-//        for set in sets {
-//            // REMOVED SETID FROM CONSTR
-//            let setInfo = ["matchId" : matchId, "winner" : set.winner, "player1Uid" : set.player1Uid, "player2Uid" : set.player2Uid, "player1Points" : set.player1Points, "player2Points" : set.player2Points] as [String:Any]
-//
-//            FirebaseManager.shared.firestore.collection("sets").document(set.id!).setData(setInfo) { err in
-//                if let err = err {
-//                    print(err.localizedDescription)
-//                    return
-//                }
-//            }
-//        }
-//    }
     
     private var setResultField: some View {
         VStack {
@@ -520,73 +479,8 @@ extension addMatchView {
         }
     }
     
-//    private func updateStats() {
-//        guard let leagueID = leagueVm.league?.id else { return }
-//        if !matchOngoing {
-//            FirebaseManager.shared.firestore.collection("leagues").document(leagueID).getDocument { snapshot, err in
-//                if let err = err {
-//                    print(err.localizedDescription)
-//                    return
-//                }
-//                
-//                guard let document = snapshot?.data() else {return}
-//                var players = (document["players"] as! [[String: Any]]).map{ player in
-//                    return Player(
-//                        uid: player["uid"] as? String ?? "",
-//                        profilePicUrl: player["profilePicUrl"] as? String ?? "",
-//                        displayName: player["displayName"] as? String ?? "",
-//                        points: player["points"] as? Int ?? 0,
-//                        wins: player["wins"] as? Int ?? 0,
-//                        losses: player["losses"] as? Int ?? 0)
-//                }
-//                let winnerIndex = players.firstIndex(where: { $0.uid == winner})
-//                let loserIndex = players.firstIndex(where: { $0.uid == loser})
-//                players[winnerIndex!].points += 3
-//                players[winnerIndex!].wins += 1
-//                players[loserIndex!].losses += 1
-//                
-//                FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["players" : FieldValue.delete()])
-//                
-//                for player in players {
-//                    
-//                    let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
-//                    
-//                    FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["players" : FieldValue.arrayUnion([playerData])])
-//                }
-//                
-//                FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(
-//                    ["matchesPlayed" : FieldValue.increment(1.00)])
-//                
-//                FirebaseManager.shared.firestore.collection("users").document(players[winnerIndex!].uid).updateData(["matchesWon" : FieldValue.increment(1.00)])
-//                
-//                FirebaseManager.shared.firestore.collection("users").document(players[loserIndex!].uid).updateData(["matchesPlayed" : FieldValue.increment(1.00)])
-//            }
-//            
-//        }
-//    }
-    
-    private func setPlayerScores(){
-        player1Score = 0
-        player2Score = 0
-        for set in sets {
-            if set.player1Points > set.player2Points {
-                player1Score += 1
-            }
-            else{
-                player2Score += 1
-            }
-        }
-    }
-    
-    private func convertDateToString(date: Date) -> String{
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, y"
-        let result = formatter.string(from: date)
-        return result
-    }
-    
     private func verifyScore() -> Bool{
-        setPlayerScores()
+        (player1Score, player2Score) = Utilities.calculatePlayerScores(sets: sets)
         if player1Score == numberOfSets || player2Score == numberOfSets{
             return true
         }

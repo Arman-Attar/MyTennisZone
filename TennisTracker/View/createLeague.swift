@@ -170,7 +170,7 @@ extension createLeague {
         HStack {
             Spacer()
             createButton.onTapGesture {
-                isLoading = true
+                //isLoading = true
                 let admin = vm.user?.uid ?? ""
                 Task{
                     let result = await leagueVM.createLeague(leagueName: leagueName, playerId: playerId, admin: admin, players: players, bannerImage: image)
