@@ -24,6 +24,7 @@ struct modifyMatchView: View {
     @State var showAlert = false
     @State var deleteTapped = false
     @State var confirmDeleteAlert = false
+    @Binding var loser: [String]
     var body: some View {
         ZStack{
             VStack{
@@ -418,7 +419,8 @@ extension modifyMatchView{
                     }
                     else{
                         Task {
-                            await matchVM.updateMatch(ongoing: matchOngoing, player1DisplayName: matchVM.currentMatch!.player1DisplayName, player2DisplayName: matchVM.currentMatch!.player2DisplayName, matchID: matchVM.currentMatch!.id, matchType: matchVM.currentMatch!.matchType)
+                            let matchLoser = await matchVM.updateMatch(ongoing: matchOngoing, player1DisplayName: matchVM.currentMatch!.player1DisplayName, player2DisplayName: matchVM.currentMatch!.player2DisplayName, matchID: matchVM.currentMatch!.id, matchType: matchVM.currentMatch!.matchType)
+                            loser.append(matchLoser)
                             dismiss()
                         }
                     }

@@ -77,7 +77,7 @@ class MatchViewModel: ObservableObject {
         }
     }
     
-    func updateMatch(ongoing: Bool, player1DisplayName: String, player2DisplayName: String, matchID: String, matchType: String) async {
+    func updateMatch(ongoing: Bool, player1DisplayName: String, player2DisplayName: String, matchID: String, matchType: String) async -> String {
         let (player1Score, player2Score) = Utilities.calculatePlayerScores(sets: currentSets)
         var winner = ""
         var loser = ""
@@ -91,11 +91,7 @@ class MatchViewModel: ObservableObject {
                 loser = player1DisplayName
             }
         }
-        print(currentSets)
-        print(winner)
-        print(loser)
         do {
-            print("ERROR IS: BEFORE GETTING MATCHES")
             var matches = try await MatchDatabaseManager.shared.getMatches(CompetitionID: self.id, competition: matchType)
             var matchIndex = -1
             for match in matches {
@@ -108,17 +104,16 @@ class MatchViewModel: ObservableObject {
             matches[matchIndex].player2Score = player2Score
             matches[matchIndex].matchOngoing = ongoing
             matches[matchIndex].winner = winner
-            print("ERROR IS: AfTER GETTING MATCHES")
             try await MatchDatabaseManager.shared.updateMatchList(matches: matches, CompetitionID: self.id, competition: matchType)
-            print("ERROR IS: After updating matches")
             if !ongoing {
-                print("ERROR IS: before updating stats")
                 await updateStats(winner: winner, loser: loser, matchType: matchType)
-                print("ERROR IS: AfTER GETTING MATCHES")
+                return loser
+            } else {
+                return ""
             }
         } catch  {
             print(error)
-            return
+            return ""
         }
     }
     

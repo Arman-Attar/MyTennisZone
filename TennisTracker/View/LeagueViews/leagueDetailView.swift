@@ -1,30 +1,29 @@
 //
-//  tournamentDetailView.swift
+//  leagueDetailView.swift
 //  TennisTracker
 //
-//  Created by Arman Zadeh-Attar on 2022-07-21.
+//  Created by Arman Zadeh-Attar on 2022-05-19.
 //
 
 import SwiftUI
 import SDWebImageSwiftUI
 
-
-struct tournamentDetailView: View {
+struct leagueDetailView: View {
     @State private var selectedIndex = 0
     var position = 1
     @State private var showSheet = false
     @State private var modifyMatch = false
     @State private var matchInfo = false
-    //@ObservedObject var leagueVM = LeagueViewModel()
-    @ObservedObject var userVm = UserViewModel()
-    @ObservedObject var tournamentVm = TournamentViewModel()
+    @ObservedObject var leagueVM: LeagueViewModel
+    @ObservedObject var userVm: UserViewModel
     @State var settingTapped = false
-    @State var matchId = ""
+    @State var matchId: String = ""
     @State var confirmDeleteAlert = false
     @Environment(\.dismiss) var dismiss
+    @State var loser: [String] = []
     var body: some View {
         VStack(alignment: .leading) {
-            if !tournamentVm.playerImages.isEmpty {
+            if !leagueVM.playerImages.isEmpty {
                 Picker("Tab View", selection: $selectedIndex, content: {
                     Text("Table").tag(0)
                     Text("Matches").tag(1)
@@ -38,6 +37,15 @@ struct tournamentDetailView: View {
                             .fontWeight(.bold)
                             .padding()
                         Spacer()
+                        Button {
+                            showSheet.toggle()
+                        } label: {
+                            Text("Add Match")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color.black)
+                        }.padding()
+                        
                     }
                     ScrollView {
                         Standingloop
@@ -55,78 +63,90 @@ struct tournamentDetailView: View {
                     }
                 }
                 Spacer()
+                    .sheet(isPresented: $showSheet) {
+                        addMatchView(matchVM: MatchViewModel(id: leagueVM.league!.id!, listOfMatches: leagueVM.listOfMatches, playerList: leagueVM.playerList, admin: leagueVM.league!.admin, matchID: nil))
+                    }
+                    .sheet(isPresented: $modifyMatch) {
+                        if matchId != "" {
+                            modifyMatchView(matchVM: MatchViewModel(id: leagueVM.league!.id!, listOfMatches: leagueVM.listOfMatches, playerList: leagueVM.playerList, admin: leagueVM.league!.admin, matchID: matchId), loser: $loser)
+                        }
+                    }
+                    .sheet(isPresented: $matchInfo) {
+                        if matchId != "" {
+                            matchResultView(matchVM: MatchViewModel(id: leagueVM.league!.id!, listOfMatches: leagueVM.listOfMatches, playerList: leagueVM.playerList, admin: leagueVM.league!.admin, matchID: matchId))
+                        }
+                    }
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            if leagueVM.league?.admin ?? "" == userVm.user!.uid{
+                                Button {
+                                    settingTapped.toggle()
+                                } label: {
+                                    Image(systemName: "gear")
+                                }
+                            }
+                        }
+                        ToolbarItem(placement: .navigationBarTrailing){
+                            Button {
+                                Task {
+                                    if let leagueID = leagueVM.league?.id {
+                                        await leagueVM.getCurrentLeague(leagueId: leagueID)
+                                    }
+                                }
+                            } label: {
+                                Image(systemName: "arrow.clockwise")
+                            }
+                        }
+                    }
+                    .confirmationDialog("Settings", isPresented: $settingTapped) {
+                        Button(role: .destructive) {
+                            confirmDeleteAlert.toggle()
+                        } label: {
+                            Text("Delete league")
+                        }
+                        
+                    }
+                    .alert(isPresented: $confirmDeleteAlert) {
+                        Alert(title: Text("Delete league"), message: Text("Are you sure you want to delete this league?"), primaryButton: .destructive(Text("Delete")){
+                            Task {
+                                if let leagueID = leagueVM.league?.id {
+                                    let result = await leagueVM.deleteLeague(leagueID: leagueID)
+                                    if result {
+                                        dismiss()
+                                    }
+                                }
+                            }
+                        }, secondaryButton: .cancel())
+                    }
             } else {
                 ProgressView()
             }
-            
-        }
-        .sheet(isPresented: $modifyMatch) {
-            if matchId != "" {
-                modifyMatchView(matchVM: MatchViewModel(id: tournamentVm.tournament!.id!, listOfMatches: tournamentVm.listOfMatches, playerList: tournamentVm.playerList, admin: tournamentVm.tournament!.admin, matchID: matchId))
-            }
-        }
-        .sheet(isPresented: $matchInfo) {
-            if matchId != "" {
-                matchResultView(matchVM: MatchViewModel(id: tournamentVm.tournament!.id!, listOfMatches: tournamentVm.listOfMatches, playerList: tournamentVm.playerList, admin: tournamentVm.tournament!.admin, matchID: matchId))
-            }
-        }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                if tournamentVm.tournament?.admin ?? "" == userVm.user!.uid{
-                Button {
-                    settingTapped.toggle()
-                } label: {
-                    Image(systemName: "gear")
-                }
-
-            }
-            }
-        }
-        .confirmationDialog("Settings", isPresented: $settingTapped) {
-            Button(role: .destructive) {
-                confirmDeleteAlert.toggle()
-            } label: {
-                Text("Delete league")
-            }
-
-        }
-        .alert(isPresented: $confirmDeleteAlert) {
-            Alert(title: Text("Delete league"), message: Text("Are you sure you want to delete this league?"), primaryButton: .destructive(Text("Delete")){
-                Task {
-                    if await tournamentVm.deleteTournament(tournamentId: tournamentVm.tournament!.id!) {
-                        await tournamentVm.getTournaments()
-                            dismiss()
-                    }
-                }
-            }, secondaryButton: .cancel())
-        }
-        .refreshable {
+        }.refreshable {
             Task {
-                if let tournmentID = tournamentVm.tournament?.id {
-                    await tournamentVm.getCurrentTournament(tournamentID: tournmentID)
+                if let leagueID = leagueVM.league?.id {
+                    await leagueVM.getCurrentLeague(leagueId: leagueID)
                 }
             }
         }
     }
 }
 
-struct tournamentDetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        tournamentDetailView()
-    }
-}
+//struct leagueDetailView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        leagueDetailView()
+//    }
+//}
 
-extension tournamentDetailView{
+extension leagueDetailView{
     private var Standingloop: some View {
         VStack{
-            ForEach(Array(tournamentVm.playerList.enumerated()), id: \.offset) { index, player in
+            ForEach(Array(leagueVM.playerList.enumerated()), id: \.offset) { index, player in
                 VStack {
                     HStack {
                         Text("\(index + 1).")
                             .font(.headline)
                             .padding(.leading)
-                        
-                        if let image = tournamentVm.playerImages[index] {
+                        if let image = leagueVM.playerImages[index] {
                             Image(uiImage: image)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
@@ -144,7 +164,6 @@ extension tournamentDetailView{
                                 .shadow(radius: 20)
                                 .padding()
                         }
-                    
                     Divider()
                     VStack {
                         Text(player.displayName)
@@ -189,14 +208,14 @@ extension tournamentDetailView{
     
     private var matchHistory: some View {
         VStack {
-            ForEach(tournamentVm.listOfMatches, id: \.id) { match in
+            ForEach(leagueVM.listOfMatches, id: \.id) { match in
                 Button {
-                    matchId = match.id
-                    if match.matchOngoing {
-                        modifyMatch.toggle()
-                    } else {
-                        matchInfo.toggle()
-                    }
+                        matchId = match.id
+                        if match.matchOngoing {
+                            modifyMatch.toggle()
+                        } else {
+                            matchInfo.toggle()
+                        }
                 } label: {
                     VStack {
                         HStack {
@@ -212,7 +231,8 @@ extension tournamentDetailView{
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.black)
-                                .frame(width: UIScreen.main.bounds.size.width / 4)
+                                .frame(width: UIScreen.main.bounds.size.width / 4.5)
+                                .fixedSize(horizontal: false, vertical: true)
 
 
                             WebImage(url: URL(string: match.player1Pic))
@@ -240,7 +260,8 @@ extension tournamentDetailView{
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.black)
-                                .frame(width: UIScreen.main.bounds.size.width / 4)
+                                .frame(width: UIScreen.main.bounds.size.width / 4.5)
+                                .fixedSize(horizontal: false, vertical: true)
 
 
                         }.padding(.leading)

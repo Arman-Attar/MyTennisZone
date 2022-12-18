@@ -18,7 +18,6 @@ class LeagueViewModel: ObservableObject {
     @Published var currentMatch: Match?
     @Published var currentSets: [Set] = []
     @Published var playerImages: [UIImage?] = []
-    @Published var leagueLoaded = false
     @Published var playerIsJoined = false
     
     func getLeagues() async{
@@ -56,7 +55,6 @@ class LeagueViewModel: ObservableObject {
             let images = try await ImageLoader.shared.getImages(playerList: self.playerList)
             await MainActor.run(body: {
                 self.playerImages = images
-                self.leagueLoaded = true
             })
         } catch {
             print(error)

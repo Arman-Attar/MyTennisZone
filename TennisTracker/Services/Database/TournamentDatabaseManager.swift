@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Firebase
 
 class TournamentDatabaseManager {
     static let shared = TournamentDatabaseManager()
@@ -54,10 +55,27 @@ class TournamentDatabaseManager {
         }
     }
     
-    func getMatches(tournamentID: String) async throws -> [Match] {
+//    func getMatches(tournamentID: String) async throws -> [Match] {
+//        do {
+//            let tournament = try await FirebaseManager.shared.firestore.collection("tournaments").document(tournamentID).getDocument(as: Tournament.self)
+//            return tournament.matches
+//        } catch {
+//            throw error
+//        }
+//    }
+    func removePlayer(playerData: [String : Any], tournamentID: String) async throws {
         do {
-            let tournament = try await FirebaseManager.shared.firestore.collection("tournaments").document(tournamentID).getDocument(as: Tournament.self)
-            return tournament.matches
+            try await FirebaseManager.shared.firestore.collection("tournaments").document(tournamentID).updateData(["players" : FieldValue.arrayRemove([playerData])])
+        } catch {
+            throw error
+        }
+    }
+    
+    func tournamentWrapUp(winner: String, winnerID: String, tournamentID: String) async throws {
+        do {
+            try await FirebaseManager.shared.firestore.collection("tournaments").document(tournamentID).updateData(["winner" : winner])
+            try await FirebaseManager.shared.firestore.collection("users").document(winnerID).updateData(["trophies" : FieldValue.increment(1.00)])
+            
         } catch {
             throw error
         }

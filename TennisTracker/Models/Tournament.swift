@@ -18,4 +18,5 @@ struct Tournament: Codable {
     let admin: String
     let mode: String
     let winner: String?
+    let numberOfPlayers: Int
 }

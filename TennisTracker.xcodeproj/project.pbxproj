@@ -125,26 +125,17 @@
 		C211BB0B281B3F0200C964F2 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				C2BADEA2281B8B4D001FFD83 /* signUp.swift */,
-				C2BADEA4281B91B2001FFD83 /* signIn.swift */,
-				C21CF04328277E9400292C9F /* mainPage.swift */,
+				C282C2AA294E89030044D09E /* MatchViews */,
+				C282C2A9294E88CB0044D09E /* LeagueViews */,
+				C282C2A8294E88AB0044D09E /* OnboardingViews */,
+				C282C2AB294E89170044D09E /* TournamentViews */,
 				C21CF0452828BC9100292C9F /* profileTab.swift */,
 				C24C4BE8282A17B2004FA8A5 /* homePage.swift */,
-				C24C4BEA282B6F8E004FA8A5 /* leagueView.swift */,
-				C24C4BEC282C2C6A004FA8A5 /* tournyView.swift */,
-				C2D3B7DF291C980A004A6452 /* resetPasswordView.swift */,
 				C252162628320309004C124A /* addFriend.swift */,
 				C22E524428335A4A00987437 /* createLeague.swift */,
-				C23BD39F28373E1A004E31D2 /* leagueDetailView.swift */,
-				C277D26C283DE6A10072814A /* addMatchView.swift */,
-				C277D26E283F326D0072814A /* matchResultView.swift */,
-				C277D272284719520072814A /* modifyMatchView.swift */,
 				C277D274284AADA10072814A /* joinLeagueView.swift */,
-				C2E64BCD28661FA800501252 /* createTournament.swift */,
 				C2E64BCF286A6DE900501252 /* opponentSelectionView.swift */,
-				C2E64BD32889D80F00501252 /* tournamentDetailView.swift */,
-				C2E64BD528974E3500501252 /* bracketDetailView.swift */,
-				C25FC9A22908CBF00092ED8E /* EventBannerView.swift */,
+				C21CF04328277E9400292C9F /* mainPage.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -265,6 +256,47 @@
 				C282C2A4294BA5E50044D09E /* Utilities.swift */,
 			);
 			path = Utils;
+			sourceTree = "<group>";
+		};
+		C282C2A8294E88AB0044D09E /* OnboardingViews */ = {
+			isa = PBXGroup;
+			children = (
+				C2D3B7DF291C980A004A6452 /* resetPasswordView.swift */,
+				C2BADEA2281B8B4D001FFD83 /* signUp.swift */,
+				C2BADEA4281B91B2001FFD83 /* signIn.swift */,
+			);
+			path = OnboardingViews;
+			sourceTree = "<group>";
+		};
+		C282C2A9294E88CB0044D09E /* LeagueViews */ = {
+			isa = PBXGroup;
+			children = (
+				C24C4BEA282B6F8E004FA8A5 /* leagueView.swift */,
+				C23BD39F28373E1A004E31D2 /* leagueDetailView.swift */,
+			);
+			path = LeagueViews;
+			sourceTree = "<group>";
+		};
+		C282C2AA294E89030044D09E /* MatchViews */ = {
+			isa = PBXGroup;
+			children = (
+				C277D26C283DE6A10072814A /* addMatchView.swift */,
+				C277D26E283F326D0072814A /* matchResultView.swift */,
+				C277D272284719520072814A /* modifyMatchView.swift */,
+			);
+			path = MatchViews;
+			sourceTree = "<group>";
+		};
+		C282C2AB294E89170044D09E /* TournamentViews */ = {
+			isa = PBXGroup;
+			children = (
+				C24C4BEC282C2C6A004FA8A5 /* tournyView.swift */,
+				C2E64BCD28661FA800501252 /* createTournament.swift */,
+				C2E64BD32889D80F00501252 /* tournamentDetailView.swift */,
+				C2E64BD528974E3500501252 /* bracketDetailView.swift */,
+				C25FC9A22908CBF00092ED8E /* EventBannerView.swift */,
+			);
+			path = TournamentViews;
 			sourceTree = "<group>";
 		};
 		C2E64BD728A4100F00501252 /* Frameworks */ = {
