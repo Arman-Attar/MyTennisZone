@@ -34,7 +34,7 @@ class ImageLoader {
     
     func getImage(urlString: String) async throws -> UIImage? {
         do {
-            let url = URL(string: urlString)!
+            guard let url = URL(string: urlString) else { return nil }
             let (data, _) = try await URLSession.shared.data(from: url)
             if let image = UIImage(data: data) {
                 return image

@@ -55,7 +55,7 @@ class FirebaseManager: NSObject, ObservableObject {
             completionHandler(false)
             return
         }
-        let userData = ["email" : email.lowercased(), "uid": uid, "profilePicUrl" : "", "username" : userName.lowercased(), "displayName" : userName, "matchesPlayed" : 0, "matchesWon": 0, "trophies" : 0, "friendsUid" : 0] as [String : Any]
+        let userData = ["email" : email.lowercased(), "uid": uid, "profilePicUrl" : "", "username" : userName.lowercased(), "displayName" : userName, "matchesPlayed" : 0, "matchesWon": 0, "trophies" : 0, "friends" : []] as [String : Any]
         firestore.collection("users").document(uid).setData(userData) { err in
             if let err = err {
                 print(err.localizedDescription)
@@ -101,4 +101,5 @@ class FirebaseManager: NSObject, ObservableObject {
             completionHandler("")
         }
     }
+    
 }

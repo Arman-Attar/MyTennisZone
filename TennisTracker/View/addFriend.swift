@@ -12,7 +12,7 @@ struct addFriend: View {
     @EnvironmentObject private var vm: UserViewModel
     @State var userName = ""
     @State var showSearchBar = false
-    @State var userAdded = false
+    //@State var userAdded = false
     @State var userNotFound = false
     var body: some View {
         VStack{
@@ -27,7 +27,7 @@ struct addFriend: View {
             .sheet(isPresented: $showSearchBar) {
                 VStack{
                     backButton.padding()
-                    if vm.userSearch?.uid ?? "" == "" {
+                    if vm.searchedUser?.uid ?? "" == "" {
                         Spacer()
                         Text("User Not Found")
                             .font(.title)
@@ -58,7 +58,7 @@ extension addFriend {
         HStack{
             Spacer()
             VStack {
-                let userFriends = vm.userSearch?.friends.count ?? 0
+                let userFriends = vm.searchedUser?.friends.count ?? 0
                 Text("\(userFriends)")
                     .font(.callout)
                     .fontWeight(.bold)
@@ -67,7 +67,7 @@ extension addFriend {
             }.padding()
             Spacer()
             VStack {
-                Text("\(vm.userSearch?.matchesPlayed ?? 0)")
+                Text("\(vm.searchedUser?.matchesPlayed ?? 0)")
                     .font(.callout)
                     .fontWeight(.bold)
                 Text("Games")
@@ -75,7 +75,7 @@ extension addFriend {
             }.padding()
             Spacer()
             VStack {
-                if let matchesWon = vm.userSearch?.matchesWon, let matchesPlayed = vm.userSearch?.matchesPlayed {
+                if let matchesWon = vm.searchedUser?.matchesWon, let matchesPlayed = vm.searchedUser?.matchesPlayed {
                     Text("\(matchesWon/matchesPlayed * 100)")
                         .font(.callout)
                         .fontWeight(.bold)
@@ -85,7 +85,7 @@ extension addFriend {
             }.padding()
             Spacer()
             VStack {
-                Text("\(vm.userSearch?.trophies ?? 0)")
+                Text("\(vm.searchedUser?.trophies ?? 0)")
                     .font(.callout)
                     .fontWeight(.bold)
                 Text("Trophies")
@@ -97,8 +97,8 @@ extension addFriend {
     
     private var header: some View {
         VStack{
-            if vm.userSearch?.profilePicUrl != "" {
-                WebImage(url: URL(string: vm.userSearch?.profilePicUrl ?? ""))
+            if vm.searchedUser?.profilePicUrl != "" {
+                WebImage(url: URL(string: vm.searchedUser?.profilePicUrl ?? ""))
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 200, height: 200)
@@ -116,12 +116,12 @@ extension addFriend {
                     .shadow(radius: 20)
                     .padding()
             }
-            Text(vm.userSearch?.displayName ?? "")
+            Text(vm.searchedUser?.displayName ?? "")
                 .font(.title)
                 .fontWeight(.bold)
             
             
-            Text("@\(vm.userSearch?.username ?? "")")
+            Text("@\(vm.searchedUser?.username ?? "")")
                 .font(.body)
                 .foregroundColor(Color.gray)
         }
@@ -131,7 +131,7 @@ extension addFriend {
     
     private var add: some View {
         VStack {
-            if userAdded {
+            if vm.isFriend {
                 HStack {
                     Image(systemName: "person.fill.checkmark").font(.title).foregroundColor(.black)
                     Text("Friend")
@@ -149,10 +149,8 @@ extension addFriend {
             }
             else{
                 Button {
-                    vm.addUser(userUid: vm.userSearch?.uid ?? "") { added in
-                        if added{
-                            userAdded = true
-                        }
+                    Task {
+                        await vm.addFriend(friendID: userName)
                     }
                 } label: {
                     HStack {
@@ -186,19 +184,27 @@ extension addFriend {
                 .padding(.leading)
             Button{
                 userName = userName.trimmingCharacters(in: .whitespacesAndNewlines)
-                vm.findUser(userName: userName.lowercased()) { found in
-                    if !found {
+                Task {
+                    await vm.findUser(username: userName.lowercased())
+                    if vm.searchedUser != nil {
+                        showSearchBar.toggle()
+                    } else {
                         userNotFound = true
                     }
-                    else{
-                        vm.friendCheck(friendUid: vm.userSearch?.uid ?? "") { isFriend in
-                            if isFriend {
-                                userAdded = true
-                                showSearchBar.toggle()
-                            }
-                        }
-                    }
                 }
+//                vm.findUser(userName: userName.lowercased()) { found in
+//                    if !found {
+//                        userNotFound = true
+//                    }
+//                    else{
+//                        vm.friendCheck(friendUid: vm.searchedUser?.uid ?? "") { isFriend in
+//                            if isFriend {
+//                                userAdded = true
+//                                showSearchBar.toggle()
+//                            }
+//                        }
+//                    }
+//                }
             } label: {
                 Text("Find")
                     .padding()

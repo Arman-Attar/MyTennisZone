@@ -16,7 +16,8 @@ class UserViewModel: ObservableObject {
     
     @Published var user: User?
     @Published var friends: [Friend] = []
-    @Published var userSearch: User?
+    @Published var isFriend = false
+    @Published var searchedUser: User?
     @Published var isUserSignedOut = false
     @Published var image: UIImage? = nil
     
@@ -60,111 +61,74 @@ class UserViewModel: ObservableObject {
             print(error)
         }
     }
-        
-    func findUser(userName: String, completionHandler: @escaping (_ data: Bool) -> Void){
-        if userSearch?.uid != ""{
-            userSearch = nil
-        }
-        FirebaseManager.shared.firestore.collection("users").whereField("username", isEqualTo: userName).getDocuments { snapshot, err in
-            if let err = err{
-                print(err.localizedDescription)
-                completionHandler(false)
-                return
-            }
-            for document in snapshot!.documents{
-                do{
-                    let jsonData = try JSONSerialization.data(withJSONObject: document.data())
-                    self.userSearch = try JSONDecoder().decode(User.self, from: jsonData)
-                } catch{
-                    print(error.localizedDescription)
-                    completionHandler(false)
-                }
-            }
-            if self.userSearch != nil {
-                completionHandler(true)
+    
+    func findUser(username: String) async {
+        do {
+            let user = try await UserDatabaseManager.shared.fetchSearchedUser(username: username)
+            if let user = user {
+                let isFriend = await checkIfFriend(userID: user.uid)
+                await MainActor.run(body: {
+                    self.searchedUser = user
+                    self.isFriend = isFriend
+                })
             } else {
-                completionHandler(false)
+                await MainActor.run(body: {
+                    self.searchedUser = nil
+                })
             }
+        } catch {
+            print(error)
+            await MainActor.run(body: {
+                self.searchedUser = nil
+            })
         }
     }
     
-    func addUser(userUid: String, completionHandler: @escaping (_ data: Bool) -> Void){
-        if userUid != "" {
-            guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return}
-            
-            FirebaseManager.shared.firestore.collection("users").document(uid).updateData(["friends" : FieldValue.arrayUnion([userUid])])
-            
-            FirebaseManager.shared.firestore.collection("users").document(userUid).updateData(["friends" : FieldValue.arrayUnion([uid])])
-            
-            completionHandler(true)
+    func checkIfFriend(userID: String) async -> Bool {
+        guard let user = self.user else { return false }
+        return user.friends.contains(where: {$0 == userID})
+    }
+    
+    func addFriend(friendID: String) async {
+        guard let user = self.user, let friend = self.searchedUser else { return }
+        do {
+            try await UserDatabaseManager.shared.addFriend(friendID: friend.uid, CurrentUserID: user.uid)
+            await MainActor.run(body: {
+                self.isFriend = true
+            })
+        } catch {
+            print(error)
         }
     }
     
-    func friendCheck(friendUid: String, completionHandler: @escaping (_ data: Bool) -> Void){
-        if user?.friends.count ?? 0 > 0 {
-            if user!.friends.contains(where: {$0 == friendUid}) {
-                completionHandler(true)
-            }
-            else {
-                completionHandler(false)
-            }
-        }
-    }
-    
-    func signOut(){
+    func signOut() {
         do{
             try FirebaseManager.shared.auth.signOut()
             self.isUserSignedOut.toggle()
         }catch{
-            print(error.localizedDescription)
+            print(error)
         }
         
     }
     
-    func deleteUserData(uid: String, completionHandler: @escaping (_ data: Bool) -> Void){
-        
-        FirebaseManager.shared.storage.reference(withPath: uid).delete { err in
-            if let err = err {
-                print(err.localizedDescription)
-                completionHandler(false)
-            }
+    func deleteUserData(userID: String) async throws {
+        do {
+            try await UserDatabaseManager.shared.deleteUserData(userID: userID)
+        } catch {
+            throw error
         }
-        
-        FirebaseManager.shared.firestore.collection("users").document(uid).delete { err in
-            if let err = err {
-                print(err.localizedDescription)
-                completionHandler(false)
-            }
-        }
-        FirebaseManager.shared.firestore.collection("users").getDocuments { snapshot, err in
-            if let err = err {
-                print(err.localizedDescription)
-                completionHandler(false)
-            }
-            guard let data = snapshot?.documents else {
-                completionHandler(false)
-                return
-            }
-            for document in data {
-                FirebaseManager.shared.firestore.collection("users").document(document.documentID).updateData(["friends" : FieldValue.arrayRemove([uid])])
-            }
-        }
-        completionHandler(true)
     }
     
-    func deleteUser(){
+    func deleteUser() async {
         if let user = FirebaseManager.shared.auth.currentUser {
-            deleteUserData(uid: user.uid) { result in
-                if result {
-                    user.delete { err in
-                        if let err = err {
-                            print(err.localizedDescription)
-                        }
-                        else {
-                            self.isUserSignedOut.toggle()
-                        }
-                    }
-                }
+            do {
+                try await deleteUserData(userID: user.uid)
+                try await user.delete()
+                await MainActor.run(body: {
+                    self.isUserSignedOut.toggle()
+                })
+            } catch {
+                print(error)
             }
         }
     }

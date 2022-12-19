@@ -75,11 +75,6 @@ struct profileTab: View {
                 Alert(title: Text("Error!"), message: Text("Invalid display name entered"), dismissButton:
                         .default(Text("Got it!")))
             }
-            .alert(isPresented: $confirmDeleteAlert) {
-                Alert(title: Text("Delete Account"), message: Text("Are you sure you want to delete your account?"), primaryButton: .destructive(Text("Delete")){
-                    vm.deleteUser()
-                }, secondaryButton: .cancel())
-            }
             .alert(isPresented: $permission) {
                 Alert(title: Text("Permission Denied!"), message: Text("Please go into your settings and give photo permissions for TennisTracker"), dismissButton:
                         .default(Text("Got it!")))
@@ -128,6 +123,16 @@ struct profileTab: View {
                 .cornerRadius(30)
             }
             
+        }.alert(isPresented: $confirmDeleteAlert) {
+            Alert(title: Text("Delete Account"), message: Text("Are you sure you want to delete your account?"), primaryButton:
+                    .destructive(Text("Delete")){
+                Task {
+                    await vm.deleteUser()
+                }
+            }, secondaryButton: .cancel())
+        }
+        .task {
+            await vm.getCurrentUser()
         }
     }
 }
@@ -216,24 +221,6 @@ extension profileTab {
                         .shadow(radius: 20)
                         .padding()
                 }
-//                if vm.user?.profilePicUrl != ""{
-//                    WebImage(url: URL(string: vm.user?.profilePicUrl ?? ""))
-//                        .resizable()
-//                        .aspectRatio(contentMode: .fill)
-//                        .frame(width: 200, height: 200)
-//                        .clipShape(Circle())
-//                        .shadow(radius: 20)
-//                        .padding()
-//                }
-//                else {
-//                    Image("profile")
-//                        .resizable()
-//                        .aspectRatio(contentMode: .fill)
-//                        .frame(width: 200, height: 200)
-//                        .clipShape(Circle())
-//                        .shadow(radius: 20)
-//                        .padding()
-//                }
             }
             if displayName == "" && vm.user?.displayName != ""{
                 Text(vm.user?.displayName ?? "")
