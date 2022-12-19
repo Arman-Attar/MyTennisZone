@@ -10,9 +10,7 @@ import SDWebImageSwiftUI
 import PhotosUI
 
 struct profileTab: View {
-    @State var profileImage = ""
     @State var showImagePicker = false
-    @State var showSaveButton = false
     @State var image: UIImage?
     @State var changeDisplayName = false
     @State var displayName = ""
@@ -56,11 +54,11 @@ struct profileTab: View {
                     ImagePicker(image: $image)
                 }.navigationTitle("Profile")
                     .toolbar {
-                        if showSaveButton{
+                        if image != nil{
                             Button {
                                 Task {
-                                    vm.updateImage(image: image)
-                                    showSaveButton = false
+                                    await vm.updateImage(image: image)
+                                    image = nil
                                 }
                             } label: {
                                 Text("Save")
@@ -90,8 +88,9 @@ struct profileTab: View {
                                 invalidDisplayName = true
                             }
                             else{
-                                displayName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
-                                vm.updateDisplayName(input: displayName) { _ in
+                                Task{
+                                    displayName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+                                    await vm.updateDisplayName(username: displayName)
                                     changeDisplayName.toggle()
                                 }
                             }
@@ -126,10 +125,10 @@ struct profileTab: View {
         }.alert(isPresented: $confirmDeleteAlert) {
             Alert(title: Text("Delete Account"), message: Text("Are you sure you want to delete your account?"), primaryButton:
                     .destructive(Text("Delete")){
-                Task {
-                    await vm.deleteUser()
-                }
-            }, secondaryButton: .cancel())
+                        Task {
+                            await vm.deleteUser()
+                        }
+                    }, secondaryButton: .cancel())
         }
         .task {
             await vm.getCurrentUser()
@@ -268,9 +267,6 @@ extension profileTab {
             PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
                 if status == .authorized || status == .limited{
                     showImagePicker.toggle()
-                    if image != nil {
-                        showSaveButton = true
-                    }
                 } else {
                     permission.toggle()
                 }

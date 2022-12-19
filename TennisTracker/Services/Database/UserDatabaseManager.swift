@@ -8,6 +8,7 @@
 import Foundation
 import Firebase
 import FirebaseFirestoreSwift
+import UIKit
 
 class UserDatabaseManager {
     
@@ -27,7 +28,7 @@ class UserDatabaseManager {
         var friends: [Friend] = []
         do {
             for friendID in friendsUID {
-               let friend = try await FirebaseManager.shared.firestore.collection("users").document(friendID).getDocument(as: Friend.self)
+                let friend = try await FirebaseManager.shared.firestore.collection("users").document(friendID).getDocument(as: Friend.self)
                 friends.append(friend)
             }
             return friends
@@ -68,6 +69,32 @@ class UserDatabaseManager {
             for friend in friendsData.documents {
                 try await FirebaseManager.shared.firestore.collection("users").document(friend.documentID).updateData(["friends" : FieldValue.arrayRemove([userID])])
             }
+        } catch {
+            throw error
+        }
+    }
+    
+    func updateDisplayName(userID: String, username: String) async throws {
+        do {
+            try await FirebaseManager.shared.firestore.collection("users").document(userID).updateData(["displayName" : username])
+        } catch {
+            throw error
+        }
+    }
+    
+    func storeUserImage(imageData: Data, userID: String) async throws -> URL {
+        do {
+            let ref = FirebaseManager.shared.storage.reference(withPath: userID)
+            try await ref.putDataAsync(imageData)
+            return try await ref.downloadURL()
+        } catch {
+            throw error
+        }
+    }
+    
+    func updateUserImage(imageURL: String, userID: String) async throws {
+        do {
+            try await FirebaseManager.shared.firestore.collection("users").document(userID).updateData(["profilePicUrl" : imageURL])
         } catch {
             throw error
         }

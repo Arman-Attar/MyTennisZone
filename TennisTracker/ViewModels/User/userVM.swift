@@ -133,51 +133,28 @@ class UserViewModel: ObservableObject {
         }
     }
     
-    func updateImage(image: UIImage?) {
-        guard let uid = self.user?.uid else {return}
-        let ref = FirebaseManager.shared.storage.reference(withPath: uid)
-        guard let imageData = image?.jpegData(compressionQuality: 0.25) else {return}
-        ref.putData(imageData, metadata: nil) { metadata, err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-            ref.downloadURL { url, err in
-                if let err = err {
-                    print(err.localizedDescription)
-                    return
-                }
-                guard let url = url else {return}
-                self.storeUserImage(imageURL: url)
-            }
+    func updateImage(image: UIImage?) async {
+        guard let userID = self.user?.uid,
+              let image = image,
+              let imageData = image.jpegData(compressionQuality: 0.25) else { return }
+        do {
+            let imageURL = try await UserDatabaseManager.shared.storeUserImage(imageData: imageData, userID: userID)
+            try await UserDatabaseManager.shared.updateUserImage(imageURL: imageURL.absoluteString, userID: userID)
+            await MainActor.run(body: {
+                self.image = image
+            })
+            try await DatabaseManager.shared.updateProfilePicURL(playerID: userID, profilePicURL: imageURL.absoluteString)
+        } catch {
+            print(error)
         }
     }
     
-    private func storeUserImage(imageURL: URL){
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return}
-        FirebaseManager.shared.firestore.collection("users")
-            .document(uid).updateData(["profilePicUrl" : imageURL.absoluteString]) { err in
-                if let err = err {
-                    print(err.localizedDescription)
-                    return
-                }
-            }
-        //self.getCurrentUser { _ in }
-    }
-    
-    func updateDisplayName(input: String, completionHandler: @escaping (_ data: Bool) -> Void){
-        guard let uid = self.user?.uid else {
-            completionHandler(false)
-            return
-        }
-        FirebaseManager.shared.firestore.collection("users").document(uid).updateData(["displayName" : input]) { err in
-            if let err = err{
-                print(err.localizedDescription)
-                completionHandler(false)
-            }
-//            self.getCurrentUser { _ in
-//                completionHandler(true)
-//            }
+    func updateDisplayName(username: String) async {
+        guard let user = self.user else { return }
+        do {
+            try await UserDatabaseManager.shared.updateDisplayName(userID: user.uid, username: username)
+        } catch {
+            print(error)
         }
     }
 }
