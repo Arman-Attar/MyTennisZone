@@ -303,7 +303,7 @@ class TournamentViewModel: ObservableObject {
                     let winnerIndex = playerList.firstIndex(where: {$0.displayName == winner})
                     let winnerID = playerList[winnerIndex!].uid
                     try await TournamentDatabaseManager.shared.tournamentWrapUp(winner: winner, winnerID: winnerID, tournamentID: self.tournament!.id!)
-                    try await updatePlayerList(playersToRemove: [""])
+                    try await updatePlayerList(playersToRemove: [loser])
                 } catch {
                     print(error)
                     return

@@ -30,17 +30,20 @@ class ImageLoader {
             }
         }
         return images
-    }		
-    
-    func getImage(urlString: String, CompletionHandler: @escaping (_ image: UIImage?, _ error: Error?) -> ()) {
-        let url = URL(string: urlString)!
-        URLSession.shared.dataTask(with: url) { data, _, err in
-           guard let data = data,
-                 let image = UIImage(data: data) else {
-               CompletionHandler(nil, err)
-               return
-           }
-            CompletionHandler(image, nil)
-        }.resume()
     }
+    
+    func getImage(urlString: String) async throws -> UIImage? {
+        do {
+            let url = URL(string: urlString)!
+            let (data, _) = try await URLSession.shared.data(from: url)
+            if let image = UIImage(data: data) {
+                return image
+            } else {
+                return nil
+            }
+        } catch {
+            throw error
+        }
+    }
+    
 }

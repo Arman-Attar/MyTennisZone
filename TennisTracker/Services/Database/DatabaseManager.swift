@@ -69,7 +69,7 @@ class DatabaseManager {
         }
     }
     
-    func createLeague(league: League) throws{
+    func createLeague(league: League) throws {
         do {
             try FirebaseManager.shared.firestore.collection("leagues").addDocument(from: league)
         } catch  {
@@ -88,6 +88,35 @@ class DatabaseManager {
             return try await ref.downloadURL().absoluteString
         } catch {
             throw error
+        }
+    }
+    
+    func updateProfilePicURL(playerID: String, profilePicURL: String) async throws {
+        let leagueData = try await FirebaseManager.shared.firestore.collection("leagues").whereField("playerId", arrayContains: playerID).getDocuments()
+        for data in leagueData.documents {
+            do{
+                
+                var league = try data.data(as: League.self)
+                var playerIndex = league.players.firstIndex(where: {$0.uid == playerID})
+                league.players[playerIndex!].profilePicUrl = profilePicURL
+                try await FirebaseManager.shared.firestore.collection("leagues").document(league.id!).delete()
+                try createLeague(league: league)
+            }catch{
+                throw(error)
+            }
+        }
+        let tournamentData = try await FirebaseManager.shared.firestore.collection("tournaments").whereField("playerId", arrayContains: playerID).getDocuments()
+        for data in tournamentData.documents {
+            do{
+                
+                var tournament = try data.data(as: Tournament.self)
+                var playerIndex = tournament.players.firstIndex(where: {$0.uid == playerID})
+                tournament.players[playerIndex!].profilePicUrl = profilePicURL
+                try await FirebaseManager.shared.firestore.collection("tournaments").document(tournament.id!).delete()
+                try TournamentDatabaseManager.shared.createLeague(tournament: tournament)
+            }catch{
+                throw(error)
+            }
         }
     }
 }

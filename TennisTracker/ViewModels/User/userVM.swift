@@ -20,65 +20,47 @@ class UserViewModel: ObservableObject {
     @Published var isUserSignedOut = false
     @Published var image: UIImage? = nil
     
-    init(){
-        getCurrentUser { (done) in
-            if done {
-                self.fetchImage()
-                self.getFriends()
-            }
+    
+    func getCurrentUser() async {
+        guard let userID = FirebaseManager.shared.auth.currentUser?.uid else { return }
+        do {
+            let user = try await UserDatabaseManager.shared.fetchCurrentUser(userID: userID)
+            await MainActor.run(body: { [weak self] in
+                self?.user = user
+            })
+            await getUserImage(profilePicURL: user.profilePicUrl)
+            await getFriends()
+        } catch {
+            print(error)
         }
     }
     
-    private func fetchImage() {
-        guard let url = user?.profilePicUrl else { return }
-        ImageLoader.shared.getImage(urlString: url) {[weak self] image, error in
+    private func getUserImage(profilePicURL: String) async {
+        do {
+            let image = try await ImageLoader.shared.getImage(urlString: profilePicURL)
             if let image = image {
-                DispatchQueue.main.async {
+                await MainActor.run(body: { [weak self] in
                     self?.image = image
-                }
+                })
             }
+        } catch {
+            print(error)
         }
+        
     }
     
-    private func getCurrentUser(completionHandler: @escaping (_ data: Bool) -> Void){
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return}
-        FirebaseManager.shared.firestore.collection("users").document(uid).getDocument { snapshot, err in
-            if let err = err {
-                print(err.localizedDescription)
-                return
-            }
-            guard let data = snapshot?.data() else {return}
-            do{
-                let jsonData = try JSONSerialization.data(withJSONObject: data)
-                self.user = try JSONDecoder().decode(User.self, from: jsonData)
-                completionHandler(true)
-            }catch{
-                print(error.localizedDescription)
-                completionHandler(false)
-            }
+    private func getFriends() async {
+        guard let user = user else { return }
+        do {
+            let friends = try await UserDatabaseManager.shared.fetchUserFriends(friendsUID: user.friends)
+            await MainActor.run(body: {
+                self.friends = friends
+            })
+        } catch {
+            print(error)
         }
     }
-    
-    private func getFriends() {
-        if user?.friends.count ?? 0 > 0{
-            for friend in user!.friends {
-                FirebaseManager.shared.firestore.collection("users").document(friend).getDocument { snapshot, err in
-                    if let err = err {
-                        print(err.localizedDescription)
-                        return
-                    }
-                    guard let data = snapshot?.data() else {return}
-                    do{
-                        let jsonData = try JSONSerialization.data(withJSONObject: data)
-                        self.friends.append(try JSONDecoder().decode(Friend.self, from: jsonData))
-                    } catch{
-                        print(error.localizedDescription)
-                    }
-                }
-            }
-        }
-    }
-    
+        
     func findUser(userName: String, completionHandler: @escaping (_ data: Bool) -> Void){
         if userSearch?.uid != ""{
             userSearch = nil
@@ -216,7 +198,7 @@ class UserViewModel: ObservableObject {
                     return
                 }
             }
-        self.getCurrentUser { _ in }
+        //self.getCurrentUser { _ in }
     }
     
     func updateDisplayName(input: String, completionHandler: @escaping (_ data: Bool) -> Void){
@@ -229,9 +211,9 @@ class UserViewModel: ObservableObject {
                 print(err.localizedDescription)
                 completionHandler(false)
             }
-            self.getCurrentUser { _ in
-                completionHandler(true)
-            }
+//            self.getCurrentUser { _ in
+//                completionHandler(true)
+//            }
         }
     }
 }

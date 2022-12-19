@@ -58,8 +58,10 @@ struct profileTab: View {
                     .toolbar {
                         if showSaveButton{
                             Button {
-                                vm.updateImage(image: image)
-                                showSaveButton = false
+                                Task {
+                                    vm.updateImage(image: image)
+                                    showSaveButton = false
+                                }
                             } label: {
                                 Text("Save")
                                     .padding()
@@ -279,7 +281,7 @@ extension profileTab {
             PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
                 if status == .authorized || status == .limited{
                     showImagePicker.toggle()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1){
+                    if image != nil {
                         showSaveButton = true
                     }
                 } else {

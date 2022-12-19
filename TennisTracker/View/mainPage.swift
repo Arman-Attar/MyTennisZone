@@ -43,6 +43,9 @@ struct mainPage: View {
                 }.frame(width: UIScreen.main.bounds.size.width)
             }
         }.environmentObject(userVm)
+            .task(priority: .high) {
+                await userVm.getCurrentUser()
+            }
     }
 }
 

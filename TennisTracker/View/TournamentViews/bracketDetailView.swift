@@ -354,20 +354,21 @@ extension bracketDetailView {
                         }
                         else {
                             if tournamentVm.tournament?.players[0].profilePicUrl ?? "profile" != "profile"{
+
                                 WebImage(url: URL(string: tournamentVm.playerList[0].profilePicUrl))
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 130, height: 130)
                                 .clipShape(Circle())
                                 .shadow(radius: 20)
-                                
+
                                 Text("\(tournamentVm.tournament!.players[0].displayName)").fontWeight(.heavy).padding()
                             }
                             else {
                                 Image("profile")
                                             .resizable()
                                             .aspectRatio(contentMode: .fill)
-                                            .frame(width: 130, height: 130)
+                                            .frame(width: 150, height: 150)
                                             .clipShape(Circle())
                                             .shadow(radius: 20)
                             }

@@ -75,9 +75,11 @@ extension addFriend {
             }.padding()
             Spacer()
             VStack {
-                Text("\(vm.userSearch?.matchesWon ?? 0)")
-                    .font(.callout)
-                    .fontWeight(.bold)
+                if let matchesWon = vm.userSearch?.matchesWon, let matchesPlayed = vm.userSearch?.matchesPlayed {
+                    Text("\(matchesWon/matchesPlayed * 100)")
+                        .font(.callout)
+                        .fontWeight(.bold)
+                }
                 Text("Win%")
                     .font(.caption)
             }.padding()
