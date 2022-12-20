@@ -52,51 +52,7 @@ class TournamentViewModel: ObservableObject {
                 else{
                     self?.firstRound = getRound(playerCount: (self?.playerList.count)!)
                     self?.currentRound = getRound(playerCount: (self?.playerList.count)!)
-                    //                    if self?.playerList.count == 32 || self?.playerList.count == 31 {
-                    //                        self?.firstRound = "R32"
-                    //                    }
-                    //                    else if self?.playerList.count == 16 || self?.playerList.count == 15 {
-                    //                        self?.firstRound = "R16"
-                    //                    }
-                    //                    else if self?.playerList.count == 8 || self?.playerList.count == 7 {
-                    //                        self?.firstRound = "QF"
-                    //                    }
-                    //                    else if self?.playerList.count == 4 || self?.playerList.count == 3 {
-                    //                        self?.firstRound = "SEMI"
-                    //                    }
-                    //                    else if self?.playerList.count == 2 {
-                    //                        self?.currentRound = "FINAL"
-                    //                    }
-                    //                    else {
-                    //                        self?.currentRound = "DONE"
-                    //                    }
                 }
-                
-                
-                //                if !tournament.matches.isEmpty {
-                //                    let last = self!.listOfMatches.endIndex - 1
-                //                    self?.currentRound = self!.listOfMatches[last].matchType
-                //                }
-                //                else{
-                //                    if self?.playerList.count == 32 || self?.playerList.count == 31 {
-                //                        self?.currentRound = "R32"
-                //                    }
-                //                    else if self?.playerList.count == 16 || self?.playerList.count == 15 {
-                //                        self?.currentRound = "R16"
-                //                    }
-                //                    else if self?.playerList.count == 8 || self?.playerList.count == 7 {
-                //                        self?.currentRound = "QF"
-                //                    }
-                //                    else if self?.playerList.count == 4 || self?.playerList.count == 3 {
-                //                        self?.currentRound = "SEMI"
-                //                    }
-                //                    else if self?.playerList.count == 2 {
-                //                        self?.currentRound = "FINAL"
-                //                    }
-                //                    else {
-                //                        self?.currentRound = "DONE"
-                //                    }
-                //                }
             })
         } catch {
             print(error)
