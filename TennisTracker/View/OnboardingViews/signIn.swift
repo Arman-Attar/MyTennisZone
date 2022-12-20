@@ -8,17 +8,18 @@
 import SwiftUI
 
 struct signIn: View {
-    init(){
-        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.black]
-    }
+    
+//    init(){
+//        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.black]
+//    }
     @AppStorage("email") var email = ""
     @AppStorage("password") var password = ""
     @State var isUserSignedIn = false
     @State var showPassword = false
-    @State var result = ""
     @State var forgotPassSheet = false
+    @StateObject var vm = OnboardingViewModel()
     var body: some View {
-        if isUserSignedIn{
+        if vm.isSignedIn{
             mainPage()
         }
         else {
@@ -64,7 +65,7 @@ extension signIn {
                     HStack {
                         Text("Don't have an Account?").foregroundColor(Color.black)
                         NavigationLink("Sign Up") {
-                            signUp().navigationTitle("Sign Up")
+                            signUp(email: $email, password: $password).navigationTitle("Sign Up")
                         }
                     }
                 }
@@ -134,14 +135,9 @@ extension signIn {
     private var submitButton: some View {
         VStack{
             Button {
-                FirebaseManager.shared.logIn(email: email, password: password, completionHandler: { data in
-                    if data == "Sign In"{
-                        isUserSignedIn.toggle()
-                    }
-                    else{
-                        result = data
-                    }
-                })
+                Task{
+                    await vm.logIn(email: email, password: password)
+                }
             } label: {
                 VStack {
                     Text("Sign In")
@@ -155,7 +151,7 @@ extension signIn {
                             .stroke(Color.black, lineWidth: 0.8))
                         .padding()
                         .offset(y: 9)
-                    if result != "" {
+                    if vm.message != "" {
                         errorField
                     }
                 }
@@ -163,7 +159,7 @@ extension signIn {
         }
     }
     private var errorField: some View{
-        Text(result)
+        Text(vm.message)
             .font(.body)
             .fontWeight(.semibold)
             .foregroundColor(Color.black)

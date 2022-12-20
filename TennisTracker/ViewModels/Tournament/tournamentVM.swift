@@ -140,7 +140,7 @@ class TournamentViewModel: ObservableObject {
             let matches = generateMatches(playerList: players, mode: mode, setsToWin: setsToWin)
             var bannerURL = ""
             if let bannerImage = bannerImage {
-                bannerURL = try await DatabaseManager.shared.uploadBanner(image: bannerImage)
+                bannerURL = try await LeagueDatabaseManager.shared.uploadBanner(image: bannerImage)
             }
             let tournamentData = Tournament(name: tournamentName.lowercased(), playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin, mode: mode, winner: nil, numberOfPlayers: players.count)
             try TournamentDatabaseManager.shared.createLeague(tournament: tournamentData)

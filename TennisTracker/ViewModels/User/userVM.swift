@@ -143,7 +143,7 @@ class UserViewModel: ObservableObject {
             await MainActor.run(body: {
                 self.image = image
             })
-            try await DatabaseManager.shared.updateProfilePicURL(playerID: userID, profilePicURL: imageURL.absoluteString)
+            try await LeagueDatabaseManager.shared.updateProfilePicURL(playerID: userID, profilePicURL: imageURL.absoluteString)
         } catch {
             print(error)
         }

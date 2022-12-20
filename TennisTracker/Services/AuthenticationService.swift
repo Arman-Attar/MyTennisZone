@@ -11,94 +11,53 @@ import Firebase
 import FirebaseStorage
 
 
-class FirebaseManager: NSObject, ObservableObject {
+class FirebaseManager: ObservableObject {
     let auth: Auth
     let storage: Storage
     let firestore: Firestore
     
     static let shared = FirebaseManager()
-    override init(){
-        if !TennisTrackerApp.isAlreadyLaunched{
-            FirebaseApp.configure()
-            TennisTrackerApp.isAlreadyLaunched = true
-        }
+   init(){
+       DispatchQueue.main.sync {
+           if !TennisTrackerApp.isAlreadyLaunched{
+               FirebaseApp.configure()
+               TennisTrackerApp.isAlreadyLaunched = true
+           }
+       }
         self.auth = Auth.auth()
         self.storage = Storage.storage()
         self.firestore = Firestore.firestore()
-        
-        super.init()
     }
 
+    func createUser(userData: [String : Any], userID: String) async throws {
+        do {
+            try await firestore.collection("users").document(userID).setData(userData)
+        } catch {
+            throw error
+        }
+    }
     
-    func register(email: String, password: String, userName: String, completionHandler: @escaping (_ data: String) -> Void) {
-        auth.createUser(withEmail: email.lowercased(), password: password) { result, err in
-            if let err = err {
-                completionHandler("Unable to Create User: \(err.localizedDescription)")
-                return
-            }
-            else{
-                let userName = userName.trimmingCharacters(in: .whitespacesAndNewlines)
-                self.createUser(email: email, userName: userName) { result in
-                    if result {
-                        completionHandler("done")
+    func validateUsername(username: String) async -> Bool {
+        return await withCheckedContinuation { continuation  in
+            firestore.collection("users").whereField("username", isEqualTo: username).getDocuments { data, err in
+                if err != nil {
+                    continuation.resume(returning: false)
+                } else if let data = data {
+                    if data.isEmpty {
+                        continuation.resume(returning: true)
                     } else {
-                        completionHandler("Unable to Create User")
+                        continuation.resume(returning: false)
                     }
                 }
-                
             }
         }
     }
     
-    private func createUser(email: String, userName: String, completionHandler: @escaping (_ data: Bool) -> Void){
-        guard let uid = auth.currentUser?.uid else {
-            completionHandler(false)
-            return
-        }
-        let userData = ["email" : email.lowercased(), "uid": uid, "profilePicUrl" : "", "username" : userName.lowercased(), "displayName" : userName, "matchesPlayed" : 0, "matchesWon": 0, "trophies" : 0, "friends" : []] as [String : Any]
-        firestore.collection("users").document(uid).setData(userData) { err in
-            if let err = err {
-                print(err.localizedDescription)
-                completionHandler(false)
-            } else {
-                completionHandler(true)
-            }
-        }
-    }
-    
-    func validateUserName(userName: String, completionHandler: @escaping (_ data: Bool) -> Void) {
-        firestore.collection("users").whereField("username", isEqualTo: userName.lowercased()).getDocuments { snapshot, err in
-            if let err = err {
-                print(err.localizedDescription)
-                completionHandler(false)
-            }
-            if snapshot!.isEmpty {
-                completionHandler(true)
-            }
-            else{
-                completionHandler(false)
-            }
-        }
-    }
-    
-    func logIn(email: String, password: String, completionHandler: @escaping (_ data: String) -> Void) {
-        auth.signIn(withEmail: email, password: password) { result, err in
-            if let err = err {
-                completionHandler("Unable to Log In: \(err.localizedDescription)")
-            }
-            else{
-                completionHandler("Sign In")
-            }
-        }
-    }
-    
-    func resetPassword(email: String, completionHandler: @escaping (_ data: String) -> Void) {
-        auth.sendPasswordReset(withEmail: email) { err in
-            if let err = err {
-                completionHandler(err.localizedDescription)
-                return
-            }
-            completionHandler("")
+    func signIn(email: String, password: String) async throws {
+        do {
+            try await auth.signIn(withEmail: email, password: password)
+        } catch {
+            throw error
         }
     }
     

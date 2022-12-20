@@ -9,16 +9,20 @@ import SwiftUI
 
 struct signUp: View {
     
-    init(){
-        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.black]
-    }
-    
-    @State var email = ""
-    @State var password = ""
+    @Binding var email: String
+    @Binding var password: String
     @State var userName = ""
-    @State var result = ""
     @State var showPassword = false
+    @State var showError = false
+    @StateObject var vm = OnboardingViewModel()
     @Environment(\.dismiss) var dismiss
+    
+//    init(email: String, password: String){
+//        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.black]
+//        self.email = email
+//        self.password = password
+//    }
+    
     var body: some View {
         ZStack{
             Image("back")
@@ -40,11 +44,11 @@ struct signUp: View {
     }
 }
 
-struct signUp_Previews: PreviewProvider {
-    static var previews: some View {
-        signUp()
-    }
-}
+//struct signUp_Previews: PreviewProvider {
+//    static var previews: some View {
+//        signUp()
+//    }
+//}
 
 extension signUp {
     
@@ -129,16 +133,12 @@ extension signUp {
     private var submitButton: some View {
         VStack{
             Button {
-                FirebaseManager.shared.validateUserName(userName: userName) { (result) in
-                    if result {
-                        FirebaseManager.shared.register(email: email, password: password, userName: userName) { result in
-                            self.result = result
-                            if result == "done"{
-                                dismiss()
-                            }
-                        }
+                showError = false
+                Task {
+                    if await vm.register(email: email, password: password, username: userName) {
+                        dismiss()
                     } else {
-                        self.result = "Username already exists"
+                        showError = true
                     }
                 }
             } label: {
@@ -154,11 +154,8 @@ extension signUp {
                             .stroke(Color.black, lineWidth: 0.8))
                         .padding()
                         .offset(y: 9)
-                    if result != "" && result != "done" {
+                    if showError {
                         errorField
-                    }
-                    else if result == "done"{
-                        success
                     }
                 }
             }
@@ -166,7 +163,7 @@ extension signUp {
     }
     
     private var errorField: some View{
-        Text(result)
+        Text(vm.message)
             .font(.body)
             .fontWeight(.semibold)
             .foregroundColor(Color.black)

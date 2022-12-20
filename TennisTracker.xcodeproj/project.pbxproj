@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C2081DC229416DDC009C1414 /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2081DC129416DDC009C1414 /* DatabaseManager.swift */; };
+		C2081DC229416DDC009C1414 /* LeagueDatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2081DC129416DDC009C1414 /* LeagueDatabaseManager.swift */; };
 		C21CF04428277E9400292C9F /* mainPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21CF04328277E9400292C9F /* mainPage.swift */; };
 		C21CF0462828BC9100292C9F /* profileTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21CF0452828BC9100292C9F /* profileTab.swift */; };
+		C22205682951439C0002F6AE /* onboardingVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22205672951439C0002F6AE /* onboardingVM.swift */; };
 		C22E524528335A4A00987437 /* createLeague.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22E524428335A4A00987437 /* createLeague.swift */; };
 		C22E8178281B351F009593BE /* TennisTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22E8177281B351F009593BE /* TennisTrackerApp.swift */; };
 		C22E817A281B351F009593BE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22E8179281B351F009593BE /* ContentView.swift */; };
@@ -26,7 +27,6 @@
 		C252161B282DA749004C124A /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = C252161A282DA749004C124A /* FirebaseFirestore */; };
 		C252161D282DA749004C124A /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = C252161C282DA749004C124A /* FirebaseStorage */; };
 		C252161F282DFD7E004C124A /* userVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C252161E282DFD7E004C124A /* userVM.swift */; };
-		C2521622282E03D2004C124A /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = C2521621282E03D2004C124A /* SDWebImageSwiftUI */; };
 		C252162728320309004C124A /* addFriend.swift in Sources */ = {isa = PBXBuildFile; fileRef = C252162628320309004C124A /* addFriend.swift */; };
 		C25D392E2947A9F200B6520B /* League.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25D392D2947A9F200B6520B /* League.swift */; };
 		C25D39302947AA2A00B6520B /* Tournament.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25D392F2947AA2A00B6520B /* Tournament.swift */; };
@@ -55,14 +55,16 @@
 		C2E64BD628974E3500501252 /* bracketDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E64BD528974E3500501252 /* bracketDetailView.swift */; };
 		C2E64BD928A4100F00501252 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C2E64BD828A4100F00501252 /* FirebaseFirestoreSwift */; };
 		C2F0D73A2821AC14009792CD /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F0D7392821AC14009792CD /* AuthenticationService.swift */; };
+		C2F10C6129516B7A0081AAD9 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = C2F10C6029516B7A0081AAD9 /* SDWebImageSwiftUI */; };
 		C2F65FEA293E70DE00013404 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F65FE9293E70DE00013404 /* ImageLoader.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		C2081DC129416DDC009C1414 /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
+		C2081DC129416DDC009C1414 /* LeagueDatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeagueDatabaseManager.swift; sourceTree = "<group>"; };
 		C211BB0A281B3D3C00C964F2 /* TennisTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TennisTracker.entitlements; sourceTree = "<group>"; };
 		C21CF04328277E9400292C9F /* mainPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mainPage.swift; sourceTree = "<group>"; };
 		C21CF0452828BC9100292C9F /* profileTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = profileTab.swift; sourceTree = "<group>"; };
+		C22205672951439C0002F6AE /* onboardingVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = onboardingVM.swift; sourceTree = "<group>"; };
 		C22E524428335A4A00987437 /* createLeague.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = createLeague.swift; sourceTree = "<group>"; };
 		C22E8174281B351F009593BE /* TennisTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TennisTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C22E8177281B351F009593BE /* TennisTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TennisTrackerApp.swift; sourceTree = "<group>"; };
@@ -113,8 +115,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C2F10C6129516B7A0081AAD9 /* SDWebImageSwiftUI in Frameworks */,
 				C2E64BD928A4100F00501252 /* FirebaseFirestoreSwift in Frameworks */,
-				C2521622282E03D2004C124A /* SDWebImageSwiftUI in Frameworks */,
 				C2521619282DA749004C124A /* FirebaseAuth in Frameworks */,
 				C252161B282DA749004C124A /* FirebaseFirestore in Frameworks */,
 				C252161D282DA749004C124A /* FirebaseStorage in Frameworks */,
@@ -159,12 +161,21 @@
 		C211BB0D281B3F0F00C964F2 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				C22205662951437D0002F6AE /* OnBoarding */,
 				C282C29E294921390044D09E /* Match */,
 				C25D392C2947A9D900B6520B /* Tournament */,
 				C25D392B2947A9C200B6520B /* User */,
 				C25D392A2947A9A000B6520B /* League */,
 			);
 			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		C22205662951437D0002F6AE /* OnBoarding */ = {
+			isa = PBXGroup;
+			children = (
+				C22205672951439C0002F6AE /* onboardingVM.swift */,
+			);
+			path = OnBoarding;
 			sourceTree = "<group>";
 		};
 		C22E816B281B351F009593BE = {
@@ -237,7 +248,7 @@
 		C25D39392947AD8000B6520B /* Database */ = {
 			isa = PBXGroup;
 			children = (
-				C2081DC129416DDC009C1414 /* DatabaseManager.swift */,
+				C2081DC129416DDC009C1414 /* LeagueDatabaseManager.swift */,
 				C282C2A1294922E10044D09E /* TournamentDatabaseManager.swift */,
 				C282C2A6294D056C0044D09E /* MatchDatabaseManager.swift */,
 				C282C2AC294FE2640044D09E /* UserDatabaseManager.swift */,
@@ -341,8 +352,8 @@
 				C2521618282DA749004C124A /* FirebaseAuth */,
 				C252161A282DA749004C124A /* FirebaseFirestore */,
 				C252161C282DA749004C124A /* FirebaseStorage */,
-				C2521621282E03D2004C124A /* SDWebImageSwiftUI */,
 				C2E64BD828A4100F00501252 /* FirebaseFirestoreSwift */,
+				C2F10C6029516B7A0081AAD9 /* SDWebImageSwiftUI */,
 			);
 			productName = TennisTracker;
 			productReference = C22E8174281B351F009593BE /* TennisTracker.app */;
@@ -405,7 +416,7 @@
 			files = (
 				C2E64BD42889D80F00501252 /* tournamentDetailView.swift in Sources */,
 				C22E524528335A4A00987437 /* createLeague.swift in Sources */,
-				C2081DC229416DDC009C1414 /* DatabaseManager.swift in Sources */,
+				C2081DC229416DDC009C1414 /* LeagueDatabaseManager.swift in Sources */,
 				C2E64BD0286A6DE900501252 /* opponentSelectionView.swift in Sources */,
 				C2F65FEA293E70DE00013404 /* ImageLoader.swift in Sources */,
 				C22E817A281B351F009593BE /* ContentView.swift in Sources */,
@@ -424,6 +435,7 @@
 				C282C2A7294D056C0044D09E /* MatchDatabaseManager.swift in Sources */,
 				C24C4BE9282A17B2004FA8A5 /* homePage.swift in Sources */,
 				C277D275284AADA10072814A /* joinLeagueView.swift in Sources */,
+				C22205682951439C0002F6AE /* onboardingVM.swift in Sources */,
 				C25FC9A32908CBF00092ED8E /* EventBannerView.swift in Sources */,
 				C24C4BEF282D9B6A004FA8A5 /* imagePicker.swift in Sources */,
 				C24C4BED282C2C6A004FA8A5 /* tournyView.swift in Sources */,
@@ -692,15 +704,15 @@
 			package = C2521617282DA749004C124A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseStorage;
 		};
-		C2521621282E03D2004C124A /* SDWebImageSwiftUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C2521620282E03D2004C124A /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
-			productName = SDWebImageSwiftUI;
-		};
 		C2E64BD828A4100F00501252 /* FirebaseFirestoreSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C2521617282DA749004C124A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestoreSwift;
+		};
+		C2F10C6029516B7A0081AAD9 /* SDWebImageSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C2521620282E03D2004C124A /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
+			productName = SDWebImageSwiftUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -11,6 +11,7 @@ struct resetPasswordView: View {
     @Environment(\.dismiss) var dismiss
     @State var email = ""
     @State var result = ""
+    @StateObject var vm = OnboardingViewModel()
     var body: some View {
         NavigationView {
             ZStack{
@@ -39,14 +40,11 @@ struct resetPasswordView: View {
                         .foregroundColor(.black)
                         .padding(.vertical)
                 Button {
-                    FirebaseManager.shared.resetPassword(email: email) { data in
-                        if data == "" {
-                            result = "Password reset email has been sent!"
+                    Task {
+                        if await vm.resetPassword(email: email) {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                                 dismiss()
                             }
-                        } else {
-                            result = data
                         }
                     }
                 } label: {
@@ -64,8 +62,8 @@ struct resetPasswordView: View {
                             .offset(y: 9)
                     }
                 }
-                if result != "" {
-                Text(result)
+                if vm.message != "" {
+                    Text(vm.message)
                     .font(.body)
                     .fontWeight(.semibold)
                     .foregroundColor(Color.black)

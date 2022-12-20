@@ -371,7 +371,6 @@ extension profileTab {
                 }
                 Spacer()
             }
-            
             Divider().padding(.horizontal)
         }
     }

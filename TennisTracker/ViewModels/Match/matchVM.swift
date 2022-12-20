@@ -44,7 +44,7 @@ class MatchViewModel: ObservableObject {
     }
     
     private func getSets() async -> [Set] {
-        var sets: [Set] = []
+        var sets: [Set] = []  
         do {
             sets = try await MatchDatabaseManager.shared.getSets(matchID: matchID!)
         } catch {

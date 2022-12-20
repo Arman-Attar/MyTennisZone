@@ -11,8 +11,8 @@ import UIKit
 import FirebaseFirestoreSwift
 
 
-class DatabaseManager {
-    static let shared = DatabaseManager()
+class LeagueDatabaseManager {
+    static let shared = LeagueDatabaseManager()
     private init () {}
     
     func getLeagues(userID: String) async throws -> [League] {
@@ -84,7 +84,7 @@ class DatabaseManager {
             return ""
         }
         do {
-            try await ref.putDataAsync(imageData)
+            _ = try await ref.putDataAsync(imageData)
             return try await ref.downloadURL().absoluteString
         } catch {
             throw error
