@@ -17,7 +17,6 @@ class LeagueViewModel: ObservableObject {
     @Published var listOfMatches: [Match] = []
     @Published var currentMatch: Match?
     @Published var currentSets: [Set] = []
-    @Published var playerImages: [UIImage?] = []
     @Published var playerIsJoined = false
     
     func getLeagues() async{
@@ -44,17 +43,6 @@ class LeagueViewModel: ObservableObject {
                 }
                 self?.playerList = players
                 self?.listOfMatches = league.matches.reversed()
-            })
-        } catch {
-            print(error)
-        }
-    }
-    
-    func loadImages() async{
-        do {
-            let images = try await ImageLoader.shared.getImages(playerList: self.playerList)
-            await MainActor.run(body: {
-                self.playerImages = images
             })
         } catch {
             print(error)
@@ -90,11 +78,15 @@ class LeagueViewModel: ObservableObject {
         return !result.isEmpty
     }
     
-    func joinLeague(uid: String, profilePic: String, displayName: String){
+    func joinLeague(uid: String, profilePic: String, displayName: String) async {
         let playerData = ["uid": uid, "profilePicUrl": profilePic, "displayName": displayName, "points": 0, "wins": 0, "losses": 0] as [String: Any]
         if let currentLeague = league,
            let leagueID = currentLeague.id {
-            LeagueDatabaseManager.shared.joinLeague(playerData: playerData, leagueID: leagueID, playerID: uid)
+            do {
+                try await LeagueDatabaseManager.shared.joinLeague(playerData: playerData, leagueID: leagueID, playerID: uid)
+            } catch {
+                print(error)
+            }
         }
     }
     
@@ -122,7 +114,7 @@ class LeagueViewModel: ObservableObject {
                 bannerURL = try await LeagueDatabaseManager.shared.uploadBanner(image: bannerImage)
             }
             let leagueData = League(name: leagueName.lowercased(), playerId: playerId, players: players, matches: [], bannerURL: bannerURL, admin: admin)
-            try LeagueDatabaseManager.shared.createLeague(league: leagueData)
+            try await LeagueDatabaseManager.shared.createLeague(league: leagueData)
             return true
         } catch  {
             print(error)

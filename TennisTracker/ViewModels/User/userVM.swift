@@ -19,7 +19,6 @@ class UserViewModel: ObservableObject {
     @Published var isFriend = false
     @Published var searchedUser: User?
     @Published var isUserSignedOut = false
-    @Published var image: UIImage? = nil
     
     
     func getCurrentUser() async {
@@ -29,25 +28,10 @@ class UserViewModel: ObservableObject {
             await MainActor.run(body: { [weak self] in
                 self?.user = user
             })
-            await getUserImage(profilePicURL: user.profilePicUrl)
             await getFriends()
         } catch {
             print(error)
         }
-    }
-    
-    private func getUserImage(profilePicURL: String) async {
-        do {
-            let image = try await ImageLoader.shared.getImage(urlString: profilePicURL)
-            if let image = image {
-                await MainActor.run(body: { [weak self] in
-                    self?.image = image
-                })
-            }
-        } catch {
-            print(error)
-        }
-        
     }
     
     private func getFriends() async {
@@ -135,15 +119,13 @@ class UserViewModel: ObservableObject {
     
     func updateImage(image: UIImage?) async {
         guard let userID = self.user?.uid,
+              let displayName = self.user?.displayName,
               let image = image,
               let imageData = image.jpegData(compressionQuality: 0.25) else { return }
         do {
             let imageURL = try await UserDatabaseManager.shared.storeUserImage(imageData: imageData, userID: userID)
             try await UserDatabaseManager.shared.updateUserImage(imageURL: imageURL.absoluteString, userID: userID)
-            await MainActor.run(body: {
-                self.image = image
-            })
-            try await LeagueDatabaseManager.shared.updateProfilePicURL(playerID: userID, profilePicURL: imageURL.absoluteString)
+            try await LeagueDatabaseManager.shared.updateProfilePicURL(playerID: userID, profilePicURL: imageURL.absoluteString, displayName: displayName)
         } catch {
             print(error)
         }

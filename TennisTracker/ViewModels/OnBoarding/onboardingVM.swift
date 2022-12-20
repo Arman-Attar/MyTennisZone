@@ -42,18 +42,18 @@ class OnboardingViewModel: ObservableObject {
     }
     
     func logIn(email: String, password: String) async {
-        await MainActor.run(body: {
-            self.message = ""
+        await MainActor.run(body: { [weak self] in
+            self?.message = ""
         })
         do {
             try await FirebaseManager.shared.signIn(email: email.lowercased(), password: password)
-            await MainActor.run(body: {
-                self.isSignedIn = true
+            await MainActor.run(body: { [weak self] in
+                self?.isSignedIn = true
             })
         } catch {
-            await MainActor.run(body: {
-                self.message = ("Unable to sign in: \(error.localizedDescription)")
-                self.isSignedIn = false
+            await MainActor.run(body: { [weak self] in
+                self?.message = ("Unable to sign in: \(error.localizedDescription)")
+                self?.isSignedIn = false
             })
         }
     }
@@ -61,13 +61,13 @@ class OnboardingViewModel: ObservableObject {
     func resetPassword(email: String) async -> Bool {
         do {
             try await FirebaseManager.shared.auth.sendPasswordReset(withEmail: email.lowercased())
-            await MainActor.run(body: {
-                self.message = "Password reset email has been sent!"
+            await MainActor.run(body: { [weak self] in
+                self?.message = "Password reset email has been sent!"
             })
             return true
         } catch {
-            await MainActor.run(body: {
-                self.message = error.localizedDescription
+            await MainActor.run(body: { [weak self] in
+                self?.message = error.localizedDescription
             })
             return false
         }

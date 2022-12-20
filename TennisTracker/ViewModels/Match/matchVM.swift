@@ -13,12 +13,12 @@ class MatchViewModel: ObservableObject {
     @Published var finishedLoading = false
     @Published var playerList: [Player]
     @Published var admin: String
+    @Published var player1: Player?
+    @Published var player2: Player?
     
     private var listOfMatches: [Match] = []
     private var id: String
     private var matchID: String?
-    @Published var player1: Player?
-    @Published var player2: Player?
     
     init(id: String, listOfMatches: [Match], playerList: [Player], admin: String, matchID: String?) {
         self.id = id
@@ -44,7 +44,7 @@ class MatchViewModel: ObservableObject {
     }
     
     private func getSets() async -> [Set] {
-        var sets: [Set] = []  
+        var sets: [Set] = []
         do {
             sets = try await MatchDatabaseManager.shared.getSets(matchID: matchID!)
         } catch {
@@ -69,7 +69,7 @@ class MatchViewModel: ObservableObject {
         let matchData = ["id" : matchID, "date" : date, "player1Pic" : player1.profilePicUrl, "player2Pic" : player2.profilePicUrl, "player1DisplayName" : player1.displayName, "player2DisplayName" : player2.displayName ,"player1Score" : player1Score, "player2Score" : player2Score, "winner" : winner, "matchOngoing" : matchOngoing, "setsToWin" : setsToWin, "matchType" : matchType] as [String: Any]
         do {
             try await MatchDatabaseManager.shared.createMatch(matchData: matchData, competitionID: self.id, competition: matchType)
-            try MatchDatabaseManager.shared.addSet(set: nil, sets: sets)
+            try await MatchDatabaseManager.shared.addSet(set: nil, sets: sets)
             await updateMatch(ongoing: matchOngoing, player1DisplayName: player1.displayName, player2DisplayName: player2.displayName, matchID: matchID, matchType: matchType)
         } catch {
             print(error)
@@ -128,7 +128,6 @@ class MatchViewModel: ObservableObject {
             let winnerObject = players.first(where: {$0.displayName == winner})
             let loserObject = players.first(where: {$0.displayName == loser})
             
-            
             try await MatchDatabaseManager.shared.updateStats(competitionID: self.id, winnerID: winnerObject!.uid, loserID: loserObject!.uid, players: players, competition: matchType)
         } catch {
             print(error)
@@ -141,7 +140,6 @@ class MatchViewModel: ObservableObject {
         do {
             if !currentMatch.matchOngoing{
                 var players = try await MatchDatabaseManager.shared.getPlayers(competitionID: self.id, competition: currentMatch.matchType)
-                print("WE GOT PLAYERS")
                 let winnerIndex = players.firstIndex(where: { $0.displayName == currentMatch.winner})
                 var loser = ""
                 if self.currentMatch!.player1DisplayName == currentMatch.winner {
@@ -172,7 +170,6 @@ class MatchViewModel: ObservableObject {
                 "setsToWin" : self.currentMatch!.setsToWin,
                 "matchType" : self.currentMatch!.matchType
             ]
-            
             try await MatchDatabaseManager.shared.deleteMatch(competition: currentMatch.matchType, competitionID: self.id, matchData: matchData)
         } catch {
             print(error)
@@ -181,16 +178,16 @@ class MatchViewModel: ObservableObject {
     }
     func addSet(p1Points: Int, p2Points: Int, set: Set?) async {
         if let set = set {
-            await MainActor.run(body: {
-                self.currentSets.append(set)
+            await MainActor.run(body: { [weak self] in
+                self?.currentSets.append(set)
             })
         } else {
             let setWinner = p1Points > p2Points ? player1!.uid : player2!.uid
             let setInfo = Set(matchId: currentMatch!.id, winner: setWinner, player1Uid: player1!.uid, player2Uid: player2!.uid, player1Points: p1Points, player2Points: p2Points)
             do {
-                try MatchDatabaseManager.shared.addSet(set: setInfo, sets: nil)
-                await MainActor.run(body: {
-                    self.currentSets.append(setInfo)
+                try await MatchDatabaseManager.shared.addSet(set: setInfo, sets: nil)
+                await MainActor.run(body: { [weak self] in
+                    self?.currentSets.append(setInfo)
                 })
             } catch  {
                 print(error)

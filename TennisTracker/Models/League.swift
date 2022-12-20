@@ -13,7 +13,7 @@ struct League: Codable {
     let name: String
     let playerId: [String]
     var players: [Player]
-    let matches: [Match]
+    var matches: [Match]
     let bannerURL: String?
     let admin: String
 }

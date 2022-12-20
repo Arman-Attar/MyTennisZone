@@ -9,7 +9,7 @@ import Foundation
 import FirebaseFirestoreSwift
 import Firebase
 
-class MatchDatabaseManager {
+actor MatchDatabaseManager {
     static let shared = MatchDatabaseManager()
     private init () {}
     
@@ -29,10 +29,10 @@ class MatchDatabaseManager {
     func addSet(set: Set?, sets:[Set]?) throws {
         do {
             if let set = set {
-                try FirebaseManager.shared.firestore.collection("sets").addDocument(from: set)
+                _ = try FirebaseManager.shared.firestore.collection("sets").addDocument(from: set)
             } else if let sets = sets {
                 for set in sets {
-                   try FirebaseManager.shared.firestore.collection("sets").addDocument(from: set)
+                    _ = try FirebaseManager.shared.firestore.collection("sets").addDocument(from: set)
                 }
             }
         } catch  {
@@ -118,14 +118,14 @@ class MatchDatabaseManager {
                 for player in players {
                     let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
                     
-                   try await FirebaseManager.shared.firestore.collection("leagues").document(competitionID).updateData(["players" : FieldValue.arrayUnion([playerData])])
+                    try await FirebaseManager.shared.firestore.collection("leagues").document(competitionID).updateData(["players" : FieldValue.arrayUnion([playerData])])
                 }
             } else {
                 try await FirebaseManager.shared.firestore.collection("tournaments").document(competitionID).updateData(["players" : FieldValue.delete()])
                 for player in players {
                     let playerData = ["uid" : player.uid, "profilePicUrl" : player.profilePicUrl, "displayName" : player.displayName, "points" : player.points, "wins" : player.wins, "losses" : player.losses] as [String: Any]
                     
-                   try await FirebaseManager.shared.firestore.collection("tournaments").document(competitionID).updateData(["players" : FieldValue.arrayUnion([playerData])])
+                    try await FirebaseManager.shared.firestore.collection("tournaments").document(competitionID).updateData(["players" : FieldValue.arrayUnion([playerData])])
                 }
             }
             

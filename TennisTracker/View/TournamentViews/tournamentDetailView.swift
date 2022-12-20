@@ -15,7 +15,6 @@ struct tournamentDetailView: View {
     @State private var showSheet = false
     @State private var modifyMatch = false
     @State private var matchInfo = false
-    //@ObservedObject var leagueVM = LeagueViewModel()
     @ObservedObject var userVm = UserViewModel()
     @ObservedObject var tournamentVm = TournamentViewModel()
     @State var settingTapped = false
@@ -25,7 +24,7 @@ struct tournamentDetailView: View {
     @Environment(\.dismiss) var dismiss
     var body: some View {
         VStack(alignment: .leading) {
-            if !tournamentVm.playerImages.isEmpty {
+            if tournamentVm.tournament != nil {
                 Picker("Tab View", selection: $selectedIndex, content: {
                     Text("Table").tag(0)
                     Text("Matches").tag(1)
@@ -126,16 +125,14 @@ extension tournamentDetailView{
                         Text("\(index + 1).")
                             .font(.headline)
                             .padding(.leading)
-                        
-                        if let image = tournamentVm.playerImages[index] {
-                            Image(uiImage: image)
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 80, height: 80)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
-                                .padding()
-                            
+                            if player.profilePicUrl != "" {
+                                WebImage(url: URL(string: player.profilePicUrl))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 80, height: 80)
+                                    .clipShape(Circle())
+                                    .shadow(radius: 20)
+                                    .padding()
                         } else {
                             Image("profile")
                                 .resizable()

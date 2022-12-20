@@ -23,7 +23,7 @@ struct leagueDetailView: View {
     @State var loser: [String] = []
     var body: some View {
         VStack(alignment: .leading) {
-            if !leagueVM.playerImages.isEmpty {
+            if leagueVM.league != nil {
                 Picker("Tab View", selection: $selectedIndex, content: {
                     Text("Table").tag(0)
                     Text("Matches").tag(1)
@@ -146,15 +146,14 @@ extension leagueDetailView{
                         Text("\(index + 1).")
                             .font(.headline)
                             .padding(.leading)
-                        if let image = leagueVM.playerImages[index] {
-                            Image(uiImage: image)
+                        if player.profilePicUrl != "" {
+                            WebImage(url: URL(string: player.profilePicUrl))
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 80, height: 80)
                                 .clipShape(Circle())
                                 .shadow(radius: 20)
                                 .padding()
-                            
                         } else {
                             Image("profile")
                                 .resizable()

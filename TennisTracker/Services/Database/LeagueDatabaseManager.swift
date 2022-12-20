@@ -11,7 +11,7 @@ import UIKit
 import FirebaseFirestoreSwift
 
 
-class LeagueDatabaseManager {
+actor LeagueDatabaseManager {
     static let shared = LeagueDatabaseManager()
     private init () {}
     
@@ -50,9 +50,13 @@ class LeagueDatabaseManager {
         return league
     }
     
-    func joinLeague(playerData: [String: Any], leagueID: String, playerID: String){
-        FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["players" : FieldValue.arrayUnion([playerData])])
-        FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["playerId" : FieldValue.arrayUnion([playerID])])
+    func joinLeague(playerData: [String: Any], leagueID: String, playerID: String) async throws {
+        do {
+            try await FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["players" : FieldValue.arrayUnion([playerData])])
+            try await FirebaseManager.shared.firestore.collection("leagues").document(leagueID).updateData(["playerId" : FieldValue.arrayUnion([playerID])])
+        } catch {
+            throw error
+        }
     }
     
     func deleteLeague(leagueID: String, bannerURL: String?) async throws -> Bool {
@@ -71,7 +75,7 @@ class LeagueDatabaseManager {
     
     func createLeague(league: League) throws {
         do {
-            try FirebaseManager.shared.firestore.collection("leagues").addDocument(from: league)
+            _ = try FirebaseManager.shared.firestore.collection("leagues").addDocument(from: league)
         } catch  {
             throw error
         }
@@ -91,13 +95,19 @@ class LeagueDatabaseManager {
         }
     }
     
-    func updateProfilePicURL(playerID: String, profilePicURL: String) async throws {
+    func updateProfilePicURL(playerID: String, profilePicURL: String, displayName: String) async throws {
         let leagueData = try await FirebaseManager.shared.firestore.collection("leagues").whereField("playerId", arrayContains: playerID).getDocuments()
         for data in leagueData.documents {
             do{
-                
                 var league = try data.data(as: League.self)
-                var playerIndex = league.players.firstIndex(where: {$0.uid == playerID})
+                let playerIndex = league.players.firstIndex(where: {$0.uid == playerID})
+                for i in 0..<league.matches.count {
+                    if league.matches[i].player1DisplayName == displayName {
+                        league.matches[i].player1Pic = profilePicURL
+                    } else if league.matches[i].player2DisplayName == displayName {
+                        league.matches[i].player2Pic = profilePicURL
+                    }
+                }
                 league.players[playerIndex!].profilePicUrl = profilePicURL
                 try await FirebaseManager.shared.firestore.collection("leagues").document(league.id!).delete()
                 try createLeague(league: league)
@@ -110,10 +120,17 @@ class LeagueDatabaseManager {
             do{
                 
                 var tournament = try data.data(as: Tournament.self)
-                var playerIndex = tournament.players.firstIndex(where: {$0.uid == playerID})
+                let playerIndex = tournament.players.firstIndex(where: {$0.uid == playerID})
                 tournament.players[playerIndex!].profilePicUrl = profilePicURL
+                for i in 0..<tournament.matches.count {
+                    if tournament.matches[i].player1DisplayName == displayName {
+                        tournament.matches[i].player1Pic = profilePicURL
+                    } else if tournament.matches[i].player2DisplayName == displayName {
+                        tournament.matches[i].player2Pic = profilePicURL
+                    }
+                }
                 try await FirebaseManager.shared.firestore.collection("tournaments").document(tournament.id!).delete()
-                try TournamentDatabaseManager.shared.createLeague(tournament: tournament)
+                try await TournamentDatabaseManager.shared.createLeague(tournament: tournament)
             }catch{
                 throw(error)
             }

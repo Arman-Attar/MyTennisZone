@@ -10,7 +10,7 @@ import Firebase
 import FirebaseFirestoreSwift
 import UIKit
 
-class UserDatabaseManager {
+actor UserDatabaseManager {
     
     static let shared = UserDatabaseManager()
     private init() {}
@@ -85,7 +85,7 @@ class UserDatabaseManager {
     func storeUserImage(imageData: Data, userID: String) async throws -> URL {
         do {
             let ref = FirebaseManager.shared.storage.reference(withPath: userID)
-            try await ref.putDataAsync(imageData)
+            _ = try await ref.putDataAsync(imageData)
             return try await ref.downloadURL()
         } catch {
             throw error

@@ -8,7 +8,7 @@
 import Foundation
 import Firebase
 
-class TournamentDatabaseManager {
+actor TournamentDatabaseManager {
     static let shared = TournamentDatabaseManager()
     private init () {}
     
@@ -49,20 +49,12 @@ class TournamentDatabaseManager {
     
     func createLeague(tournament: Tournament) throws {
         do {
-            try FirebaseManager.shared.firestore.collection("tournaments").addDocument(from: tournament)
+            _ = try FirebaseManager.shared.firestore.collection("tournaments").addDocument(from: tournament)
         } catch  {
             throw error
         }
     }
     
-//    func getMatches(tournamentID: String) async throws -> [Match] {
-//        do {
-//            let tournament = try await FirebaseManager.shared.firestore.collection("tournaments").document(tournamentID).getDocument(as: Tournament.self)
-//            return tournament.matches
-//        } catch {
-//            throw error
-//        }
-//    }
     func removePlayer(playerData: [String : Any], tournamentID: String) async throws {
         do {
             try await FirebaseManager.shared.firestore.collection("tournaments").document(tournamentID).updateData(["players" : FieldValue.arrayRemove([playerData])])

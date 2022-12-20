@@ -202,15 +202,14 @@ extension profileTab {
                     .shadow(radius: 20)
                     .padding()
             } else {
-                if let image = vm.image {
-                    Image(uiImage: image)
+                if vm.user!.profilePicUrl != "" {
+                    WebImage(url: URL(string: vm.user!.profilePicUrl))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 200, height: 200)
                         .clipShape(Circle())
                         .shadow(radius: 20)
                         .padding()
-                    
                 } else {
                     Image("profile")
                         .resizable()

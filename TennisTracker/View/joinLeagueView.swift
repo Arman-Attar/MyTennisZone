@@ -99,7 +99,9 @@ extension joinLeagueView {
                     .offset(y: 9)
             } else {
                 Button {
-                    leagueVm.joinLeague(uid: vm.user!.uid, profilePic: vm.user!.profilePicUrl, displayName: vm.user!.displayName)
+                    Task {
+                       await leagueVm.joinLeague(uid: vm.user!.uid, profilePic: vm.user!.profilePicUrl, displayName: vm.user!.displayName)
+                    }
                 } label: {
                     HStack {
                         Image(systemName: "person.fill.badge.plus").font(.title).foregroundColor(.black)

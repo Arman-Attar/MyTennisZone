@@ -10,8 +10,8 @@ import Foundation
 struct Match: Codable {
     let id: String
     let date: String
-    let player1Pic: String
-    let player2Pic: String
+    var player1Pic: String
+    var player2Pic: String
     let player1DisplayName: String
     let player2DisplayName: String
     var player1Score: Int

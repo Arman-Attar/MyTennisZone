@@ -22,7 +22,7 @@ struct leagueView: View {
                                     Task {
                                         if let leagueID = index.id {
                                             await leagueVm.getCurrentLeague(leagueId: leagueID)
-                                            await leagueVm.loadImages()
+                                            //await leagueVm.loadImages()
                                         }
                                     }
                                 }

@@ -14,27 +14,11 @@ class TournamentViewModel: ObservableObject {
     @Published var tournaments: [Tournament] = []
     @Published var tournament: Tournament?
     @Published var playerList: [Player] = []
-    //@Published var playersEntered: [Player] = []
     @Published var listOfMatches: [Match] = []
     @Published var currentMatch: Match?
     @Published var currentSets: [Set] = []
-    //@State var topPlayer = ""
     @Published var currentRound: String = ""
     @Published var firstRound: String = ""
-    @Published var playerImages: [UIImage?] = []
-    
-    // REFACTORED
-    
-    func loadImages() async throws{
-        do {
-            let images = try await ImageLoader.shared.getImages(playerList: self.playerList)
-            await MainActor.run(body: {
-                self.playerImages = images
-            })
-        } catch {
-            throw error
-        }
-    }
     
     func getTournaments() async {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return}
@@ -109,10 +93,7 @@ class TournamentViewModel: ObservableObject {
                         self?.currentRound = "DONE"
                     }
                 }
-                //self?.playersEntered = self!.playerList
             })
-            try await loadImages()
-            print(playerImages)
         } catch {
             print(error)
         }
@@ -143,7 +124,7 @@ class TournamentViewModel: ObservableObject {
                 bannerURL = try await LeagueDatabaseManager.shared.uploadBanner(image: bannerImage)
             }
             let tournamentData = Tournament(name: tournamentName.lowercased(), playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin, mode: mode, winner: nil, numberOfPlayers: players.count)
-            try TournamentDatabaseManager.shared.createLeague(tournament: tournamentData)
+            try await TournamentDatabaseManager.shared.createLeague(tournament: tournamentData)
             return true
         } catch  {
             print(error)
@@ -204,8 +185,6 @@ class TournamentViewModel: ObservableObject {
         }
     }
     
-    // TO BE REFACTORED
-    
     func allMatchesFinished() -> Bool {
         for match in listOfMatches {
             if match.matchOngoing {
@@ -242,7 +221,7 @@ class TournamentViewModel: ObservableObject {
             print(error)
             return
         }
-       
+        
         var matches: [Match] = []
         if self.playerList.count > 0{
             if currentRound == "R32" {
