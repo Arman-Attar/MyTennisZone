@@ -136,4 +136,46 @@ actor LeagueDatabaseManager {
             }
         }
     }
+    
+    func updateDisplayName(playerID: String, profilePicURL: String, displayName: String) async throws {
+        let leagueData = try await FirebaseManager.shared.firestore.collection("leagues").whereField("playerId", arrayContains: playerID).getDocuments()
+        for data in leagueData.documents {
+            do{
+                var league = try data.data(as: League.self)
+                let playerIndex = league.players.firstIndex(where: {$0.uid == playerID})
+                for i in 0..<league.matches.count {
+                    if league.matches[i].player1Pic == profilePicURL {
+                        league.matches[i].player1DisplayName = displayName
+                    } else if league.matches[i].player2Pic == profilePicURL {
+                        league.matches[i].player2DisplayName = displayName
+                    }
+                }
+                league.players[playerIndex!].displayName = displayName
+                try await FirebaseManager.shared.firestore.collection("leagues").document(league.id!).delete()
+                try createLeague(league: league)
+            }catch{
+                throw(error)
+            }
+        }
+        let tournamentData = try await FirebaseManager.shared.firestore.collection("tournaments").whereField("playerId", arrayContains: playerID).getDocuments()
+        for data in tournamentData.documents {
+            do{
+                
+                var tournament = try data.data(as: Tournament.self)
+                let playerIndex = tournament.players.firstIndex(where: {$0.uid == playerID})
+                for i in 0..<tournament.matches.count {
+                    if tournament.matches[i].player1Pic == profilePicURL {
+                        tournament.matches[i].player1DisplayName = displayName
+                    } else if tournament.matches[i].player2Pic == profilePicURL {
+                        tournament.matches[i].player2DisplayName = displayName
+                    }
+                }
+                tournament.players[playerIndex!].displayName = displayName
+                try await FirebaseManager.shared.firestore.collection("tournaments").document(tournament.id!).delete()
+                try await TournamentDatabaseManager.shared.createLeague(tournament: tournament)
+            }catch{
+                throw(error)
+            }
+        }
+    }
 }

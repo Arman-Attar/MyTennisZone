@@ -281,13 +281,23 @@ extension bracketDetailView {
                 }.padding([.horizontal, .top])
                 Divider().padding(.horizontal)
                 HStack{
-                    
-                    WebImage(url: URL(string: match.player1Pic))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 40, height: 40)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                    if match.player1Pic != "" {
+                        WebImage(url: URL(string: match.player1Pic))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                            .shadow(radius: 20)
+                            .padding()
+                    } else {
+                        Image("profile")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                            .shadow(radius: 20)
+                            .padding()
+                    }
                     
                     Text("\(match.player1DisplayName)")
                         .font(.subheadline)
@@ -303,12 +313,22 @@ extension bracketDetailView {
                 }.padding(.horizontal)
                 HStack{
                     
-                    WebImage(url: URL(string: match.player2Pic))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 40, height: 40)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                    if match.player2Pic != "" {
+                        WebImage(url: URL(string: match.player2Pic))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                            .shadow(radius: 20)
+                    } else {
+                        Image("profile")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                            .shadow(radius: 20)
+                            .padding()
+                    }
                     
                     
                     Text("\(match.player2DisplayName)")

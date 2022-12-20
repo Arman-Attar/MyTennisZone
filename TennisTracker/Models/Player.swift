@@ -10,7 +10,7 @@ import Foundation
 struct Player: Codable{
     let uid: String
     var profilePicUrl: String
-    let displayName: String
+    var displayName: String
     var points: Int
     var wins: Int
     var losses: Int

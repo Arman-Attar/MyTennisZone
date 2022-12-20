@@ -132,9 +132,11 @@ class UserViewModel: ObservableObject {
     }
     
     func updateDisplayName(username: String) async {
-        guard let user = self.user else { return }
+        guard let userID = self.user?.uid,
+        let picURL = self.user?.profilePicUrl else { return }
         do {
-            try await UserDatabaseManager.shared.updateDisplayName(userID: user.uid, username: username)
+            try await UserDatabaseManager.shared.updateDisplayName(userID: userID, username: username)
+            try await LeagueDatabaseManager.shared.updateDisplayName(playerID: userID, profilePicURL: picURL, displayName: username)
         } catch {
             print(error)
         }

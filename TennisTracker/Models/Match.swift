@@ -12,8 +12,8 @@ struct Match: Codable {
     let date: String
     var player1Pic: String
     var player2Pic: String
-    let player1DisplayName: String
-    let player2DisplayName: String
+    var player1DisplayName: String
+    var player2DisplayName: String
     var player1Score: Int
     var player2Score: Int
     var winner: String
