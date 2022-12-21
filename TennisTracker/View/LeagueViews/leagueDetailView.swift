@@ -148,19 +148,11 @@ extension leagueDetailView{
                             .padding(.leading)
                         if player.profilePicUrl != "" {
                             WebImage(url: URL(string: player.profilePicUrl))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 80, height: 80)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
+                                .userImageModifier(width: 80, height: 80)
                                 .padding()
                         } else {
                             Image("profile")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 80, height: 80)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
+                                .userImageModifier(width: 80, height: 80)
                                 .padding()
                         }
                     Divider()
@@ -235,11 +227,7 @@ extension leagueDetailView{
 
 
                             WebImage(url: URL(string: match.player1Pic))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 40, height: 40)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
+                                .userImageModifier(width: 40, height: 40)
                             
                             Text("\(match.player1Score) - \(match.player2Score)")
                                 .font(.callout)
@@ -248,11 +236,7 @@ extension leagueDetailView{
                                 .padding(5)
 
                             WebImage(url: URL(string: match.player2Pic))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 40, height: 40)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
+                                .userImageModifier(width: 40, height: 40)
 
 
                             Text("\(match.player2DisplayName)")

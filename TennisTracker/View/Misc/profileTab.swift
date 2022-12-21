@@ -195,28 +195,16 @@ extension profileTab {
         VStack{
             if image != nil {
                 Image(uiImage: image!)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 200, height: 200)
-                    .clipShape(Circle())
-                    .shadow(radius: 20)
+                    .userImageModifier(width: 200, height: 200)
                     .padding()
             } else {
                 if vm.user!.profilePicUrl != "" {
                     WebImage(url: URL(string: vm.user!.profilePicUrl))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 200, height: 200)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                        .userImageModifier(width: 200, height: 200)
                         .padding()
                 } else {
                     Image("profile")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 200, height: 200)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                        .userImageModifier(width: 200, height: 200)
                         .padding()
                 }
             }
@@ -252,6 +240,8 @@ extension profileTab {
                     .foregroundColor(Color.black)
                     .font(.body)
                     .fontWeight(.semibold)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                 Spacer()
                 Image(systemName: "chevron.right")
                     .foregroundColor(Color.black)
@@ -283,6 +273,8 @@ extension profileTab {
                     .foregroundColor(Color.black)
                     .font(.body)
                     .fontWeight(.semibold)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                 Spacer()
                 Image(systemName: "chevron.right")
                     .foregroundColor(Color.black)
@@ -343,19 +335,13 @@ extension profileTab {
             HStack{
                 if friend.profilePicUrl != "" {
                     WebImage(url: URL(string: friend.profilePicUrl))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 50, height: 50)
-                        .clipShape(Circle())
+                        .userImageModifier(width: 50, height: 50)
                         .padding(.horizontal)
                 }
                 else {
                     Image("profile")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 50, height: 50)
-                        .clipShape(Circle())
-                        .padding()
+                        .userImageModifier(width: 50, height: 50)
+                        .padding(.horizontal)
                 }
                 VStack(alignment: .leading){
                     

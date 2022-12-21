@@ -24,27 +24,27 @@ struct createLeague: View {
     @State var photoPermission = false
     var body: some View {
         ZStack{
-        Form{
-            leagueBanner.padding(.vertical)
-            leagueNameField.padding(.vertical, 10)
-            opponentSection
-            buttonSection
-        }.navigationTitle("Create a tournament")
-            .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $opponentSelection) {
-                opponentSelectionView(players: $players, playerId: $playerId, vm: vm)
-            }
-            .onAppear{
-                players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user!.profilePicUrl, displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0))
-                playerId.append(vm.user!.uid)
-            }
-            .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
-                ImagePicker(image: $image)
-            }
-            .alert(isPresented: $photoPermission) {
-                Alert(title: Text("Permission Denied!"), message: Text("Please go into your settings and give photo permissions for TennisTracker"), dismissButton:
-                        .default(Text("Got it!")))
-            }
+            Form{
+                leagueBanner.padding(.vertical)
+                leagueNameField.padding(.vertical, 10)
+                opponentSection
+                buttonSection
+            }.navigationTitle("Create a tournament")
+                .navigationBarTitleDisplayMode(.inline)
+                .sheet(isPresented: $opponentSelection) {
+                    opponentSelectionView(players: $players, playerId: $playerId, vm: vm)
+                }
+                .onAppear{
+                    players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user!.profilePicUrl, displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0))
+                    playerId.append(vm.user!.uid)
+                }
+                .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
+                    ImagePicker(image: $image)
+                }
+                .alert(isPresented: $photoPermission) {
+                    Alert(title: Text("Permission Denied!"), message: Text("Please go into your settings and give photo permissions for TennisTracker"), dismissButton:
+                            .default(Text("Got it!")))
+                }
             if isLoading{
                 ZStack{
                     Color(.systemBackground)
@@ -53,7 +53,7 @@ struct createLeague: View {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .blue))
                         .scaleEffect(3)
-                    }
+                }
             }
         }
     }
@@ -86,7 +86,7 @@ extension createLeague {
                                 photoPermission = false
                             }
                         }
-                       
+                        
                     }
             }
             else {
@@ -148,19 +148,11 @@ extension createLeague {
                 ForEach(players, id:\.uid) { player in
                     if player.profilePicUrl != "" {
                         WebImage(url: URL(string: player.profilePicUrl))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 50, height: 50)
-                            .clipShape(Circle())
-                            .shadow(radius: 20)
+                            .userImageModifier(width: 50, height: 50)
                     } else {
                         Image("profile")
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 50, height: 50)
-                            .clipShape(Circle())
-                            .shadow(radius: 20)
-                }
+                            .userImageModifier(width: 50, height: 50)
+                    }
                 }
             }.padding()
         }
@@ -170,7 +162,6 @@ extension createLeague {
         HStack {
             Spacer()
             createButton.onTapGesture {
-                //isLoading = true
                 let admin = vm.user?.uid ?? ""
                 Task{
                     let result = await leagueVM.createLeague(leagueName: leagueName, playerId: playerId, admin: admin, players: players, bannerImage: image)

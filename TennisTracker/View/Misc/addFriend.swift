@@ -12,7 +12,6 @@ struct addFriend: View {
     @EnvironmentObject private var vm: UserViewModel
     @State var userName = ""
     @State var showSearchBar = false
-    //@State var userAdded = false
     @State var userNotFound = false
     var body: some View {
         VStack{
@@ -99,21 +98,13 @@ extension addFriend {
         VStack{
             if vm.searchedUser?.profilePicUrl != "" {
                 WebImage(url: URL(string: vm.searchedUser?.profilePicUrl ?? ""))
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 200, height: 200)
-                    .clipShape(Circle())
-                    .shadow(radius: 20)
+                    .userImageModifier(width: 200, height: 200)
                     .padding()
             }
             
             else {
                 Image("profile")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 200, height: 200)
-                    .clipShape(Circle())
-                    .shadow(radius: 20)
+                    .userImageModifier(width: 200, height: 200)
                     .padding()
             }
             Text(vm.searchedUser?.displayName ?? "")
@@ -192,19 +183,6 @@ extension addFriend {
                         userNotFound = true
                     }
                 }
-//                vm.findUser(userName: userName.lowercased()) { found in
-//                    if !found {
-//                        userNotFound = true
-//                    }
-//                    else{
-//                        vm.friendCheck(friendUid: vm.searchedUser?.uid ?? "") { isFriend in
-//                            if isFriend {
-//                                userAdded = true
-//                                showSearchBar.toggle()
-//                            }
-//                        }
-//                    }
-//                }
             } label: {
                 Text("Find")
                     .padding()

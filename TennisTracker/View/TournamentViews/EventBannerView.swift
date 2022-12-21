@@ -102,7 +102,7 @@ extension EventBannerView {
             Text("\(tournamentEvent!.players.count)")
                 .foregroundColor(.black)
             Rectangle().frame(width: 1, height: 20)
-            Text("\(tournamentEvent!.mode)") // PUT IN THE TOURNAMENT TYPE
+            Text("\(tournamentEvent!.mode)")
                 .foregroundColor(.black)
         }
         .padding()

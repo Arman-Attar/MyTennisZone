@@ -111,22 +111,14 @@ extension matchResultView{
             {
                 if matchVM.player1?.profilePicUrl ?? "" != ""{
                     WebImage(url: URL(string: matchVM.player1!.profilePicUrl))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                        .userImageModifier(width: 100, height: 100)
                         .padding(.horizontal)
                         .padding(.top)
                         
                 }
                 else {
                     Image("profile")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                        .userImageModifier(width: 100, height: 100)
                         .padding(.horizontal)
                 }
                 Text(matchVM.player1?.displayName ?? "Oponent")
@@ -142,22 +134,14 @@ extension matchResultView{
             VStack{
                 if matchVM.player2?.profilePicUrl ?? "" != ""{
                     WebImage(url: URL(string: matchVM.player2!.profilePicUrl))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                        .userImageModifier(width: 100, height: 100)
                         .padding(.horizontal)
                         .padding(.top)
                         
                 }
                 else {
                     Image("profile")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                        .userImageModifier(width: 100, height: 100)
                         .padding(.horizontal)
                 }
                 Text(matchVM.player2?.displayName ?? "Oponent")

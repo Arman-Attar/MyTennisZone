@@ -65,11 +65,7 @@ struct addMatchView: View {
                             }
                             else {
                                 WebImage(url: URL(string: winner == player1!.uid ? player1!.profilePicUrl : player2!.profilePicUrl))
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 20)
+                                    .userImageModifier(width: 50, height: 50)
                                     .padding(.horizontal)
                                     .onTapGesture {
                                         showWinnerSheet.toggle()
@@ -129,21 +125,13 @@ extension addMatchView {
                         HStack{
                             if friend.profilePicUrl != "" {
                                 WebImage(url: URL(string: friend.profilePicUrl))
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 20)
+                                    .userImageModifier(width: 50, height: 50)
                                     .padding(.horizontal)
                             }
                             else {
                                 Image("profile")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 20)
-                                    .padding()
+                                    .userImageModifier(width: 50, height: 50)
+                                    .padding(.horizontal)
                             }
                             VStack(alignment: .leading){
                                 
@@ -168,11 +156,7 @@ extension addMatchView {
             {
                 if player1?.profilePicUrl ?? "" != ""{
                     WebImage(url: URL(string: player1!.profilePicUrl))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                        .userImageModifier(width: 100, height: 100)
                         .padding(.horizontal)
                         .onTapGesture {
                             playerNumber = 1
@@ -181,11 +165,7 @@ extension addMatchView {
                 }
                 else {
                     Image("profile")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                        .userImageModifier(width: 100, height: 100)
                         .padding(.horizontal)
                         .onTapGesture {
                             playerNumber = 1
@@ -205,11 +185,7 @@ extension addMatchView {
             VStack{
                 if player2?.profilePicUrl ?? "" != ""{
                     WebImage(url: URL(string: player2!.profilePicUrl))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                        .userImageModifier(width: 100, height: 100)
                         .padding(.horizontal)
                         .onTapGesture {
                             playerNumber = 2
@@ -218,11 +194,7 @@ extension addMatchView {
                 }
                 else {
                     Image("profile")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                        .userImageModifier(width: 100, height: 100)
                         .padding(.horizontal)
                         .onTapGesture {
                             playerNumber = 2
@@ -291,21 +263,13 @@ extension addMatchView {
                     HStack{
                         if player1?.profilePicUrl ?? "" != ""{
                             WebImage(url: URL(string: player1!.profilePicUrl))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
+                                .userImageModifier(width: 100, height: 100)
                                 .padding()
                             
                         }
                         else {
                             Image("profile")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
+                                .userImageModifier(width: 100, height: 100)
                                 .padding()
                             
                         }
@@ -316,20 +280,12 @@ extension addMatchView {
                         
                         if player2?.profilePicUrl ?? "" != ""{
                             WebImage(url: URL(string: player2!.profilePicUrl))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
+                                .userImageModifier(width: 100, height: 100)
                                 .padding()
                         }
                         else {
                             Image("profile")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
+                                .userImageModifier(width: 100, height: 100)
                                 .padding()
                             
                         }
@@ -390,20 +346,12 @@ extension addMatchView {
                 HStack{
                     if player1?.profilePicUrl ?? "" != ""{
                         WebImage(url: URL(string: player1!.profilePicUrl))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                            .shadow(radius: 20)
+                            .userImageModifier(width: 100, height: 100)
                             .padding()
                     }
                     else {
                         Image("profile")
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                            .shadow(radius: 20)
+                            .userImageModifier(width: 100, height: 100)
                             .padding()
                     }
                     Text(player1?.displayName ?? "").font(.headline).padding()
@@ -414,21 +362,13 @@ extension addMatchView {
                 HStack{
                     if player2?.profilePicUrl ?? "" != ""{
                         WebImage(url: URL(string: player2!.profilePicUrl))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                            .shadow(radius: 20)
+                            .userImageModifier(width: 100, height: 100)
                             .padding()
                         
                     }
                     else {
                         Image("profile")
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                            .shadow(radius: 20)
+                            .userImageModifier(width: 100, height: 100)
                             .padding()
                         
                     }

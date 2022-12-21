@@ -138,13 +138,11 @@ struct bracketDetailView: View {
             if matchId != "" {
                 modifyMatchView(matchVM: MatchViewModel(id: tournamentVm.tournament!.id!, listOfMatches: tournamentVm.listOfMatches, playerList: tournamentVm.playerList, admin: tournamentVm.tournament!.admin, matchID: matchId), loser: $loser)
             }
-           // modifyMatchView(tournamentVm: tournamentVm ,isLeague: false)
         }
         .sheet(isPresented: $matchInfo) {
             if matchId != "" {
                 matchResultView(matchVM: MatchViewModel(id: tournamentVm.tournament!.id!, listOfMatches: tournamentVm.listOfMatches, playerList: tournamentVm.playerList, admin: tournamentVm.tournament!.admin, matchID: matchId))
             }
-            //matchResultView(tournamentVm: tournamentVm, isLeague: false)
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -283,19 +281,11 @@ extension bracketDetailView {
                 HStack{
                     if match.player1Pic != "" {
                         WebImage(url: URL(string: match.player1Pic))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 40, height: 40)
-                            .clipShape(Circle())
-                            .shadow(radius: 20)
+                            .userImageModifier(width: 40, height: 40)
                             .padding()
                     } else {
                         Image("profile")
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 40, height: 40)
-                            .clipShape(Circle())
-                            .shadow(radius: 20)
+                            .userImageModifier(width: 40, height: 40)
                             .padding()
                     }
                     
@@ -315,18 +305,10 @@ extension bracketDetailView {
                     
                     if match.player2Pic != "" {
                         WebImage(url: URL(string: match.player2Pic))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 40, height: 40)
-                            .clipShape(Circle())
-                            .shadow(radius: 20)
+                            .userImageModifier(width: 40, height: 40)
                     } else {
                         Image("profile")
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 40, height: 40)
-                            .clipShape(Circle())
-                            .shadow(radius: 20)
+                            .userImageModifier(width: 40, height: 40)
                             .padding()
                     }
                     
@@ -376,21 +358,13 @@ extension bracketDetailView {
                             if tournamentVm.tournament?.players[0].profilePicUrl ?? "profile" != "profile"{
 
                                 WebImage(url: URL(string: tournamentVm.playerList[0].profilePicUrl))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 130, height: 130)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
+                                    .userImageModifier(width: 150, height: 150)
 
                                 Text("\(tournamentVm.tournament!.players[0].displayName)").fontWeight(.heavy).padding()
                             }
                             else {
                                 Image("profile")
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 150, height: 150)
-                                            .clipShape(Circle())
-                                            .shadow(radius: 20)
+                                    .userImageModifier(width: 150, height: 150)
                             }
                         }
                         Spacer()

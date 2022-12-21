@@ -78,16 +78,19 @@ class LeagueViewModel: ObservableObject {
         return !result.isEmpty
     }
     
-    func joinLeague(uid: String, profilePic: String, displayName: String) async {
+    func joinLeague(uid: String, profilePic: String, displayName: String) async -> Bool {
         let playerData = ["uid": uid, "profilePicUrl": profilePic, "displayName": displayName, "points": 0, "wins": 0, "losses": 0] as [String: Any]
         if let currentLeague = league,
            let leagueID = currentLeague.id {
             do {
                 try await LeagueDatabaseManager.shared.joinLeague(playerData: playerData, leagueID: leagueID, playerID: uid)
+                return true
             } catch {
                 print(error)
+                return false
             }
         }
+        return false
     }
     
     func deleteLeague(leagueID: String) async -> Bool {

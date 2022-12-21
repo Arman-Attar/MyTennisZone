@@ -97,21 +97,14 @@ extension opponentSelectionView {
                         HStack{
                             if friend.profilePicUrl != "" {
                                 WebImage(url: URL(string: friend.profilePicUrl))
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                                    //.shadow(radius: 20)
+                                    .userImageModifier(width: 50, height: 50)
                                     .padding(.horizontal)
                             }
                             else {
                                 Image("profile")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 20)
-                                    .padding()
+                                    .userImageModifier(width: 50, height: 50)
+                                    .padding(.horizontal)
+
                             }
                             VStack(alignment: .leading){
                                 
@@ -150,20 +143,13 @@ extension opponentSelectionView {
                             HStack{
                                 if friend.profilePicUrl != "" {
                                     WebImage(url: URL(string: friend.profilePicUrl))
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: 50, height: 50)
-                                        .clipShape(Circle())
+                                        .userImageModifier(width: 50, height: 50)
                                         .padding(.horizontal)
                                 }
                                 else {
                                     Image("profile")
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: 50, height: 50)
-                                        .clipShape(Circle())
-                                        .shadow(radius: 20)
-                                        .padding()
+                                        .userImageModifier(width: 50, height: 50)
+                                        .padding(.horizontal)
                                 }
                                 VStack(alignment: .leading){
                                     
@@ -195,12 +181,8 @@ extension opponentSelectionView {
                 .padding()
             Spacer()
                 Image("profile")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 100, height: 100)
-                    .clipShape(Circle())
-                    .shadow(radius: 20)
-                    .padding()
+                .userImageModifier(width: 100, height: 100)
+                .padding()
             Spacer()
         }
     }

@@ -64,11 +64,7 @@ struct modifyMatchView: View {
                             }
                             else {
                                 WebImage(url: URL(string: winner == matchVM.currentMatch!.player1DisplayName ? matchVM.currentMatch!.player1Pic : matchVM.currentMatch!.player2Pic))
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 20)
+                                    .userImageModifier(width: 50, height: 50)
                                     .padding(.horizontal)
                                     .onTapGesture {
                                         showWinnerSheet.toggle()
@@ -134,22 +130,14 @@ extension modifyMatchView{
             {
                 if matchVM.currentMatch?.player1Pic ?? "" != "" {
                     WebImage(url: URL(string: matchVM.currentMatch!.player1Pic))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                        .userImageModifier(width: 100, height: 100)
                         .padding(.horizontal)
                         .padding(.top)
                     
                 }
                 else {
                     Image("profile")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                        .userImageModifier(width: 100, height: 100)
                         .padding(.horizontal)
                 }
                 
@@ -165,21 +153,13 @@ extension modifyMatchView{
             VStack{
                 if matchVM.currentMatch?.player2Pic ?? "" != "" {
                     WebImage(url: URL(string: matchVM.currentMatch!.player2Pic))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                        .userImageModifier(width: 100, height: 100)
                         .padding(.horizontal)
                         .padding(.top)
                 }
                 else {
                     Image("profile")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
-                        .shadow(radius: 20)
+                        .userImageModifier(width: 100, height: 100)
                         .padding(.horizontal)
                 }
                 
@@ -236,21 +216,13 @@ extension modifyMatchView{
                     HStack{
                         if matchVM.currentMatch?.player1Pic ?? "" != ""{
                             WebImage(url: URL(string: matchVM.currentMatch!.player1Pic))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
+                                .userImageModifier(width: 100, height: 100)
                                 .padding()
                             
                         }
                         else {
                             Image("profile")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
+                                .userImageModifier(width: 100, height: 100)
                                 .padding()
                             
                         }
@@ -261,20 +233,12 @@ extension modifyMatchView{
                         
                         if matchVM.currentMatch?.player2Pic ?? "" != "" {
                             WebImage(url: URL(string: matchVM.currentMatch!.player2Pic))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
+                                .userImageModifier(width: 100, height: 100)
                                 .padding()
                         }
                         else {
                             Image("profile")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
+                                .userImageModifier(width: 100, height: 100)
                                 .padding()
                             
                         }
@@ -330,23 +294,15 @@ extension modifyMatchView{
                 HStack{
                     if matchVM.currentMatch?.player1Pic ?? "" != "" {
                         WebImage(url: URL(string: matchVM.currentMatch!.player1Pic))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                            .shadow(radius: 20)
+                            .userImageModifier(width: 100, height: 100)
                             .padding()
                     }
                     else {
                         Image("profile")
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                            .shadow(radius: 20)
+                            .userImageModifier(width: 100, height: 100)
                             .padding()
                     }
-                    Text(matchVM.currentMatch?.player2DisplayName ?? "").font(.headline).padding()
+                    Text(matchVM.currentMatch?.player1DisplayName ?? "").font(.headline).padding()
                 }.onTapGesture {
                     winner = matchVM.currentMatch!.player1DisplayName
                     showWinnerSheet.toggle()
@@ -354,21 +310,13 @@ extension modifyMatchView{
                 HStack{
                     if matchVM.currentMatch?.player2Pic ?? "" != "" {
                         WebImage(url: URL(string: matchVM.currentMatch!.player2Pic))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                            .shadow(radius: 20)
+                            .userImageModifier(width: 100, height: 100)
                             .padding()
                         
                     }
                     else {
                         Image("profile")
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                            .shadow(radius: 20)
+                            .userImageModifier(width: 100, height: 100)
                             .padding()
                         
                     }

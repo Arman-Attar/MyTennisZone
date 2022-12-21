@@ -68,11 +68,7 @@ extension joinLeagueView {
                 VStack{
                     if leagueVm.playerList[0].profilePicUrl != "" {
                         WebImage(url: URL(string: leagueVm.playerList[0].profilePicUrl))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 50, height: 50)
-                            .clipShape(Circle())
-                            .shadow(radius: 20)
+                            .userImageModifier(width: 50, height: 50)
                             .padding()
                     }
                 }.padding(.trailing)
@@ -100,7 +96,9 @@ extension joinLeagueView {
             } else {
                 Button {
                     Task {
-                       await leagueVm.joinLeague(uid: vm.user!.uid, profilePic: vm.user!.profilePicUrl, displayName: vm.user!.displayName)
+                        if await leagueVm.joinLeague(uid: vm.user!.uid, profilePic: vm.user!.profilePicUrl, displayName: vm.user!.displayName) {
+                            showSheet.toggle()
+                        }
                     }
                 } label: {
                     HStack {
