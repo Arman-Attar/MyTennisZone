@@ -9,9 +9,9 @@ import SwiftUI
 
 struct signIn: View {
     
-//    init(){
-//        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.black]
-//    }
+    //    init(){
+    //        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.black]
+    //    }
     @AppStorage("email") var email = ""
     @AppStorage("password") var password = ""
     @State var isUserSignedIn = false
@@ -44,11 +44,11 @@ extension signIn {
                     .ignoresSafeArea()
                     .blur(radius: 2.0, opaque: true)
                     .opacity(0.85)
-                VStack{
+                VStack(spacing: 20){
                     VStack{
                         Spacer()
-                            emailField
-                            passwordField
+                        emailField
+                        passwordField
                         Button {
                             forgotPassSheet.toggle()
                         } label: {
@@ -57,22 +57,22 @@ extension signIn {
                                 .font(.body)
                                 .padding(.horizontal)
                         }
-                            submitButton
+                        submitButton
                         Spacer()
-                            
+                        
                     }
-                    Spacer()
                     HStack {
                         Text("Don't have an Account?").foregroundColor(Color.black)
                         NavigationLink("Sign Up") {
                             signUp(email: $email, password: $password).navigationTitle("Sign Up")
                         }
                     }
-                }
+                    Spacer()
+                }.ignoresSafeArea(.keyboard)
             }.navigationTitle("Sign In")
         }.navigationViewStyle(StackNavigationViewStyle())
             .sheet(isPresented: $forgotPassSheet) {
-               resetPasswordView()
+                resetPasswordView()
             }
     }
     
@@ -84,18 +84,12 @@ extension signIn {
                 .padding(.horizontal)
             HStack{
                 TextField("Email", text: $email)
-                    .foregroundColor(.black)
+                    .KeyboardModifier()
                     .keyboardType(.emailAddress)
-                    .disableAutocorrection(true)
-                    .textInputAutocapitalization(.never)
                 Image(systemName: "at")
                     .foregroundColor(.black)
             }.padding(.horizontal)
-            Rectangle()
-                .frame(maxWidth: .infinity, maxHeight: 1)
-                .padding(.horizontal)
-                .foregroundColor(.black)
-                .padding(.vertical)
+            CustomDivider()
         }
     }
     
@@ -108,14 +102,10 @@ extension signIn {
             HStack{
                 if showPassword {
                     TextField("Password", text: $password)
-                        .textInputAutocapitalization(.never)
-                        .disableAutocorrection(true)
-                        .foregroundColor(.black)
+                        .KeyboardModifier()
                 } else {
                     SecureField("Password", text: $password)
-                        .textInputAutocapitalization(.never)
-                        .disableAutocorrection(true)
-                        .foregroundColor(.black)
+                        .KeyboardModifier()
                 }
                 Button {
                     self.showPassword.toggle()
@@ -124,11 +114,7 @@ extension signIn {
                         .foregroundColor(.black)
                 }
             }.padding(.horizontal)
-            Rectangle()
-                .frame(maxWidth: .infinity, maxHeight:1)
-                .padding(.horizontal)
-                .foregroundColor(.black)
-                .padding(.vertical)
+            CustomDivider()
         }
     }
     
@@ -141,16 +127,8 @@ extension signIn {
             } label: {
                 VStack {
                     Text("Sign In")
-                        .font(.title2)
                         .fontWeight(.heavy)
-                        .padding()
-                        .foregroundColor(.black)
-                        .frame(maxWidth: UIScreen.main.bounds.size.width / 1.25, maxHeight: 20)
-                        .padding()
-                        .overlay(RoundedRectangle(cornerRadius: 100)
-                            .stroke(Color.black, lineWidth: 0.8))
-                        .padding()
-                        .offset(y: 9)
+                        .ButtonModifier()
                     if vm.message != "" {
                         errorField
                     }
@@ -160,13 +138,7 @@ extension signIn {
     }
     private var errorField: some View{
         Text(vm.message)
-            .font(.body)
             .fontWeight(.semibold)
-            .foregroundColor(Color.black)
-            .multilineTextAlignment(.center)
-            .padding()
-            .background(.ultraThinMaterial)
-            .cornerRadius(21)
-            .padding()
+            .MessageModifier()
     }
 }

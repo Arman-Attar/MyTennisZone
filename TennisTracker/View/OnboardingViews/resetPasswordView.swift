@@ -12,6 +12,7 @@ struct resetPasswordView: View {
     @State var email = ""
     @State var result = ""
     @StateObject var vm = OnboardingViewModel()
+    @FocusState private var focusEmail: Bool
     var body: some View {
         NavigationView {
             ZStack{
@@ -20,17 +21,16 @@ struct resetPasswordView: View {
                     .ignoresSafeArea()
                     .blur(radius: 2.0, opaque: true)
                     .opacity(0.65)
-            VStack{
+                VStack{
                     Text("Email*")
                         .foregroundColor(Color.black)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
                     HStack{
                         TextField("Email", text: $email)
-                            .foregroundColor(.black)
+                            .KeyboardModifier()
                             .keyboardType(.emailAddress)
-                            .disableAutocorrection(true)
-                            .textInputAutocapitalization(.never)
+                            .focused($focusEmail)
                         Image(systemName: "at")
                             .foregroundColor(.black)
                     }.padding(.horizontal)
@@ -39,42 +39,30 @@ struct resetPasswordView: View {
                         .padding(.horizontal)
                         .foregroundColor(.black)
                         .padding(.vertical)
-                Button {
-                    Task {
-                        if await vm.resetPassword(email: email) {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                dismiss()
+                    Button {
+                        Task {
+                            if await vm.resetPassword(email: email) {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    dismiss()
+                                }
                             }
                         }
+                    } label: {
+                        VStack{
+                            Text("Send Reset Link")
+                                .fontWeight(.heavy)
+                                .ButtonModifier()
+                        }
                     }
-                } label: {
-                    VStack{
-                        Text("Send Reset Link")
-                            .font(.title2)
-                            .fontWeight(.heavy)
-                            .padding()
-                            .foregroundColor(.black)
-                            .frame(maxWidth: UIScreen.main.bounds.size.width / 1.25, maxHeight: 20)
-                            .padding()
-                            .overlay(RoundedRectangle(cornerRadius: 100)
-                                .stroke(Color.black, lineWidth: 0.8))
-                            .padding()
-                            .offset(y: 9)
+                    if vm.message != "" {
+                        Text(vm.message)
+                            .fontWeight(.semibold)
+                            .MessageModifier()
                     }
                 }
-                if vm.message != "" {
-                    Text(vm.message)
-                    .font(.body)
-                    .fontWeight(.semibold)
-                    .foregroundColor(Color.black)
-                    .multilineTextAlignment(.center)
-                    .padding()
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(21)
-                    .padding()
-                }
-            }
             }.navigationTitle("Reset Password")
+        }.onAppear{
+            focusEmail.toggle()
         }
     }
 }

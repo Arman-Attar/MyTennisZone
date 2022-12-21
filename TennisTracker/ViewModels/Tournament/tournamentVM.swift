@@ -17,8 +17,8 @@ class TournamentViewModel: ObservableObject {
     @Published var listOfMatches: [Match] = []
     @Published var currentMatch: Match?
     @Published var currentSets: [Set] = []
-    @Published var currentRound: String = ""
-    @Published var firstRound: String = ""
+    var currentRound: String = ""
+    var firstRound: String = ""
     
     func getTournaments() async {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return}
@@ -188,7 +188,9 @@ class TournamentViewModel: ObservableObject {
             ]
             do {
                 try await TournamentDatabaseManager.shared.removePlayer(playerData: playerData, tournamentID: self.tournament!.id!)
-                self.playerList.remove(at: index)
+                await MainActor.run(body: {
+                    self.playerList.remove(at: index)
+                })
             } catch  {
                 throw error
             }
@@ -229,8 +231,10 @@ class TournamentViewModel: ObservableObject {
                         let match = Match(id: UUID().uuidString, date: Utilities.convertDateToString(date: Date.now), player1Pic: playerList[0].profilePicUrl, player2Pic: playerList[1].profilePicUrl, player1DisplayName: playerList[0].displayName, player2DisplayName: playerList[1].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: self.listOfMatches[0].setsToWin, matchType: currentRound)
                         matches.append(match)
                         if currentRound != "FINAL" {
-                            self.playerList.removeFirst()
-                            self.playerList.removeFirst()
+                            await MainActor.run(body: {
+                                self.playerList.removeFirst()
+                                self.playerList.removeFirst()
+                            })
                         }
                     }
                 }
@@ -238,8 +242,10 @@ class TournamentViewModel: ObservableObject {
                     while self.playerList.count != 1 {
                         let match = Match(id: UUID().uuidString, date: Utilities.convertDateToString(date: Date.now), player1Pic: playerList[0].profilePicUrl, player2Pic: playerList[1].profilePicUrl, player1DisplayName: playerList[0].displayName, player2DisplayName: playerList[1].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: self.listOfMatches[0].setsToWin, matchType: currentRound)
                         matches.append(match)
-                        self.playerList.removeFirst()
-                        self.playerList.removeFirst()
+                        await MainActor.run(body: {
+                            self.playerList.removeFirst()
+                            self.playerList.removeFirst()
+                        })
                     }
                     let match = Match(id: UUID().uuidString, date: Utilities.convertDateToString(date: Date.now), player1Pic: playerList[0].profilePicUrl, player2Pic: playerList[1].profilePicUrl, player1DisplayName: playerList[0].displayName, player2DisplayName: playerList[1].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: self.listOfMatches[0].setsToWin, matchType: currentRound)
                     matches.append(match)

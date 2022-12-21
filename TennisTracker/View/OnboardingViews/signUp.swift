@@ -14,14 +14,15 @@ struct signUp: View {
     @State var userName = ""
     @State var showPassword = false
     @State var showError = false
+    @State var showSuccess = false
     @StateObject var vm = OnboardingViewModel()
     @Environment(\.dismiss) var dismiss
     
-//    init(email: String, password: String){
-//        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.black]
-//        self.email = email
-//        self.password = password
-//    }
+    //    init(email: String, password: String){
+    //        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.black]
+    //        self.email = email
+    //        self.password = password
+    //    }
     
     var body: some View {
         ZStack{
@@ -39,7 +40,7 @@ struct signUp: View {
                     submitButton
                 }
                 Spacer()
-            }
+            }.ignoresSafeArea(.keyboard)
         }
     }
 }
@@ -60,17 +61,11 @@ extension signUp {
                 .padding(.horizontal)
             HStack{
                 TextField("User Name", text: $userName)
-                    .foregroundColor(.black)
-                    .textInputAutocapitalization(.never)
-                    .disableAutocorrection(true)
+                    .KeyboardModifier()
                 Image(systemName: "person")
                     .foregroundColor(.black)
             }.padding(.horizontal)
-            Rectangle()
-                .frame(maxWidth: .infinity, maxHeight: 1)
-                .padding(.horizontal)
-                .foregroundColor(.black)
-                .padding(.vertical)
+            CustomDivider()
         }
     }
     
@@ -82,18 +77,12 @@ extension signUp {
                 .padding(.horizontal)
             HStack{
                 TextField("Email", text: $email)
-                    .foregroundColor(.black)
+                    .KeyboardModifier()
                     .keyboardType(.emailAddress)
-                    .disableAutocorrection(true)
-                    .textInputAutocapitalization(.never)
                 Image(systemName: "at")
                     .foregroundColor(.black)
             }.padding(.horizontal)
-            Rectangle()
-                .frame(maxWidth: .infinity, maxHeight: 1)
-                .padding(.horizontal)
-                .foregroundColor(.black)
-                .padding(.vertical)
+            CustomDivider()
         }
     }
     
@@ -106,14 +95,10 @@ extension signUp {
             HStack{
                 if showPassword {
                     TextField("Password", text: $password)
-                        .textInputAutocapitalization(.never)
-                        .disableAutocorrection(true)
-                        .foregroundColor(.black)
+                        .KeyboardModifier()
                 } else {
                     SecureField("Password", text: $password)
-                        .textInputAutocapitalization(.never)
-                        .disableAutocorrection(true)
-                        .foregroundColor(.black)
+                        .KeyboardModifier()
                 }
                 Button {
                     self.showPassword.toggle()
@@ -122,11 +107,7 @@ extension signUp {
                         .foregroundColor(.black)
                 }
             }.padding(.horizontal)
-            Rectangle()
-                .frame(maxWidth: .infinity, maxHeight:1)
-                .padding(.horizontal)
-                .foregroundColor(.black)
-                .padding(.vertical)
+            CustomDivider()
         }
     }
     
@@ -136,7 +117,10 @@ extension signUp {
                 showError = false
                 Task {
                     if await vm.register(email: email, password: password, username: userName) {
-                        dismiss()
+                        showSuccess = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                            dismiss()
+                        }
                     } else {
                         showError = true
                     }
@@ -144,18 +128,12 @@ extension signUp {
             } label: {
                 VStack {
                     Text("Sign Up")
-                        .font(.title2)
                         .fontWeight(.heavy)
-                        .padding()
-                        .foregroundColor(.black)
-                        .frame(maxWidth: UIScreen.main.bounds.size.width / 1.25, maxHeight: 20)
-                        .padding()
-                        .overlay(RoundedRectangle(cornerRadius: 100)
-                            .stroke(Color.black, lineWidth: 0.8))
-                        .padding()
-                        .offset(y: 9)
+                        .ButtonModifier()
                     if showError {
                         errorField
+                    } else if showSuccess {
+                        success
                     }
                 }
             }
@@ -164,27 +142,15 @@ extension signUp {
     
     private var errorField: some View{
         Text(vm.message)
-            .font(.body)
             .fontWeight(.semibold)
-            .foregroundColor(Color.black)
-            .multilineTextAlignment(.center)
-            .padding()
-            .background(.ultraThinMaterial)
-            .cornerRadius(21)
-            .padding()
+            .MessageModifier()
     }
     
     private var success: some View{
         HStack {
             Text("User Created Succesfully!")
-                .font(.body)
                 .fontWeight(.semibold)
-                .foregroundColor(Color.black)
-                .multilineTextAlignment(.center)
-                .padding()
-                .background(.ultraThinMaterial)
-                .cornerRadius(21)
-                .padding()
+                .MessageModifier()
         }
     }
 }

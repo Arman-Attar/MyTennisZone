@@ -56,6 +56,8 @@
 		C2E64BD928A4100F00501252 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C2E64BD828A4100F00501252 /* FirebaseFirestoreSwift */; };
 		C2F0D73A2821AC14009792CD /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F0D7392821AC14009792CD /* AuthenticationService.swift */; };
 		C2F10C6129516B7A0081AAD9 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = C2F10C6029516B7A0081AAD9 /* SDWebImageSwiftUI */; };
+		C2F10C652952BCC10081AAD9 /* TextFieldKeyboardModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F10C642952BCC10081AAD9 /* TextFieldKeyboardModifier.swift */; };
+		C2F10C672952C01B0081AAD9 /* CustomDivider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F10C662952C01B0081AAD9 /* CustomDivider.swift */; };
 		C2F65FEA293E70DE00013404 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F65FE9293E70DE00013404 /* ImageLoader.swift */; };
 /* End PBXBuildFile section */
 
@@ -107,6 +109,8 @@
 		C2E64BD32889D80F00501252 /* tournamentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tournamentDetailView.swift; sourceTree = "<group>"; };
 		C2E64BD528974E3500501252 /* bracketDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = bracketDetailView.swift; sourceTree = "<group>"; };
 		C2F0D7392821AC14009792CD /* AuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
+		C2F10C642952BCC10081AAD9 /* TextFieldKeyboardModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldKeyboardModifier.swift; sourceTree = "<group>"; };
+		C2F10C662952C01B0081AAD9 /* CustomDivider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDivider.swift; sourceTree = "<group>"; };
 		C2F65FE9293E70DE00013404 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -129,17 +133,11 @@
 		C211BB0B281B3F0200C964F2 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				C2F10C622952B1DD0081AAD9 /* Misc */,
 				C282C2AA294E89030044D09E /* MatchViews */,
 				C282C2A9294E88CB0044D09E /* LeagueViews */,
 				C282C2A8294E88AB0044D09E /* OnboardingViews */,
 				C282C2AB294E89170044D09E /* TournamentViews */,
-				C21CF0452828BC9100292C9F /* profileTab.swift */,
-				C24C4BE8282A17B2004FA8A5 /* homePage.swift */,
-				C252162628320309004C124A /* addFriend.swift */,
-				C22E524428335A4A00987437 /* createLeague.swift */,
-				C277D274284AADA10072814A /* joinLeagueView.swift */,
-				C2E64BCF286A6DE900501252 /* opponentSelectionView.swift */,
-				C21CF04328277E9400292C9F /* mainPage.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -198,6 +196,7 @@
 		C22E8176281B351F009593BE /* TennisTracker */ = {
 			isa = PBXGroup;
 			children = (
+				C2F10C632952BC980081AAD9 /* Modifiers */,
 				C2689D9228B68ADC0088AFC5 /* Info.plist */,
 				C2F0D7382821ABF8009792CD /* Services */,
 				C211BB0D281B3F0F00C964F2 /* ViewModels */,
@@ -332,6 +331,29 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		C2F10C622952B1DD0081AAD9 /* Misc */ = {
+			isa = PBXGroup;
+			children = (
+				C21CF0452828BC9100292C9F /* profileTab.swift */,
+				C24C4BE8282A17B2004FA8A5 /* homePage.swift */,
+				C252162628320309004C124A /* addFriend.swift */,
+				C22E524428335A4A00987437 /* createLeague.swift */,
+				C277D274284AADA10072814A /* joinLeagueView.swift */,
+				C2E64BCF286A6DE900501252 /* opponentSelectionView.swift */,
+				C21CF04328277E9400292C9F /* mainPage.swift */,
+				C2F10C662952C01B0081AAD9 /* CustomDivider.swift */,
+			);
+			path = Misc;
+			sourceTree = "<group>";
+		};
+		C2F10C632952BC980081AAD9 /* Modifiers */ = {
+			isa = PBXGroup;
+			children = (
+				C2F10C642952BCC10081AAD9 /* TextFieldKeyboardModifier.swift */,
+			);
+			path = Modifiers;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -425,6 +447,7 @@
 				C25D39322947AA7A00B6520B /* Match.swift in Sources */,
 				C22E8178281B351F009593BE /* TennisTrackerApp.swift in Sources */,
 				C25D39362947AAA800B6520B /* Set.swift in Sources */,
+				C2F10C652952BCC10081AAD9 /* TextFieldKeyboardModifier.swift in Sources */,
 				C277D26D283DE6A10072814A /* addMatchView.swift in Sources */,
 				C23BD3A028373E1A004E31D2 /* leagueDetailView.swift in Sources */,
 				C277D26F283F326D0072814A /* matchResultView.swift in Sources */,
@@ -441,6 +464,7 @@
 				C24C4BED282C2C6A004FA8A5 /* tournyView.swift in Sources */,
 				C282C2A2294922E10044D09E /* TournamentDatabaseManager.swift in Sources */,
 				C2E64BD628974E3500501252 /* bracketDetailView.swift in Sources */,
+				C2F10C672952C01B0081AAD9 /* CustomDivider.swift in Sources */,
 				C293B66B2820D4DA00BAA853 /* User.swift in Sources */,
 				C2E64BCE28661FA800501252 /* createTournament.swift in Sources */,
 				C252162728320309004C124A /* addFriend.swift in Sources */,
