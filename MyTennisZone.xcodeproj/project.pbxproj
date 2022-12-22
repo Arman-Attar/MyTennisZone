@@ -67,7 +67,7 @@
 		C21CF0452828BC9100292C9F /* profileTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = profileTab.swift; sourceTree = "<group>"; };
 		C22205672951439C0002F6AE /* onboardingVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = onboardingVM.swift; sourceTree = "<group>"; };
 		C22E524428335A4A00987437 /* createLeague.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = createLeague.swift; sourceTree = "<group>"; };
-		C22E8174281B351F009593BE /* TennisTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TennisTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C22E8174281B351F009593BE /* MyTennisZone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyTennisZone.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C22E8177281B351F009593BE /* TennisTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TennisTrackerApp.swift; sourceTree = "<group>"; };
 		C22E817B281B3521009593BE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C22E817E281B3521009593BE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -186,7 +186,7 @@
 		C22E8175281B351F009593BE /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C22E8174281B351F009593BE /* TennisTracker.app */,
+				C22E8174281B351F009593BE /* MyTennisZone.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -354,9 +354,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		C22E8173281B351F009593BE /* TennisTracker */ = {
+		C22E8173281B351F009593BE /* MyTennisZone */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C22E8182281B3521009593BE /* Build configuration list for PBXNativeTarget "TennisTracker" */;
+			buildConfigurationList = C22E8182281B3521009593BE /* Build configuration list for PBXNativeTarget "MyTennisZone" */;
 			buildPhases = (
 				C22E8170281B351F009593BE /* Sources */,
 				C22E8171281B351F009593BE /* Frameworks */,
@@ -366,7 +366,7 @@
 			);
 			dependencies = (
 			);
-			name = TennisTracker;
+			name = MyTennisZone;
 			packageProductDependencies = (
 				C2521618282DA749004C124A /* FirebaseAuth */,
 				C252161A282DA749004C124A /* FirebaseFirestore */,
@@ -375,7 +375,7 @@
 				C2F10C6029516B7A0081AAD9 /* SDWebImageSwiftUI */,
 			);
 			productName = TennisTracker;
-			productReference = C22E8174281B351F009593BE /* TennisTracker.app */;
+			productReference = C22E8174281B351F009593BE /* MyTennisZone.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -393,7 +393,7 @@
 					};
 				};
 			};
-			buildConfigurationList = C22E816F281B351F009593BE /* Build configuration list for PBXProject "TennisTracker" */;
+			buildConfigurationList = C22E816F281B351F009593BE /* Build configuration list for PBXProject "MyTennisZone" */;
 			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -410,7 +410,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C22E8173281B351F009593BE /* TennisTracker */,
+				C22E8173281B351F009593BE /* MyTennisZone */,
 			);
 		};
 /* End PBXProject section */
@@ -612,7 +612,7 @@
 				INFOPLIST_FILE = TennisTracker/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TennisZone;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "$(PRODUCT_NAME) photo use";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "TennisZone needs premission to access Photos";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -624,7 +624,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.armanattar.TennisTracker;
+				PRODUCT_BUNDLE_IDENTIFIER = com.armanattar.MyTennisZone;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -649,7 +649,7 @@
 				INFOPLIST_FILE = TennisTracker/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TennisZone;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "$(PRODUCT_NAME) photo use";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "TennisZone needs premission to access Photos";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -661,7 +661,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.armanattar.TennisTracker;
+				PRODUCT_BUNDLE_IDENTIFIER = com.armanattar.MyTennisZone;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -673,7 +673,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C22E816F281B351F009593BE /* Build configuration list for PBXProject "TennisTracker" */ = {
+		C22E816F281B351F009593BE /* Build configuration list for PBXProject "MyTennisZone" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C22E8180281B3521009593BE /* Debug */,
@@ -682,7 +682,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C22E8182281B3521009593BE /* Build configuration list for PBXNativeTarget "TennisTracker" */ = {
+		C22E8182281B3521009593BE /* Build configuration list for PBXNativeTarget "MyTennisZone" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C22E8183281B3521009593BE /* Debug */,

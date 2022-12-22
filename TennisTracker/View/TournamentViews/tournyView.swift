@@ -19,7 +19,7 @@ struct tournyView: View {
                         NavigationLink {
                             if index.mode == "Round Robin"{
                                 tournamentDetailView(userVm: userVm, tournamentVm: tournamentVm)
-                                    .navigationTitle(index.name).onAppear{
+                                    .navigationTitle(index.name.capitalized).onAppear{
                                         Task {
                                             if let tournamentID = index.id {
                                                 await tournamentVm.getCurrentTournament(tournamentID: tournamentID)

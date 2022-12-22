@@ -55,7 +55,7 @@ extension EventBannerView {
     }
     private var leagueSummaryField: some View{
         HStack {
-            Text(leagueEvent!.name)
+            Text(leagueEvent?.name.capitalized ?? "")
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(.black)
@@ -92,7 +92,7 @@ extension EventBannerView {
     }
     private var tournySummaryField: some View {
         HStack {
-            Text(tournamentEvent!.name)
+            Text(tournamentEvent?.name.capitalized ?? "")
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(.black)

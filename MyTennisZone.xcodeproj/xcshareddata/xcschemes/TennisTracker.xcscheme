@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "C22E8173281B351F009593BE"
-               BuildableName = "TennisTracker.app"
-               BlueprintName = "TennisTracker"
-               ReferencedContainer = "container:TennisTracker.xcodeproj">
+               BuildableName = "MyTennisZone.app"
+               BlueprintName = "MyTennisZone"
+               ReferencedContainer = "container:MyTennisZone.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C22E8173281B351F009593BE"
-            BuildableName = "TennisTracker.app"
-            BlueprintName = "TennisTracker"
-            ReferencedContainer = "container:TennisTracker.xcodeproj">
+            BuildableName = "MyTennisZone.app"
+            BlueprintName = "MyTennisZone"
+            ReferencedContainer = "container:MyTennisZone.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -69,9 +69,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C22E8173281B351F009593BE"
-            BuildableName = "TennisTracker.app"
-            BlueprintName = "TennisTracker"
-            ReferencedContainer = "container:TennisTracker.xcodeproj">
+            BuildableName = "MyTennisZone.app"
+            BlueprintName = "MyTennisZone"
+            ReferencedContainer = "container:MyTennisZone.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
