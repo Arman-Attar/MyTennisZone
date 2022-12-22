@@ -225,9 +225,13 @@ extension leagueDetailView{
                                 .frame(width: UIScreen.main.bounds.size.width / 4.5)
                                 .fixedSize(horizontal: false, vertical: true)
 
-
-                            WebImage(url: URL(string: match.player1Pic))
-                                .userImageModifier(width: 40, height: 40)
+                            if match.player1Pic != "" {
+                                WebImage(url: URL(string: match.player1Pic))
+                                    .userImageModifier(width: 40, height: 40)
+                            } else {
+                                Image("profile")
+                                    .userImageModifier(width: 40, height: 40)
+                            }
                             
                             Text("\(match.player1Score) - \(match.player2Score)")
                                 .font(.callout)
@@ -235,9 +239,13 @@ extension leagueDetailView{
                                 .foregroundColor(.black)
                                 .padding(5)
 
-                            WebImage(url: URL(string: match.player2Pic))
-                                .userImageModifier(width: 40, height: 40)
-
+                            if match.player2Pic != "" {
+                                WebImage(url: URL(string: match.player2Pic))
+                                    .userImageModifier(width: 40, height: 40)
+                            } else {
+                                Image("profile")
+                                    .userImageModifier(width: 40, height: 40)
+                            }
 
                             Text("\(match.player2DisplayName)")
                                 .font(.subheadline)
