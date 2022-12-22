@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import FirebaseFirestoreSwift
 import Firebase
 
 actor MatchDatabaseManager {

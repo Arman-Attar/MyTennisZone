@@ -8,7 +8,6 @@
 import Foundation
 import Firebase
 import UIKit
-import FirebaseFirestoreSwift
 
 
 actor LeagueDatabaseManager {

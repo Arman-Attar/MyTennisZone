@@ -38,15 +38,15 @@ struct addMatchView: View {
                         .fontWeight(.bold)
                         .padding()
                     vsSection
-                    DatePicker("Match Date:", selection: $matchDate, displayedComponents: .date).padding().font(.callout)
+                    DatePicker("Match Date:", selection: $matchDate, displayedComponents: .date).padding(.horizontal).padding(.vertical, 2).font(.callout)
                     Picker("First To:", selection: $numberOfSets) {
                         ForEach(0..<6){ set in
                             Text("\(set)")
                         }
-                    }.padding()
+                    }.padding(.horizontal).padding(.vertical, 2)
                     
-                    Toggle("Match Ongoing?", isOn: $matchOngoing).padding()
-                    setResultField
+                    Toggle("Match Ongoing?", isOn: $matchOngoing).padding(.horizontal).padding(.vertical, 4)
+                    setResultField.padding(.vertical, 4)
                     if !matchOngoing {
                         HStack{
                             Text("Match Winner:").padding()
@@ -211,15 +211,15 @@ extension addMatchView {
         }.padding(.vertical)
     }
     
-    private var setPicker: some View {
-        HStack{
-            Picker("First To:", selection: $numberOfSets) {
-                ForEach(0..<8){ set in
-                    Text("\(set)")
-                }
-            }.padding()
-        }
-    }
+//    private var setPicker: some View {
+//        HStack{
+//            Picker("First To:", selection: $numberOfSets) {
+//                ForEach(0..<8){ set in
+//                    Text("\(set)")
+//                }
+//            }.padding()
+//        }
+//    }
     
     private var buttons: some View{
         HStack{
@@ -335,7 +335,7 @@ extension addMatchView {
             }
             
         }.cornerRadius(20)
-            .frame(width: UIScreen.main.bounds.size.width - 10, height: UIScreen.main.bounds.size.height / 1.7)
+            .frame(width: UIScreen.main.bounds.size.width - 10, height: UIScreen.main.bounds.size.height / 1.4)
             .position(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.maxY - 300)
     }
     

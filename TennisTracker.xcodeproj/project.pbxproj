@@ -13,7 +13,6 @@
 		C22205682951439C0002F6AE /* onboardingVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22205672951439C0002F6AE /* onboardingVM.swift */; };
 		C22E524528335A4A00987437 /* createLeague.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22E524428335A4A00987437 /* createLeague.swift */; };
 		C22E8178281B351F009593BE /* TennisTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22E8177281B351F009593BE /* TennisTrackerApp.swift */; };
-		C22E817A281B351F009593BE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22E8179281B351F009593BE /* ContentView.swift */; };
 		C22E817C281B3521009593BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C22E817B281B3521009593BE /* Assets.xcassets */; };
 		C22E817F281B3521009593BE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C22E817E281B3521009593BE /* Preview Assets.xcassets */; };
 		C23BD39E2836E705004E31D2 /* leagueVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C23BD39D2836E705004E31D2 /* leagueVM.swift */; };
@@ -70,7 +69,6 @@
 		C22E524428335A4A00987437 /* createLeague.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = createLeague.swift; sourceTree = "<group>"; };
 		C22E8174281B351F009593BE /* TennisTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TennisTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C22E8177281B351F009593BE /* TennisTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TennisTrackerApp.swift; sourceTree = "<group>"; };
-		C22E8179281B351F009593BE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C22E817B281B3521009593BE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C22E817E281B3521009593BE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C23BD39D2836E705004E31D2 /* leagueVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = leagueVM.swift; sourceTree = "<group>"; };
@@ -205,7 +203,6 @@
 				C211BB0A281B3D3C00C964F2 /* TennisTracker.entitlements */,
 				C22E8177281B351F009593BE /* TennisTrackerApp.swift */,
 				C2521615282DA6B9004C124A /* GoogleService-Info.plist */,
-				C22E8179281B351F009593BE /* ContentView.swift */,
 				C22E817B281B3521009593BE /* Assets.xcassets */,
 				C22E817D281B3521009593BE /* Preview Content */,
 			);
@@ -440,7 +437,6 @@
 				C22E524528335A4A00987437 /* createLeague.swift in Sources */,
 				C2081DC229416DDC009C1414 /* LeagueDatabaseManager.swift in Sources */,
 				C2E64BD0286A6DE900501252 /* opponentSelectionView.swift in Sources */,
-				C22E817A281B351F009593BE /* ContentView.swift in Sources */,
 				C21CF0462828BC9100292C9F /* profileTab.swift in Sources */,
 				C25D392E2947A9F200B6520B /* League.swift in Sources */,
 				C25D39322947AA7A00B6520B /* Match.swift in Sources */,
@@ -614,6 +610,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TennisTracker/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TennisZone;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "$(PRODUCT_NAME) photo use";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -649,6 +647,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TennisTracker/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TennisZone;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "$(PRODUCT_NAME) photo use";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

@@ -63,19 +63,6 @@ struct leagueDetailView: View {
                     }
                 }
                 Spacer()
-                    .sheet(isPresented: $showSheet) {
-                        addMatchView(matchVM: MatchViewModel(id: leagueVM.league!.id!, listOfMatches: leagueVM.listOfMatches, playerList: leagueVM.playerList, admin: leagueVM.league!.admin, matchID: nil))
-                    }
-                    .sheet(isPresented: $modifyMatch) {
-                        if matchId != "" {
-                            modifyMatchView(matchVM: MatchViewModel(id: leagueVM.league!.id!, listOfMatches: leagueVM.listOfMatches, playerList: leagueVM.playerList, admin: leagueVM.league!.admin, matchID: matchId), loser: $loser)
-                        }
-                    }
-                    .sheet(isPresented: $matchInfo) {
-                        if matchId != "" {
-                            matchResultView(matchVM: MatchViewModel(id: leagueVM.league!.id!, listOfMatches: leagueVM.listOfMatches, playerList: leagueVM.playerList, admin: leagueVM.league!.admin, matchID: matchId))
-                        }
-                    }
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
                             if leagueVM.league?.admin ?? "" == userVm.user!.uid{
@@ -126,6 +113,19 @@ struct leagueDetailView: View {
                 if let leagueID = leagueVM.league?.id {
                     await leagueVM.getCurrentLeague(leagueId: leagueID)
                 }
+            }
+        }
+        .sheet(isPresented: $showSheet) {
+            addMatchView(matchVM: MatchViewModel(id: leagueVM.league!.id!, listOfMatches: leagueVM.listOfMatches, playerList: leagueVM.playerList, admin: leagueVM.league!.admin, matchID: nil))
+        }
+        .sheet(isPresented: $modifyMatch) {
+            if matchId != "" {
+                modifyMatchView(matchVM: MatchViewModel(id: leagueVM.league!.id!, listOfMatches: leagueVM.listOfMatches, playerList: leagueVM.playerList, admin: leagueVM.league!.admin, matchID: matchId), loser: $loser)
+            }
+        }
+        .sheet(isPresented: $matchInfo) {
+            if matchId != "" {
+                matchResultView(matchVM: MatchViewModel(id: leagueVM.league!.id!, listOfMatches: leagueVM.listOfMatches, playerList: leagueVM.playerList, admin: leagueVM.league!.admin, matchID: matchId))
             }
         }
     }
