@@ -38,8 +38,8 @@ class UserViewModel: ObservableObject {
         guard let user = user else { return }
         do {
             let friends = try await UserDatabaseManager.shared.fetchUserFriends(friendsUID: user.friends)
-            await MainActor.run(body: {
-                self.friends = friends
+            await MainActor.run(body: { [weak self] in
+                self?.friends = friends
             })
         } catch {
             print(error)
@@ -51,19 +51,19 @@ class UserViewModel: ObservableObject {
             let user = try await UserDatabaseManager.shared.fetchSearchedUser(username: username)
             if let user = user {
                 let isFriend = await checkIfFriend(userID: user.uid)
-                await MainActor.run(body: {
-                    self.searchedUser = user
-                    self.isFriend = isFriend
+                await MainActor.run(body: { [weak self] in
+                    self?.searchedUser = user
+                    self?.isFriend = isFriend
                 })
             } else {
-                await MainActor.run(body: {
-                    self.searchedUser = nil
+                await MainActor.run(body: { [weak self] in
+                    self?.searchedUser = nil
                 })
             }
         } catch {
             print(error)
-            await MainActor.run(body: {
-                self.searchedUser = nil
+            await MainActor.run(body: { [weak self] in
+                self?.searchedUser = nil
             })
         }
     }
@@ -77,8 +77,8 @@ class UserViewModel: ObservableObject {
         guard let user = self.user, let friend = self.searchedUser else { return }
         do {
             try await UserDatabaseManager.shared.addFriend(friendID: friend.uid, CurrentUserID: user.uid)
-            await MainActor.run(body: {
-                self.isFriend = true
+            await MainActor.run(body: { [weak self] in
+                self?.isFriend = true
             })
         } catch {
             print(error)
@@ -108,8 +108,8 @@ class UserViewModel: ObservableObject {
             do {
                 try await deleteUserData(userID: user.uid)
                 try await user.delete()
-                await MainActor.run(body: {
-                    self.isUserSignedOut.toggle()
+                await MainActor.run(body: { [weak self] in
+                    self?.isUserSignedOut.toggle()
                 })
             } catch {
                 print(error)

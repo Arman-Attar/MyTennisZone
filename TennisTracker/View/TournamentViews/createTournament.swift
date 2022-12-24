@@ -13,7 +13,6 @@ import PhotosUI
 struct createTournament: View {
     @State var tournamentName = ""
     @State var opponentSelection = false
-    @State var noOfGames = ""
     @EnvironmentObject var vm: UserViewModel
     @StateObject var tournamentVM = TournamentViewModel()
     @State var players: [Player] = []
@@ -29,6 +28,7 @@ struct createTournament: View {
     var bracketGeneration = "Random"
     @State var showAlert = false
     @State var photoPermission = false
+    @State var invalidNameAlert = false
     var body: some View {
         NavigationView {
             Form{
@@ -284,6 +284,12 @@ extension createTournament {
         }
         else {
             return false
+        }
+    }
+    
+    func verifyName() {
+        if tournamentName == "" || !tournamentVM.validateTournamentName(name: tournamentName) {
+            invalidNameAlert = true
         }
     }
 }

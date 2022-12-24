@@ -20,6 +20,4 @@ struct Tournament: Codable {
     let winner: String?
     let numberOfPlayers: Int
     let playersEntered: [Player] // only used for bracket tournaments
-    var roundLosers: [String] // only used for bracket tournaments
-    
 }

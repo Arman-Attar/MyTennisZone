@@ -63,7 +63,6 @@ actor LeagueDatabaseManager {
             if let bannerURL = bannerURL {
                 let storageRef = FirebaseManager.shared.storage.reference(forURL: bannerURL)
                 try await storageRef.delete()
-                print("BANNER DELETED")
             }
             try await FirebaseManager.shared.firestore.collection("leagues").document(leagueID).delete()
             return true
@@ -129,7 +128,7 @@ actor LeagueDatabaseManager {
                     }
                 }
                 try await FirebaseManager.shared.firestore.collection("tournaments").document(tournament.id!).delete()
-                try await TournamentDatabaseManager.shared.createLeague(tournament: tournament)
+                try await TournamentDatabaseManager.shared.createTournament(tournament: tournament)
             }catch{
                 throw(error)
             }
@@ -171,7 +170,7 @@ actor LeagueDatabaseManager {
                 }
                 tournament.players[playerIndex!].displayName = displayName
                 try await FirebaseManager.shared.firestore.collection("tournaments").document(tournament.id!).delete()
-                try await TournamentDatabaseManager.shared.createLeague(tournament: tournament)
+                try await TournamentDatabaseManager.shared.createTournament(tournament: tournament)
             }catch{
                 throw(error)
             }

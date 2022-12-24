@@ -50,8 +50,8 @@ class LeagueViewModel: ObservableObject {
     }
     
     func findLeague(leagueName: String, playerID: String) async {
-        await MainActor.run(body: {
-            self.league = nil
+        await MainActor.run(body: { [weak self] in
+            self?.league = nil
         })
         do {
             if let league = try await LeagueDatabaseManager.shared.searchLeague(leagueName: leagueName) {
@@ -62,14 +62,14 @@ class LeagueViewModel: ObservableObject {
             }
         } catch {
             print(error)
-            await MainActor.run(body: {
-                self.league = nil
+            await MainActor.run(body: { [weak self] in
+                self?.league = nil
                 
             })
         }
         let userStatus = await isUserJoined(playerID: playerID)
-        await MainActor.run(body: {
-            self.playerIsJoined = userStatus
+        await MainActor.run(body: { [weak self] in
+            self?.playerIsJoined = userStatus
         })
     }
     

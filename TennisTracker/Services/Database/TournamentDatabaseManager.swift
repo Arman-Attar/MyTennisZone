@@ -47,7 +47,7 @@ actor TournamentDatabaseManager {
         }
     }
     
-    func createLeague(tournament: Tournament) throws {
+    func createTournament(tournament: Tournament) throws {
         do {
             _ = try FirebaseManager.shared.firestore.collection("tournaments").addDocument(from: tournament)
         } catch  {

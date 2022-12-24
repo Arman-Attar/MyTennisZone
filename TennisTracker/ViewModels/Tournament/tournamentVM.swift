@@ -109,8 +109,8 @@ class TournamentViewModel: ObservableObject {
             if let bannerImage = bannerImage {
                 bannerURL = try await LeagueDatabaseManager.shared.uploadBanner(image: bannerImage)
             }
-            let tournamentData = Tournament(name: tournamentName.lowercased(), playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin, mode: mode, winner: nil, numberOfPlayers: players.count, playersEntered: players, roundLosers: [])
-            try await TournamentDatabaseManager.shared.createLeague(tournament: tournamentData)
+            let tournamentData = Tournament(name: tournamentName.lowercased(), playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin, mode: mode, winner: nil, numberOfPlayers: players.count, playersEntered: players)
+            try await TournamentDatabaseManager.shared.createTournament(tournament: tournamentData)
             return true
         } catch  {
             print(error)
@@ -195,8 +195,8 @@ class TournamentViewModel: ObservableObject {
                 "losses": playerList[index].losses,
             ]
             try await TournamentDatabaseManager.shared.removePlayer(playerData: playerData, tournamentID: tournamentID)
-            await MainActor.run(body: {
-                self.playerList.remove(at:index)
+            await MainActor.run(body: { [weak self] in
+                self?.playerList.remove(at:index)
             })
         } catch {
             print(error)
@@ -234,9 +234,9 @@ class TournamentViewModel: ObservableObject {
                         while self.playerList.count != 0 {
                             let match = Match(id: UUID().uuidString, date: Utilities.convertDateToString(date: Date.now), player1Pic: playerList[0].profilePicUrl, player2Pic: playerList[1].profilePicUrl, player1DisplayName: playerList[0].displayName, player2DisplayName: playerList[1].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: self.listOfMatches[0].setsToWin, matchType: currentRound)
                             matches.append(match)
-                            await MainActor.run(body: {
-                                self.playerList.removeFirst()
-                                self.playerList.removeFirst()
+                            await MainActor.run(body: { [weak self] in
+                                self?.playerList.removeFirst()
+                                self?.playerList.removeFirst()
                             })
                         }
                     }
@@ -245,9 +245,9 @@ class TournamentViewModel: ObservableObject {
                     while self.playerList.count != 1 {
                         let match = Match(id: UUID().uuidString, date: Utilities.convertDateToString(date: Date.now), player1Pic: playerList[0].profilePicUrl, player2Pic: playerList[1].profilePicUrl, player1DisplayName: playerList[0].displayName, player2DisplayName: playerList[1].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: self.listOfMatches[0].setsToWin, matchType: currentRound)
                         matches.append(match)
-                        await MainActor.run(body: {
-                            self.playerList.removeFirst()
-                            self.playerList.removeFirst()
+                        await MainActor.run(body: { [weak self] in
+                            self?.playerList.removeFirst()
+                            self?.playerList.removeFirst()
                         })
                     }
                     let match = Match(id: UUID().uuidString, date: Utilities.convertDateToString(date: Date.now), player1Pic: playerList[0].profilePicUrl, player2Pic: playerList[1].profilePicUrl, player1DisplayName: playerList[0].displayName, player2DisplayName: playerList[1].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: self.listOfMatches[0].setsToWin, matchType: currentRound)
@@ -279,5 +279,20 @@ class TournamentViewModel: ObservableObject {
             }
             await getCurrentTournament(tournamentID: self.tournament!.id!)
         }
+    }
+    
+    func validateTournamentName(name: String) -> Bool {
+        var result = false
+        FirebaseManager.shared.firestore.collection("tournaments").whereField("name", isEqualTo: name).getDocuments { snapshot, err in
+            if let err = err {
+                print(err)
+            }
+            if let snapshot = snapshot {
+                if snapshot.isEmpty {
+                    result = true
+                }
+            }
+        }
+    return result
     }
 }
