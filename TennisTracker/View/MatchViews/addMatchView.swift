@@ -27,11 +27,13 @@ struct addMatchView: View {
     @State var player1SetScore = 0
     @State var player2SetScore = 0
     @State var showAlert = false
+    @State var isLoading = false
     @StateObject var matchVM: MatchViewModel
     @Environment(\.dismiss) var dismiss
     var body: some View {
         ZStack {
             NavigationView {
+                if !isLoading {
                 Form{
                     Text("Add Match")
                         .font(.title)
@@ -64,12 +66,22 @@ struct addMatchView: View {
                                     }
                             }
                             else {
-                                WebImage(url: URL(string: winner == player1!.uid ? player1!.profilePicUrl : player2!.profilePicUrl))
-                                    .userImageModifier(width: 50, height: 50)
-                                    .padding(.horizontal)
-                                    .onTapGesture {
-                                        showWinnerSheet.toggle()
-                                    }
+                                let winnerPic = winner == player1!.uid ? player1!.profilePicUrl : player2!.profilePicUrl
+                                if winnerPic != "" {
+                                    WebImage(url: URL(string: winnerPic))
+                                        .userImageModifier(width: 50, height: 50)
+                                        .padding(.horizontal)
+                                        .onTapGesture {
+                                            showWinnerSheet.toggle()
+                                        }
+                                } else {
+                                    Image("profile")
+                                        .userImageModifier(width: 50, height: 50)
+                                        .padding(.horizontal)
+                                        .onTapGesture {
+                                            showWinnerSheet.toggle()
+                                        }
+                                }
                             }
                         }
                     }
@@ -78,6 +90,9 @@ struct addMatchView: View {
                     .sheet(isPresented: $showPlayerList) {
                         selectOpponent
                     }
+                } else {
+                    ProgressView()
+                }
             }
             if showSetSheet{
                 Rectangle().ignoresSafeArea().opacity(0.5)
@@ -246,8 +261,10 @@ extension addMatchView {
                         }
                         else{
                             Task {
-                                await matchVM.createMatch(matchOngoing: matchOngoing, player1: player1!, player2: player2!, date: matchDate, setsToWin: numberOfSets, matchType: "league" , sets: sets, matchID: matchId)
-                                dismiss()
+                                isLoading = true
+                                if await matchVM.createMatch(matchOngoing: matchOngoing, player1: player1!, player2: player2!, date: matchDate, setsToWin: numberOfSets, matchType: "league" , sets: sets, matchID: matchId) {
+                                    dismiss()
+                                }
                             }
                         }
                     }

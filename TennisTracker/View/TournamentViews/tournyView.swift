@@ -15,33 +15,37 @@ struct tournyView: View {
         NavigationView {
             ScrollView(showsIndicators: false){
                 VStack{
-                    ForEach(tournamentVm.tournaments, id: \.id){ index in
-                        NavigationLink {
-                            if index.mode == "Round Robin"{
-                                tournamentDetailView(userVm: userVm, tournamentVm: tournamentVm)
-                                    .navigationTitle(index.name.capitalized).onAppear{
-                                        Task {
-                                            if let tournamentID = index.id {
-                                                await tournamentVm.getCurrentTournament(tournamentID: tournamentID)
+                    if tournamentVm.tournaments != nil {
+                        ForEach(tournamentVm.tournaments!, id: \.id){ index in
+                            NavigationLink {
+                                if index.mode == "Round Robin"{
+                                    tournamentDetailView(userVm: userVm, tournamentVm: tournamentVm)
+                                        .navigationTitle(index.name.capitalized).onAppear{
+                                            Task {
+                                                if let tournamentID = index.id {
+                                                    await tournamentVm.getCurrentTournament(tournamentID: tournamentID)
+                                                }
+                                            }
+                                            
+                                        }
+                                } else {
+                                    bracketDetailView(tournamentVm: tournamentVm)
+                                        .navigationTitle(index.name).onAppear{
+                                            Task {
+                                                await tournamentVm.getCurrentTournament(tournamentID: index.id!)
                                             }
                                         }
-                                        
-                                    }
-                            } else {
-                                bracketDetailView(tournamentVm: tournamentVm, userVm: userVm)
-                                    .navigationTitle(index.name).onAppear{
-                                        Task {
-                                            await tournamentVm.getCurrentTournament(tournamentID: index.id!)
-                                        }
-                                    }
+                                }
+                            } label: {
+                                VStack{
+                                    EventBannerView(leagueEvent: nil, tournamentEvent: index)
+                                }
                             }
-                        } label: {
-                            VStack{
-                                EventBannerView(leagueEvent: nil, tournamentEvent: index)
-                            }
+                            .padding()
+                            .shadow(radius: 20)
                         }
-                        .padding()
-                        .shadow(radius: 20)
+                    } else {
+                        ProgressView()
                     }
                 }
             }.navigationTitle("Tournaments")

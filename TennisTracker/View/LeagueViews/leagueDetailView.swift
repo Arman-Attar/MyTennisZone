@@ -20,7 +20,7 @@ struct leagueDetailView: View {
     @State var matchId: String = ""
     @State var confirmDeleteAlert = false
     @Environment(\.dismiss) var dismiss
-    @State var loser: [String] = []
+    @State var loser: String = ""
     var body: some View {
         VStack(alignment: .leading) {
             if leagueVM.league != nil {
@@ -108,7 +108,8 @@ struct leagueDetailView: View {
             } else {
                 ProgressView()
             }
-        }.refreshable {
+        }
+        .refreshable {
             Task {
                 if let leagueID = leagueVM.league?.id {
                     await leagueVM.getCurrentLeague(leagueId: leagueID)

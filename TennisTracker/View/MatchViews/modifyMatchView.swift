@@ -24,9 +24,12 @@ struct modifyMatchView: View {
     @State var showAlert = false
     @State var deleteTapped = false
     @State var confirmDeleteAlert = false
-    @Binding var loser: [String]
+    @State var isLoading = false
+    @State var deleteSets = false
+    @Binding var loser: String
     var body: some View {
         ZStack{
+            if !isLoading{
             VStack{
                 Form{
                     Text("Modify Match")
@@ -38,14 +41,14 @@ struct modifyMatchView: View {
                         Text("Match Date:")
                         Spacer()
                         Text("\(matchVM.currentMatch?.date ?? "")")
-                    }.padding()
+                    }.padding(.horizontal).padding(.vertical, 2)
                     HStack{
                         Text("First To:")
                         Spacer()
                         Text("\(matchVM.currentMatch?.setsToWin ?? 2)")
-                    }.padding()
-                    Toggle("Match Ongoing?", isOn: $matchOngoing).padding()
-                    setResultField
+                    }.padding(.horizontal).padding(.vertical, 2)
+                    Toggle("Match Ongoing?", isOn: $matchOngoing).padding(.horizontal).padding(.vertical, 4)
+                    setResultField.padding(.vertical, 4)
                     if !matchOngoing {
                         HStack{
                             Text("Match Winner:").padding()
@@ -63,43 +66,34 @@ struct modifyMatchView: View {
                                     }
                             }
                             else {
-                                WebImage(url: URL(string: winner == matchVM.currentMatch!.player1DisplayName ? matchVM.currentMatch!.player1Pic : matchVM.currentMatch!.player2Pic))
-                                    .userImageModifier(width: 50, height: 50)
-                                    .padding(.horizontal)
-                                    .onTapGesture {
-                                        showWinnerSheet.toggle()
-                                    }
+                                let winnerPic = winner == matchVM.currentMatch?.player1DisplayName ?? "" ? matchVM.currentMatch?.player1Pic ?? "" : matchVM.currentMatch?.player2Pic ?? ""
+                                if winnerPic != "" {
+                                    WebImage(url: URL(string: winnerPic))
+                                        .userImageModifier(width: 50, height: 50)
+                                        .padding(.horizontal)
+                                        .onTapGesture {
+                                            showWinnerSheet.toggle()
+                                        }
+                                } else {
+                                    Image("profile")
+                                        .userImageModifier(width: 50, height: 50)
+                                        .padding(.horizontal)
+                                        .onTapGesture {
+                                            showWinnerSheet.toggle()
+                                        }
+                                }
                             }
                         }
                     }
                     Group{
                         buttons
-                        if isLeague{
-                            if matchVM.admin == userVm.user!.uid{
-                                deleteButton
-                            }
-                        }
+                        deleteButtons
+//                        if isLeague{
+//                            if matchVM.admin == userVm.user!.uid{
+//                                deleteButton
+//                            }
+//                        }
                     }
-                }.alert(isPresented: $showAlert){
-                    Alert(title: Text("Error!"), message: Text("Required number of sets not reached"), dismissButton: .default(Text("Got it!")))
-                }
-                .confirmationDialog("Settings", isPresented: $deleteTapped) {
-                    Button(role: .destructive) {
-                        confirmDeleteAlert.toggle()
-                    } label: {
-                        Text("Delete match")
-                    }
-                    
-                }
-                .alert(isPresented: $confirmDeleteAlert) {
-                    Alert(title: Text("Delete match"), message: Text("Are you sure you want to delete this match?"), primaryButton: .destructive(Text("Delete")){
-                        Task {
-                            if isLeague {
-                                await matchVM.deleteMatch()
-                            }
-                            dismiss()
-                        }
-                    }, secondaryButton: .cancel())
                 }
             }.task {
                 await matchVM.getCurrentMatch()
@@ -112,6 +106,31 @@ struct modifyMatchView: View {
                 Rectangle().ignoresSafeArea().opacity(0.5)
                 addWinnerBottomSheet
             }
+            } else {
+                ProgressView()
+            }
+        }
+        .confirmationDialog("Settings", isPresented: $deleteTapped) {
+            Button(role: .destructive) {
+                confirmDeleteAlert.toggle()
+            } label: {
+                Text("Delete match")
+            }
+            
+        }
+        .alert(isPresented: $confirmDeleteAlert) {
+            Alert(title: Text("Delete match"), message: Text("Are you sure you want to delete this match?"), primaryButton: .destructive(Text("Delete")){
+                Task {
+                    if isLeague {
+                        isLoading = true
+                        await matchVM.deleteMatch()
+                    }
+                    dismiss()
+                }
+            }, secondaryButton: .cancel())
+        }
+        .onAppear{
+            self.loser = ""
         }
     }
 }
@@ -283,7 +302,7 @@ extension modifyMatchView{
             }
             
         }.cornerRadius(20)
-            .frame(width: UIScreen.main.bounds.size.width - 10, height: UIScreen.main.bounds.size.height / 1.7)
+            .frame(width: UIScreen.main.bounds.size.width - 10, height: UIScreen.main.bounds.size.height / 1.5)
             .position(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.maxY - 300)
     }
     
@@ -338,7 +357,7 @@ extension modifyMatchView{
                         }
                 }
             }.cornerRadius(20)
-                .frame(width: UIScreen.main.bounds.size.width - 10, height: UIScreen.main.bounds.size.height / 1.7)
+                .frame(width: UIScreen.main.bounds.size.width - 10, height: UIScreen.main.bounds.size.height / 1.5)
                 .position(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.maxY - 300)
         }
     }
@@ -367,50 +386,80 @@ extension modifyMatchView{
                     }
                     else{
                         Task {
-                            let matchLoser = await matchVM.updateMatch(ongoing: matchOngoing, player1DisplayName: matchVM.currentMatch!.player1DisplayName, player2DisplayName: matchVM.currentMatch!.player2DisplayName, matchID: matchVM.currentMatch!.id, matchType: matchVM.currentMatch!.matchType)
-                            loser.append(matchLoser)
-                            dismiss()
+                            isLoading = true
+                            self.loser = await matchVM.updateMatch(ongoing: matchOngoing, player1DisplayName: matchVM.currentMatch!.player1DisplayName, player2DisplayName: matchVM.currentMatch!.player2DisplayName, matchID: matchVM.currentMatch!.id, matchType: matchVM.currentMatch!.matchType)
+                           dismiss()
                         }
                     }
                 }
+                .alert(isPresented: $showAlert){
+                    Alert(title: Text("Error!"), message: Text("Required number of sets not reached"), dismissButton: .default(Text("Got it!")))
+                }
+        }.padding()
+    }
+    
+    private var deleteButtons: some View{
+        HStack{
+            Spacer()
+            if isLeague {
+                Text("Delete match")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(Color.red)
+                    .frame(width: UIScreen.main.bounds.size.width/4)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                    .padding()
+                    .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
+                    .onTapGesture {
+                        deleteTapped.toggle()
+                    }
+            }
+            Text("Delete all sets")
+                .font(.headline)
+                .fontWeight(.bold)
+                .foregroundColor(Color.red)
+                .frame(width: UIScreen.main.bounds.size.width/4)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+                .padding()
+                .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
+                .onTapGesture {
+                    deleteSets.toggle()
+                }
+                .alert(isPresented: $deleteSets){
+                    Alert(title: Text("Delete all sets"), message: Text("Are you sure you want to delete all the sets for this match?"), primaryButton: .destructive(Text("Delete")){
+                        Task {
+                                isLoading = true
+                                await matchVM.deleteAllSets()
+                                isLoading = false
+                        }
+                    }, secondaryButton: .cancel())
+                }
+            Spacer()
         }.padding()
     }
     
     private func verifyScore() -> Bool{
-        var player1Score = 0
-        var player2Score = 0
-        for set in matchVM.currentSets{
-            if set.player1Points > set.player2Points {
-                player1Score += 1
-            }
-            else{
-                player2Score += 1
-            }
-        }
-        let setsToWin = matchVM.currentMatch!.setsToWin
-        if player1Score == setsToWin || player2Score == setsToWin {
-            return true
-        }
-        else {
-            return false
-        }
-    }
-    
-    private var deleteButton: some View {
-        HStack{
-            Spacer()
-            Text("Delete Match")
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundColor(Color.red)
-                .frame(width: UIScreen.main.bounds.size.width/3)
-                .padding()
-                .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
-                .onTapGesture {
-                    deleteTapped.toggle()
+            var player1Score = 0
+            var player2Score = 0
+            for set in matchVM.currentSets{
+                if set.player1Points > set.player2Points {
+                    player1Score += 1
                 }
-            Spacer()
-        }.padding()
-    }
+                else{
+                    player2Score += 1
+                }
+            }
+            let setsToWin = matchVM.currentMatch!.setsToWin
+            if player1Score == setsToWin || player2Score == setsToWin {
+                return true
+            }
+            else {
+                return false
+            }
+        }
 }
+
+
 

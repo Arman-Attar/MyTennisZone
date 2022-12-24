@@ -15,9 +15,10 @@ struct matchResultView: View {
     @State var confirmDeleteAlert = false
     @EnvironmentObject var userVm: UserViewModel
     @State var isLeague = true
+    @State var isLoading = false
     var body: some View {
             VStack{
-                if matchVM.finishedLoading {
+                if matchVM.finishedLoading && !isLoading {
                     HStack{
                         Button {
                             dismiss()
@@ -87,6 +88,7 @@ struct matchResultView: View {
                 Alert(title: Text("Delete match"), message: Text("Are you sure you want to delete this match?"), primaryButton: .destructive(Text("Delete")){
                     Task {
                         if isLeague {
+                            isLoading = true
                             await matchVM.deleteMatch()
                             dismiss()
                         }

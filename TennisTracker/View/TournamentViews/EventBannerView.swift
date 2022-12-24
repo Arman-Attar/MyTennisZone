@@ -99,7 +99,7 @@ extension EventBannerView {
             Spacer()
             Image(systemName: "person.fill")
                 .foregroundColor(.gray)
-            Text("\(tournamentEvent!.players.count)")
+            Text("\(tournamentEvent!.playersEntered.count)")
                 .foregroundColor(.black)
             Rectangle().frame(width: 1, height: 20)
             Text("\(tournamentEvent!.mode)")

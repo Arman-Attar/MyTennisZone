@@ -44,6 +44,7 @@
 		C282C2A7294D056C0044D09E /* MatchDatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C282C2A6294D056C0044D09E /* MatchDatabaseManager.swift */; };
 		C282C2AD294FE2640044D09E /* UserDatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C282C2AC294FE2640044D09E /* UserDatabaseManager.swift */; };
 		C293B66B2820D4DA00BAA853 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C293B66A2820D4DA00BAA853 /* User.swift */; };
+		C2B71AA72956B6FA00B1C2A4 /* MatchBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B71AA62956B6FA00B1C2A4 /* MatchBubble.swift */; };
 		C2BADEA3281B8B4D001FFD83 /* signUp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2BADEA2281B8B4D001FFD83 /* signUp.swift */; };
 		C2BADEA5281B91B2001FFD83 /* signIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2BADEA4281B91B2001FFD83 /* signIn.swift */; };
 		C2D3B7E0291C980A004A6452 /* resetPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D3B7DF291C980A004A6452 /* resetPasswordView.swift */; };
@@ -98,6 +99,7 @@
 		C282C2A6294D056C0044D09E /* MatchDatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchDatabaseManager.swift; sourceTree = "<group>"; };
 		C282C2AC294FE2640044D09E /* UserDatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDatabaseManager.swift; sourceTree = "<group>"; };
 		C293B66A2820D4DA00BAA853 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		C2B71AA62956B6FA00B1C2A4 /* MatchBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchBubble.swift; sourceTree = "<group>"; };
 		C2BADEA2281B8B4D001FFD83 /* signUp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = signUp.swift; sourceTree = "<group>"; };
 		C2BADEA4281B91B2001FFD83 /* signIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = signIn.swift; sourceTree = "<group>"; };
 		C2D3B7DF291C980A004A6452 /* resetPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = resetPasswordView.swift; sourceTree = "<group>"; };
@@ -293,6 +295,7 @@
 				C277D26C283DE6A10072814A /* addMatchView.swift */,
 				C277D26E283F326D0072814A /* matchResultView.swift */,
 				C277D272284719520072814A /* modifyMatchView.swift */,
+				C2B71AA62956B6FA00B1C2A4 /* MatchBubble.swift */,
 			);
 			path = MatchViews;
 			sourceTree = "<group>";
@@ -446,6 +449,7 @@
 				C277D26D283DE6A10072814A /* addMatchView.swift in Sources */,
 				C23BD3A028373E1A004E31D2 /* leagueDetailView.swift in Sources */,
 				C277D26F283F326D0072814A /* matchResultView.swift in Sources */,
+				C2B71AA72956B6FA00B1C2A4 /* MatchBubble.swift in Sources */,
 				C2BADEA3281B8B4D001FFD83 /* signUp.swift in Sources */,
 				C25D39382947AABE00B6520B /* Friend.swift in Sources */,
 				C277D273284719520072814A /* modifyMatchView.swift in Sources */,
@@ -610,7 +614,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TennisTracker/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = TennisZone;
+				INFOPLIST_KEY_CFBundleDisplayName = MyTennisZone;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "TennisZone needs premission to access Photos";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -647,7 +651,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TennisTracker/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = TennisZone;
+				INFOPLIST_KEY_CFBundleDisplayName = MyTennisZone;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.sports";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "TennisZone needs premission to access Photos";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

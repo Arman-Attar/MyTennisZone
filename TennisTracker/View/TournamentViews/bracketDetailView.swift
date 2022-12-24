@@ -11,19 +11,15 @@ import SDWebImageSwiftUI
 struct bracketDetailView: View {
     @State var selectedIndex = 5
     @ObservedObject var tournamentVm = TournamentViewModel()
-    @ObservedObject var userVm = UserViewModel()
+    @EnvironmentObject var userVm: UserViewModel
     let rounds = ["ROUND OF 32", "ROUND OF 16", "QUARTER-FINALS", "SEMI-FINALS", "FINAL", "WINNER"]
     @State private var modifyMatch = false
     @State private var matchInfo = false
     @State var settingTapped = false
     @State var confirmDeleteAlert = false
-    @State var showSummaryPage = true
     @Environment(\.dismiss) var dismiss
-    @State var refreshPage = false
-    @State var i = 0
-    @State var count = 0
     @State var matchId = ""
-    @State var loser: [String] = []
+    @State var loser: String = ""
     var body: some View {
         VStack {
             if tournamentVm.tournament != nil {
@@ -99,8 +95,8 @@ struct bracketDetailView: View {
                 if tournamentVm.allMatchesFinished() && tournamentVm.playerList.count > 1{
                     Button {
                         Task {
-                            await tournamentVm.endRound(playersToRemove: loser)
-                            selectedIndex = 5
+                            await tournamentVm.endRound()
+                            selectedIndex = selectedIndex
                         }
                         
                     } label: {
@@ -134,14 +130,21 @@ struct bracketDetailView: View {
                 ProgressView()
             }
         }
-        .sheet(isPresented: $modifyMatch) {
-            if matchId != "" {
-                modifyMatchView(matchVM: MatchViewModel(id: tournamentVm.tournament!.id!, listOfMatches: tournamentVm.listOfMatches, playerList: tournamentVm.playerList, admin: tournamentVm.tournament!.admin, matchID: matchId), loser: $loser)
+        .sheet(isPresented: $modifyMatch, onDismiss: {
+            Task {
+                if loser != "" {
+                    await tournamentVm.removePlayer(player: loser)
+                    selectedIndex = 5
+                }
             }
-        }
+        } ,content: {
+            if matchId != "" {
+                modifyMatchView(matchVM: MatchViewModel(id: tournamentVm.tournament!.id!, listOfMatches: tournamentVm.listOfMatches, playerList: tournamentVm.playersEntered, admin: tournamentVm.tournament!.admin, matchID: matchId), isLeague: false ,loser: $loser)
+            }
+        })
         .sheet(isPresented: $matchInfo) {
             if matchId != "" {
-                matchResultView(matchVM: MatchViewModel(id: tournamentVm.tournament!.id!, listOfMatches: tournamentVm.listOfMatches, playerList: tournamentVm.playerList, admin: tournamentVm.tournament!.admin, matchID: matchId))
+                matchResultView(matchVM: MatchViewModel(id: tournamentVm.tournament!.id!, listOfMatches: tournamentVm.listOfMatches, playerList: tournamentVm.playersEntered, admin: tournamentVm.tournament!.admin, matchID: matchId))
             }
         }
         .toolbar {
@@ -205,7 +208,7 @@ extension bracketDetailView {
                             matchInfo.toggle()
                         }
                     } label: {
-                        matchBubble(match: match)
+                        MatchBubble(match: match)
                     }.padding()
                 }
                 else if selectedIndex == 1 && match.matchType == "R16"{
@@ -218,7 +221,7 @@ extension bracketDetailView {
                             matchInfo.toggle()
                         }
                     } label: {
-                        matchBubble(match: match)
+                        MatchBubble(match: match)
                     }.padding()
                 }
                 else if selectedIndex == 2 && match.matchType == "QF"{
@@ -231,10 +234,10 @@ extension bracketDetailView {
                             matchInfo.toggle()
                         }
                     } label: {
-                        matchBubble(match: match)
+                        MatchBubble(match: match)
                     }.padding()
                 }
-
+                
                 else if selectedIndex == 3 && match.matchType == "SEMI"{
                     Divider().padding(.horizontal)
                     Button {
@@ -245,7 +248,7 @@ extension bracketDetailView {
                             matchInfo.toggle()
                         }
                     } label: {
-                        matchBubble(match: match)
+                        MatchBubble(match: match)
                     }.padding()
                 }
                 else if selectedIndex == 4 && match.matchType == "FINAL"{
@@ -258,79 +261,10 @@ extension bracketDetailView {
                             matchInfo.toggle()
                         }
                     } label: {
-                        matchBubble(match: match)
+                        MatchBubble(match: match)
                     }.padding()
                 }
             }
-        }
-    }
-    
-    struct matchBubble: View {
-        @State var match: Match
-        var body: some View {
-            VStack {
-                HStack {
-                    Text("\(match.date)").foregroundColor(Color.black).font(.footnote)
-                    Spacer()
-                    if match.matchOngoing {
-                        Text("Ongoing").font(.footnote).foregroundColor(Color.black)
-                        Image(systemName: "circle.fill").foregroundColor(Color.green).font(.footnote)
-                    }
-                }.padding([.horizontal, .top])
-                Divider().padding(.horizontal)
-                HStack{
-                    if match.player1Pic != "" {
-                        WebImage(url: URL(string: match.player1Pic))
-                            .userImageModifier(width: 40, height: 40)
-                            .padding()
-                    } else {
-                        Image("profile")
-                            .userImageModifier(width: 40, height: 40)
-                            .padding()
-                    }
-                    
-                    Text("\(match.player1DisplayName)")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.black)
-                    Spacer()
-                    Text("\(match.player1Score)")
-                        .font(.callout)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.black)
-                        .padding()
-                    
-                }.padding(.horizontal)
-                HStack{
-                    
-                    if match.player2Pic != "" {
-                        WebImage(url: URL(string: match.player2Pic))
-                            .userImageModifier(width: 40, height: 40)
-                    } else {
-                        Image("profile")
-                            .userImageModifier(width: 40, height: 40)
-                            .padding()
-                    }
-                    
-                    
-                    Text("\(match.player2DisplayName)")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.black)
-                    
-                    
-                    Spacer()
-                    Text("\(match.player2Score)")
-                        .font(.callout)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.black)
-                        .padding()
-                }.padding([.horizontal, .bottom])
-            }
-            .background(
-                .regularMaterial,
-                in: RoundedRectangle(cornerRadius: 10, style: .continuous)
-            )
         }
     }
     
@@ -347,19 +281,19 @@ extension bracketDetailView {
                         Spacer()
                         if tournamentVm.playerList.count > 1 {
                             Image("profile")
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: 130, height: 130)
-                                        .clipShape(Circle())
-                                        .shadow(radius: 20)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 130, height: 130)
+                                .clipShape(Circle())
+                                .shadow(radius: 20)
                             Text("To Be Determined").fontWeight(.heavy).padding()
                         }
                         else {
                             if tournamentVm.tournament?.players[0].profilePicUrl ?? "profile" != "profile"{
-
+                                
                                 WebImage(url: URL(string: tournamentVm.playerList[0].profilePicUrl))
                                     .userImageModifier(width: 150, height: 150)
-
+                                
                                 Text("\(tournamentVm.tournament!.players[0].displayName)").fontWeight(.heavy).padding()
                             }
                             else {
@@ -371,17 +305,17 @@ extension bracketDetailView {
                     }.padding(.top)
                 }
                 Divider().padding(.horizontal)
-            HStack{
-                VStack{
-                    Text("\(tournamentVm.tournament!.numberOfPlayers)").font(.system(size: 70)).fontWeight(.black)
-                    Text("PLAYERS ENTERED").font(.subheadline)
-                }
-                Divider().padding()
-                VStack{
-                    Text("\(tournamentVm.playerList.count)").font(.system(size: 70)).fontWeight(.black)
-                    Text("PLAYERS LEFT").font(.subheadline)
-                }
-            }.padding()
+                HStack{
+                    VStack{
+                        Text("\(tournamentVm.tournament!.numberOfPlayers)").font(.system(size: 70)).fontWeight(.black)
+                        Text("PLAYERS ENTERED").font(.subheadline)
+                    }
+                    Divider().padding()
+                    VStack{
+                        Text("\(tournamentVm.playerList.count)").font(.system(size: 70)).fontWeight(.black)
+                        Text("PLAYERS LEFT").font(.subheadline)
+                    }
+                }.padding()
             }.padding()
         }
     }

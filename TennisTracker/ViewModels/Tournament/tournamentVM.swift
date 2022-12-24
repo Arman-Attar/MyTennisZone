@@ -11,9 +11,10 @@ import Firebase
 import FirebaseFirestoreSwift
 
 class TournamentViewModel: ObservableObject {
-    @Published var tournaments: [Tournament] = []
+    @Published var tournaments: [Tournament]?
     @Published var tournament: Tournament?
     @Published var playerList: [Player] = []
+    @Published var playersEntered: [Player] = []
     @Published var listOfMatches: [Match] = []
     @Published var currentMatch: Match?
     @Published var currentSets: [Set] = []
@@ -24,8 +25,8 @@ class TournamentViewModel: ObservableObject {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {return}
         do {
             let tournaments = try await TournamentDatabaseManager.shared.getTournaments(userID: uid)
-            await MainActor.run(body: {
-                self.tournaments = tournaments
+            await MainActor.run(body: { [weak self] in
+                self?.tournaments = tournaments
             })
         } catch {
             print(error)
@@ -39,10 +40,11 @@ class TournamentViewModel: ObservableObject {
                 playerList.removeAll()
                 self?.tournament = tournament
                 var players = tournament.players
-                players.sort {
-                    $0.points > $1.points
-                }
+                    players.sort {
+                        $0.points > $1.points
+                    }
                 self?.playerList = players
+                self?.playersEntered = tournament.playersEntered
                 self?.listOfMatches = tournament.matches
                 if !tournament.matches.isEmpty {
                     self?.firstRound = (self?.listOfMatches[0].matchType)!
@@ -50,7 +52,7 @@ class TournamentViewModel: ObservableObject {
                     self?.currentRound = self!.listOfMatches[last].matchType
                 }
                 else{
-                    self?.firstRound = getRound(playerCount: (self?.playerList.count)!)
+                    self?.firstRound = getRound(playerCount: (self?.playersEntered.count)!)
                     self?.currentRound = getRound(playerCount: (self?.playerList.count)!)
                 }
             })
@@ -84,6 +86,9 @@ class TournamentViewModel: ObservableObject {
         var deleted = false
         if let tournament = self.tournament {
             do {
+                for match in tournament.matches {
+                    try await MatchDatabaseManager.shared.deleteSets(matchID: match.id)
+                }
                 if tournament.bannerURL != "" {
                     try await deleted = TournamentDatabaseManager.shared.deleteTournament(tournamentID: tournamentId, bannerURL: tournament.bannerURL)
                 } else {
@@ -104,7 +109,7 @@ class TournamentViewModel: ObservableObject {
             if let bannerImage = bannerImage {
                 bannerURL = try await LeagueDatabaseManager.shared.uploadBanner(image: bannerImage)
             }
-            let tournamentData = Tournament(name: tournamentName.lowercased(), playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin, mode: mode, winner: nil, numberOfPlayers: players.count)
+            let tournamentData = Tournament(name: tournamentName.lowercased(), playerId: playerId, players: players, matches: matches, bannerURL: bannerURL, admin: admin, mode: mode, winner: nil, numberOfPlayers: players.count, playersEntered: players, roundLosers: [])
             try await TournamentDatabaseManager.shared.createLeague(tournament: tournamentData)
             return true
         } catch  {
@@ -175,36 +180,31 @@ class TournamentViewModel: ObservableObject {
         return true
     }
     
-    private func updatePlayerList(playersToRemove: [String]) async throws {
-        for player in playersToRemove {
-            guard let index = self.playerList.firstIndex(where: {$0.displayName == player}) else { return }
+    func removePlayer(player: String) async {
+        do {
+            guard let tournamentID = self.tournament?.id,
+                  let index = self.playerList.firstIndex(where: {$0.displayName == player})
+            else {return}
+            await getCurrentTournament(tournamentID: tournamentID)
             let playerData: [String: Any] = [
-                "uid" : self.playerList[index].uid as Any,
-                "profilePicUrl": self.playerList[index].profilePicUrl,
-                "displayName": self.playerList[index].displayName,
-                "points": self.playerList[index].points,
-                "wins": self.playerList[index].wins,
-                "losses": self.playerList[index].losses,
+                "uid" : playerList[index].uid as Any,
+                "profilePicUrl": playerList[index].profilePicUrl,
+                "displayName": playerList[index].displayName,
+                "points": playerList[index].points,
+                "wins": playerList[index].wins,
+                "losses": playerList[index].losses,
             ]
-            do {
-                try await TournamentDatabaseManager.shared.removePlayer(playerData: playerData, tournamentID: self.tournament!.id!)
-                await MainActor.run(body: {
-                    self.playerList.remove(at: index)
-                })
-            } catch  {
-                throw error
-            }
+            try await TournamentDatabaseManager.shared.removePlayer(playerData: playerData, tournamentID: tournamentID)
+            await MainActor.run(body: {
+                self.playerList.remove(at:index)
+            })
+        } catch {
+            print(error)
         }
     }
     
-    func endRound(playersToRemove: [String]) async {
-        do {
-            try await updatePlayerList(playersToRemove: playersToRemove)
-        } catch {
-            print(error)
-            return
-        }
-        
+    
+    func endRound() async {
         var matches: [Match] = []
         if self.playerList.count > 0{
             if currentRound == "R32" {
@@ -227,10 +227,13 @@ class TournamentViewModel: ObservableObject {
             }
             if currentRound != "DONE"{
                 if self.playerList.count % 2 == 0 {
-                    while self.playerList.count != 0 {
+                    if currentRound == "FINAL" {
                         let match = Match(id: UUID().uuidString, date: Utilities.convertDateToString(date: Date.now), player1Pic: playerList[0].profilePicUrl, player2Pic: playerList[1].profilePicUrl, player1DisplayName: playerList[0].displayName, player2DisplayName: playerList[1].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: self.listOfMatches[0].setsToWin, matchType: currentRound)
                         matches.append(match)
-                        if currentRound != "FINAL" {
+                    } else {
+                        while self.playerList.count != 0 {
+                            let match = Match(id: UUID().uuidString, date: Utilities.convertDateToString(date: Date.now), player1Pic: playerList[0].profilePicUrl, player2Pic: playerList[1].profilePicUrl, player1DisplayName: playerList[0].displayName, player2DisplayName: playerList[1].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: self.listOfMatches[0].setsToWin, matchType: currentRound)
+                            matches.append(match)
                             await MainActor.run(body: {
                                 self.playerList.removeFirst()
                                 self.playerList.removeFirst()
@@ -250,7 +253,6 @@ class TournamentViewModel: ObservableObject {
                     let match = Match(id: UUID().uuidString, date: Utilities.convertDateToString(date: Date.now), player1Pic: playerList[0].profilePicUrl, player2Pic: playerList[1].profilePicUrl, player1DisplayName: playerList[0].displayName, player2DisplayName: playerList[1].displayName, player1Score: 0, player2Score: 0, winner: "", matchOngoing: true, setsToWin: self.listOfMatches[0].setsToWin, matchType: currentRound)
                     matches.append(match)
                 }
-                
                 for match in matches {
                     let matchData = ["id" : match.id, "date" : match.date, "player1Pic" : match.player1Pic, "player2Pic" : match.player2Pic, "player1DisplayName" : match.player1DisplayName, "player2DisplayName" : match.player2DisplayName ,"player1Score" : match.player1Score, "player2Score" : match.player2Score, "winner" : match.winner, "matchOngoing" : match.matchOngoing, "setsToWin" : match.setsToWin, "matchType" : match.matchType] as [String: Any]
                     do {
@@ -269,7 +271,6 @@ class TournamentViewModel: ObservableObject {
                     let winnerIndex = playerList.firstIndex(where: {$0.displayName == winner})
                     let winnerID = playerList[winnerIndex!].uid
                     try await TournamentDatabaseManager.shared.tournamentWrapUp(winner: winner, winnerID: winnerID, tournamentID: self.tournament!.id!)
-                    try await updatePlayerList(playersToRemove: [loser])
                 } catch {
                     print(error)
                     return

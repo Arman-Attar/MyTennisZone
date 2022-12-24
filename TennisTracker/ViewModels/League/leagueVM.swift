@@ -23,8 +23,8 @@ class LeagueViewModel: ObservableObject {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
         do {
             let leagues = try await LeagueDatabaseManager.shared.getLeagues(userID: uid)
-            await MainActor.run(body: {
-                self.leagues = leagues
+            await MainActor.run(body: { [weak self] in
+                self?.leagues = leagues
             })
         } catch {
             print(error)
@@ -97,6 +97,9 @@ class LeagueViewModel: ObservableObject {
         var deleted = false
         if let league = self.league {
             do {
+                for match in league.matches {
+                    try await MatchDatabaseManager.shared.deleteSets(matchID: match.id)
+                }
                 if league.bannerURL != "" {
                     try await deleted = LeagueDatabaseManager.shared.deleteLeague(leagueID: leagueID, bannerURL: league.bannerURL)
                 } else {

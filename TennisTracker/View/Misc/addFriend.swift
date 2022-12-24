@@ -75,7 +75,8 @@ extension addFriend {
             Spacer()
             VStack {
                 if let matchesWon = vm.searchedUser?.matchesWon, let matchesPlayed = vm.searchedUser?.matchesPlayed {
-                    Text("\(matchesWon/matchesPlayed * 100)")
+                    let winRate: Double = Double(matchesWon) / Double(matchesPlayed)
+                    Text("\(winRate * 100, specifier: "%.2f")")
                         .font(.callout)
                         .fontWeight(.bold)
                 }

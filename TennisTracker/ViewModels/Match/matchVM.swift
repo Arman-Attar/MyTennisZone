@@ -53,7 +53,7 @@ class MatchViewModel: ObservableObject {
         return sets
     }
     
-    func createMatch(matchOngoing: Bool, player1: Player, player2: Player, date: Date, setsToWin: Int, matchType: String, sets: [Set], matchID: String) async {
+    func createMatch(matchOngoing: Bool, player1: Player, player2: Player, date: Date, setsToWin: Int, matchType: String, sets: [Set], matchID: String) async -> Bool {
         let (player1Score, player2Score) = Utilities.calculatePlayerScores(sets: sets)
         var winner = ""
         if !matchOngoing{
@@ -71,9 +71,10 @@ class MatchViewModel: ObservableObject {
             try await MatchDatabaseManager.shared.createMatch(matchData: matchData, competitionID: self.id, competition: matchType)
             try await MatchDatabaseManager.shared.addSet(set: nil, sets: sets)
             await updateMatch(ongoing: matchOngoing, player1DisplayName: player1.displayName, player2DisplayName: player2.displayName, matchID: matchID, matchType: matchType)
+            return true
         } catch {
             print(error)
-            return
+            return false
         }
     }
     
@@ -106,7 +107,7 @@ class MatchViewModel: ObservableObject {
             matches[matchIndex].winner = winner
             try await MatchDatabaseManager.shared.updateMatchList(matches: matches, CompetitionID: self.id, competition: matchType)
             if !ongoing {
-                await updateStats(winner: winner, loser: loser, matchType: matchType)
+                let loserID = await updateStats(winner: winner, loser: loser, matchType: matchType)
                 return loser
             } else {
                 return ""
@@ -117,7 +118,7 @@ class MatchViewModel: ObservableObject {
         }
     }
     
-    func updateStats(winner: String, loser: String, matchType: String) async {
+    func updateStats(winner: String, loser: String, matchType: String) async -> String? {
         do {
             var players = try await MatchDatabaseManager.shared.getPlayers(competitionID: self.id, competition: matchType)
             let winnerIndex = players.firstIndex(where: { $0.displayName == winner})
@@ -129,9 +130,10 @@ class MatchViewModel: ObservableObject {
             let loserObject = players.first(where: {$0.displayName == loser})
             
             try await MatchDatabaseManager.shared.updateStats(competitionID: self.id, winnerID: winnerObject!.uid, loserID: loserObject!.uid, players: players, competition: matchType)
+            return loserObject?.uid ?? nil
         } catch {
             print(error)
-            return
+            return nil
         }
     }
     
@@ -192,6 +194,15 @@ class MatchViewModel: ObservableObject {
             } catch  {
                 print(error)
             }
+        }
+    }
+    
+    func deleteAllSets() async {
+        guard let matchID = self.matchID else { return }
+        do {
+            try await MatchDatabaseManager.shared.deleteSets(matchID: matchID)
+        } catch {
+            print(error)
         }
     }
 }

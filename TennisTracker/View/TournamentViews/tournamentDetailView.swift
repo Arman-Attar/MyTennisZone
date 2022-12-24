@@ -20,7 +20,7 @@ struct tournamentDetailView: View {
     @State var settingTapped = false
     @State var matchId = ""
     @State var confirmDeleteAlert = false
-    @State var loser: [String] = []
+    @State var loser: String = ""
     @Environment(\.dismiss) var dismiss
     var body: some View {
         VStack(alignment: .leading) {
@@ -205,8 +205,13 @@ extension tournamentDetailView{
                                 .frame(width: UIScreen.main.bounds.size.width / 4)
 
 
-                            WebImage(url: URL(string: match.player1Pic))
-                                .userImageModifier(width: 40, height: 40)
+                            if match.player1Pic != "" {
+                                WebImage(url: URL(string: match.player1Pic))
+                                    .userImageModifier(width: 40, height: 40)
+                            } else {
+                                Image("profile")
+                                    .userImageModifier(width: 40, height: 40)
+                            }
                             
                             Text("\(match.player1Score) - \(match.player2Score)")
                                 .font(.callout)
@@ -214,8 +219,13 @@ extension tournamentDetailView{
                                 .foregroundColor(.black)
                                 .padding(5)
 
-                            WebImage(url: URL(string: match.player2Pic))
-                                .userImageModifier(width: 40, height: 40)
+                            if match.player2Pic != "" {
+                                WebImage(url: URL(string: match.player2Pic))
+                                    .userImageModifier(width: 40, height: 40)
+                            } else {
+                                Image("profile")
+                                    .userImageModifier(width: 40, height: 40)
+                            }
 
 
                             Text("\(match.player2DisplayName)")
