@@ -9,7 +9,7 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct tournyView: View {
-    @ObservedObject var tournamentVm = TournamentViewModel()
+    @StateObject var tournamentVm = TournamentViewModel()
     @EnvironmentObject var userVm: UserViewModel
     var body: some View {
         NavigationView {
@@ -19,7 +19,7 @@ struct tournyView: View {
                         ForEach(tournamentVm.tournaments!, id: \.id){ index in
                             NavigationLink {
                                 if index.mode == "Round Robin"{
-                                    tournamentDetailView(userVm: userVm, tournamentVm: tournamentVm)
+                                    tournamentDetailView(tournamentVm: tournamentVm)
                                         .navigationTitle(index.name.capitalized).onAppear{
                                             Task {
                                                 if let tournamentID = index.id {

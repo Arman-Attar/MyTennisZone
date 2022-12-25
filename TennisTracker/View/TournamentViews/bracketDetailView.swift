@@ -9,17 +9,21 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct bracketDetailView: View {
-    @State var selectedIndex = 5
+    
     @ObservedObject var tournamentVm = TournamentViewModel()
     @EnvironmentObject var userVm: UserViewModel
-    let rounds = ["ROUND OF 32", "ROUND OF 16", "QUARTER-FINALS", "SEMI-FINALS", "FINAL", "WINNER"]
+    @Environment(\.dismiss) var dismiss
+    
+    @State var selectedIndex = 5
     @State private var modifyMatch = false
     @State private var matchInfo = false
     @State var settingTapped = false
     @State var confirmDeleteAlert = false
-    @Environment(\.dismiss) var dismiss
     @State var matchId = ""
     @State var loser: String = ""
+    
+    let rounds = ["ROUND OF 32", "ROUND OF 16", "QUARTER-FINALS", "SEMI-FINALS", "FINAL", "WINNER"]
+    
     var body: some View {
         VStack {
             if tournamentVm.tournament != nil {
@@ -108,22 +112,22 @@ struct bracketDetailView: View {
                 }
                 ScrollView{
                     if selectedIndex == 0 {
-                        matchContentField
+                        BracketMatchUpsview(listOfMatches: tournamentVm.listOfMatches, selectedIndex: selectedIndex, matchId: $matchId, modifyMatch: $modifyMatch, matchInfo: $matchInfo)
                     }
                     else if selectedIndex == 1{
-                        matchContentField
+                        BracketMatchUpsview(listOfMatches: tournamentVm.listOfMatches, selectedIndex: selectedIndex, matchId: $matchId, modifyMatch: $modifyMatch, matchInfo: $matchInfo)
                     }
                     else if selectedIndex == 2{
-                        matchContentField
+                        BracketMatchUpsview(listOfMatches: tournamentVm.listOfMatches, selectedIndex: selectedIndex, matchId: $matchId, modifyMatch: $modifyMatch, matchInfo: $matchInfo)
                     }
                     else if selectedIndex == 3{
-                        matchContentField
+                        BracketMatchUpsview(listOfMatches: tournamentVm.listOfMatches, selectedIndex: selectedIndex, matchId: $matchId, modifyMatch: $modifyMatch, matchInfo: $matchInfo)
                     }
                     else if selectedIndex == 4{
-                        matchContentField
+                        BracketMatchUpsview(listOfMatches: tournamentVm.listOfMatches, selectedIndex: selectedIndex, matchId: $matchId, modifyMatch: $modifyMatch, matchInfo: $matchInfo)
                     }
                     else if selectedIndex == 5{
-                        winnerPage
+                        TournamentWinnerView(tournamentVm: tournamentVm)
                     }
                 }
             } else {
@@ -194,129 +198,3 @@ struct bracketDetailView_Previews: PreviewProvider {
     }
 }
 
-extension bracketDetailView {
-    private var matchContentField: some View {
-        VStack{
-            ForEach(tournamentVm.listOfMatches, id: \.id) { match in
-                if selectedIndex == 0 && match.matchType == "R32"{
-                    Divider().padding(.horizontal)
-                    Button {
-                        self.matchId = match.id
-                        if match.matchOngoing {
-                            modifyMatch.toggle()
-                        } else {
-                            matchInfo.toggle()
-                        }
-                    } label: {
-                        MatchBubble(match: match)
-                    }.padding()
-                }
-                else if selectedIndex == 1 && match.matchType == "R16"{
-                    Divider().padding(.horizontal)
-                    Button {
-                        self.matchId = match.id
-                        if match.matchOngoing {
-                            modifyMatch.toggle()
-                        } else {
-                            matchInfo.toggle()
-                        }
-                    } label: {
-                        MatchBubble(match: match)
-                    }.padding()
-                }
-                else if selectedIndex == 2 && match.matchType == "QF"{
-                    Divider().padding(.horizontal)
-                    Button {
-                        self.matchId = match.id
-                        if match.matchOngoing {
-                            modifyMatch.toggle()
-                        } else {
-                            matchInfo.toggle()
-                        }
-                    } label: {
-                        MatchBubble(match: match)
-                    }.padding()
-                }
-                
-                else if selectedIndex == 3 && match.matchType == "SEMI"{
-                    Divider().padding(.horizontal)
-                    Button {
-                        self.matchId = match.id
-                        if match.matchOngoing {
-                            modifyMatch.toggle()
-                        } else {
-                            matchInfo.toggle()
-                        }
-                    } label: {
-                        MatchBubble(match: match)
-                    }.padding()
-                }
-                else if selectedIndex == 4 && match.matchType == "FINAL"{
-                    Divider().padding(.horizontal)
-                    Button {
-                        self.matchId = match.id
-                        if match.matchOngoing {
-                            modifyMatch.toggle()
-                        } else {
-                            matchInfo.toggle()
-                        }
-                    } label: {
-                        MatchBubble(match: match)
-                    }.padding()
-                }
-            }
-        }
-    }
-    
-    private var winnerPage: some View {
-        VStack {
-            ScrollView(showsIndicators: false){
-                VStack {
-                    HStack{
-                        Rectangle().frame(height: 1)
-                        Text("Winner").font(.subheadline).fontWeight(.heavy).padding(.horizontal)
-                        Rectangle().frame(height: 1)
-                    }
-                    VStack{
-                        Spacer()
-                        if tournamentVm.playerList.count > 1 {
-                            Image("profile")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 130, height: 130)
-                                .clipShape(Circle())
-                                .shadow(radius: 20)
-                            Text("To Be Determined").fontWeight(.heavy).padding()
-                        }
-                        else {
-                            if tournamentVm.tournament?.players[0].profilePicUrl ?? "profile" != "profile"{
-                                
-                                WebImage(url: URL(string: tournamentVm.playerList[0].profilePicUrl))
-                                    .userImageModifier(width: 150, height: 150)
-                                
-                                Text("\(tournamentVm.tournament!.players[0].displayName)").fontWeight(.heavy).padding()
-                            }
-                            else {
-                                Image("profile")
-                                    .userImageModifier(width: 150, height: 150)
-                            }
-                        }
-                        Spacer()
-                    }.padding(.top)
-                }
-                Divider().padding(.horizontal)
-                HStack{
-                    VStack{
-                        Text("\(tournamentVm.tournament!.numberOfPlayers)").font(.system(size: 70)).fontWeight(.black)
-                        Text("PLAYERS ENTERED").font(.subheadline)
-                    }
-                    Divider().padding()
-                    VStack{
-                        Text("\(tournamentVm.playerList.count)").font(.system(size: 70)).fontWeight(.black)
-                        Text("PLAYERS LEFT").font(.subheadline)
-                    }
-                }.padding()
-            }.padding()
-        }
-    }
-}

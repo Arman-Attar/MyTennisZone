@@ -11,24 +11,28 @@ import Firebase
 import PhotosUI
 
 struct createTournament: View {
-    @State var tournamentName = ""
-    @State var opponentSelection = false
+    
     @EnvironmentObject var vm: UserViewModel
     @StateObject var tournamentVM = TournamentViewModel()
+    @Environment(\.dismiss) var dismiss
+    
+    @State var tournamentName = ""
+    @State var opponentSelection = false
     @State var players: [Player] = []
     @State var playerId: [String] = []
     @State var matches: [Match] = []
     @State var showImagePicker = false
     @State var image: UIImage?
     @State var numberOfSets = 2
-    var modes = ["Bracket", "Round Robin"]
-    @Environment(\.dismiss) var dismiss
     @State var mode = "Bracket"
     @State var matchGeneration = "Random"
-    var bracketGeneration = "Random"
     @State var showAlert = false
     @State var photoPermission = false
     @State var invalidNameAlert = false
+    
+    var modes = ["Bracket", "Round Robin"]
+    var bracketGeneration = "Random"
+    
     var body: some View {
         NavigationView {
             Form{
@@ -88,7 +92,6 @@ struct createTournament: View {
                     Spacer()
                     createButton.onTapGesture {
                         if verifyNumbOfPlayers(){
-                            //generateMatches()
                             Task {
                                 let result = await tournamentVM.createTournament(tournamentName: tournamentName, playerId: playerId, admin: vm.user!.uid, players: players, bannerImage: image, mode: mode, setsToWin: numberOfSets)
                                 if result {
@@ -105,7 +108,7 @@ struct createTournament: View {
                 }
             }
             .sheet(isPresented: $opponentSelection) {
-                opponentSelectionView(players: $players, playerId: $playerId, vm: vm)
+                opponentSelectionView(players: $players, playerId: $playerId)
             }
             .onAppear{
                 if playerId.isEmpty {
@@ -121,7 +124,7 @@ struct createTournament: View {
                 Alert(title: Text("Error!"), message: Text("Number of players are not valid"), dismissButton: .default(Text("Got it!")))
             }
             .sheet(isPresented: $opponentSelection) {
-                opponentSelectionView(players: $players, playerId: $playerId, vm: vm)
+                opponentSelectionView(players: $players, playerId: $playerId)
             }
             .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
                 ImagePicker(image: $image)
@@ -194,7 +197,7 @@ extension createTournament {
     private var leagueNameField: some View {
         VStack{
             HStack{
-                TextField("Enter League Name", text: $tournamentName)
+                TextField("Enter Tournament Name", text: $tournamentName)
                     .foregroundColor(.black)
                     .keyboardType(.emailAddress)
                 Image(systemName: "plus")
@@ -278,7 +281,7 @@ extension createTournament {
         }
     }
     
-    func verifyNumbOfPlayers() -> Bool {
+    private func verifyNumbOfPlayers() -> Bool {
         if playerId.count == 32 || playerId.count == 31 || playerId.count == 16 || playerId.count == 15 || playerId.count == 8 || playerId.count == 7 || playerId.count == 4 || players.count == 3 || players.count == 2{
             return true
         }
@@ -287,9 +290,9 @@ extension createTournament {
         }
     }
     
-    func verifyName() {
-        if tournamentName == "" || !tournamentVM.validateTournamentName(name: tournamentName) {
-            invalidNameAlert = true
+    private func verifyName() {
+        if tournamentName == "" {
+            invalidNameAlert.toggle()
         }
     }
 }

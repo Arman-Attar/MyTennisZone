@@ -15,6 +15,8 @@
 		C20E8D2E2957F8FA0051508D /* LeagueSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20E8D2D2957F8FA0051508D /* LeagueSummaryView.swift */; };
 		C20E8D30295801780051508D /* StandingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20E8D2F295801780051508D /* StandingsView.swift */; };
 		C20E8D32295803310051508D /* MatchHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20E8D31295803310051508D /* MatchHistoryView.swift */; };
+		C20E8D34295808BB0051508D /* TournamentWinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20E8D33295808BB0051508D /* TournamentWinnerView.swift */; };
+		C20E8D36295809C60051508D /* BracketMatchUpsview.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20E8D35295809C60051508D /* BracketMatchUpsview.swift */; };
 		C21CF04428277E9400292C9F /* mainPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21CF04328277E9400292C9F /* mainPage.swift */; };
 		C21CF0462828BC9100292C9F /* profileTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21CF0452828BC9100292C9F /* profileTab.swift */; };
 		C22205682951439C0002F6AE /* onboardingVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22205672951439C0002F6AE /* onboardingVM.swift */; };
@@ -78,6 +80,8 @@
 		C20E8D2D2957F8FA0051508D /* LeagueSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeagueSummaryView.swift; sourceTree = "<group>"; };
 		C20E8D2F295801780051508D /* StandingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandingsView.swift; sourceTree = "<group>"; };
 		C20E8D31295803310051508D /* MatchHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchHistoryView.swift; sourceTree = "<group>"; };
+		C20E8D33295808BB0051508D /* TournamentWinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TournamentWinnerView.swift; sourceTree = "<group>"; };
+		C20E8D35295809C60051508D /* BracketMatchUpsview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BracketMatchUpsview.swift; sourceTree = "<group>"; };
 		C211BB0A281B3D3C00C964F2 /* TennisTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TennisTracker.entitlements; sourceTree = "<group>"; };
 		C21CF04328277E9400292C9F /* mainPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mainPage.swift; sourceTree = "<group>"; };
 		C21CF0452828BC9100292C9F /* profileTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = profileTab.swift; sourceTree = "<group>"; };
@@ -327,7 +331,8 @@
 				C2E64BCD28661FA800501252 /* createTournament.swift */,
 				C2E64BD32889D80F00501252 /* tournamentDetailView.swift */,
 				C2E64BD528974E3500501252 /* bracketDetailView.swift */,
-				C25FC9A22908CBF00092ED8E /* EventBannerView.swift */,
+				C20E8D33295808BB0051508D /* TournamentWinnerView.swift */,
+				C20E8D35295809C60051508D /* BracketMatchUpsview.swift */,
 			);
 			path = TournamentViews;
 			sourceTree = "<group>";
@@ -372,6 +377,7 @@
 				C20E8D2D2957F8FA0051508D /* LeagueSummaryView.swift */,
 				C20E8D2F295801780051508D /* StandingsView.swift */,
 				C20E8D31295803310051508D /* MatchHistoryView.swift */,
+				C25FC9A22908CBF00092ED8E /* EventBannerView.swift */,
 			);
 			path = Misc;
 			sourceTree = "<group>";
@@ -476,6 +482,7 @@
 				C21CF0462828BC9100292C9F /* profileTab.swift in Sources */,
 				C25D392E2947A9F200B6520B /* League.swift in Sources */,
 				C25D39322947AA7A00B6520B /* Match.swift in Sources */,
+				C20E8D34295808BB0051508D /* TournamentWinnerView.swift in Sources */,
 				C22E8178281B351F009593BE /* TennisTrackerApp.swift in Sources */,
 				C25D39362947AAA800B6520B /* Set.swift in Sources */,
 				C2F10C652952BCC10081AAD9 /* TextFieldKeyboardModifier.swift in Sources */,
@@ -495,6 +502,7 @@
 				C277D275284AADA10072814A /* joinLeagueView.swift in Sources */,
 				C22205682951439C0002F6AE /* onboardingVM.swift in Sources */,
 				C25FC9A32908CBF00092ED8E /* EventBannerView.swift in Sources */,
+				C20E8D36295809C60051508D /* BracketMatchUpsview.swift in Sources */,
 				C24C4BEF282D9B6A004FA8A5 /* imagePicker.swift in Sources */,
 				C24C4BED282C2C6A004FA8A5 /* tournyView.swift in Sources */,
 				C282C2A2294922E10044D09E /* TournamentDatabaseManager.swift in Sources */,

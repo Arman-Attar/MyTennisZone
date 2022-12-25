@@ -33,7 +33,7 @@ struct createLeague: View {
             }.navigationTitle("Create a tournament")
                 .navigationBarTitleDisplayMode(.inline)
                 .sheet(isPresented: $opponentSelection) {
-                    opponentSelectionView(players: $players, playerId: $playerId, vm: vm)
+                    opponentSelectionView(players: $players, playerId: $playerId).environmentObject(vm)
                 }
                 .onAppear{
                     players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user!.profilePicUrl, displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0))

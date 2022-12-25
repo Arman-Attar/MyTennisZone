@@ -10,13 +10,10 @@ import SDWebImageSwiftUI
 
 struct opponentSelectionView: View {
     @Binding var players: [Player]
-    //@State var players: [Player] = [] TEST VAR TO GET THE PREVIEW WORKING
     @Binding var playerId: [String]
-    //@State var playerId: [String] = [] TEST VAR TO GET THE PREVIEW WORKING
     @Environment(\.dismiss) private var dismiss
-    @ObservedObject var vm = UserViewModel()
+    @EnvironmentObject var vm: UserViewModel
     @State var showImagePicker = false
-    //@State var image: UIImage?
     @State var playerName = ""
     @State var showForm = false
     var body: some View {
@@ -48,6 +45,7 @@ struct opponentSelectionView: View {
                         .font(.title3)
                         .onTapGesture {
                             showForm.toggle()
+                            playerName = ""
                         }
                         .padding()
                 }
@@ -232,6 +230,5 @@ extension opponentSelectionView {
     private func createTempPlayer(uid: String){
         players.append(Player(uid: uid, profilePicUrl: "", displayName: playerName, points: 0, wins: 0, losses: 0))
         playerId.append(uid)
-        print(players)
     }
 }

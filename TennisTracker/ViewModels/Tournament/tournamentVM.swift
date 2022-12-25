@@ -280,19 +280,4 @@ class TournamentViewModel: ObservableObject {
             await getCurrentTournament(tournamentID: self.tournament!.id!)
         }
     }
-    
-    func validateTournamentName(name: String) -> Bool {
-        var result = false
-        FirebaseManager.shared.firestore.collection("tournaments").whereField("name", isEqualTo: name).getDocuments { snapshot, err in
-            if let err = err {
-                print(err)
-            }
-            if let snapshot = snapshot {
-                if snapshot.isEmpty {
-                    result = true
-                }
-            }
-        }
-    return result
-    }
 }
