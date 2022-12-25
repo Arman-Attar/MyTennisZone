@@ -9,18 +9,20 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct leagueDetailView: View {
+    
+    @ObservedObject var leagueVM: LeagueViewModel
+    @EnvironmentObject private var userVm: UserViewModel
+    @Environment(\.dismiss) var dismiss
+    
     @State private var selectedIndex = 0
-    var position = 1
     @State private var showSheet = false
     @State private var modifyMatch = false
     @State private var matchInfo = false
-    @ObservedObject var leagueVM: LeagueViewModel
-    @ObservedObject var userVm: UserViewModel
-    @State var settingTapped = false
-    @State var matchId: String = ""
-    @State var confirmDeleteAlert = false
-    @Environment(\.dismiss) var dismiss
-    @State var loser: String = ""
+    @State private var settingTapped = false
+    @State private var matchId: String = ""
+    @State private var confirmDeleteAlert = false
+    @State private var loser: String = ""
+
     var body: some View {
         VStack(alignment: .leading) {
             if leagueVM.league != nil {
@@ -47,9 +49,7 @@ struct leagueDetailView: View {
                         }.padding()
                         
                     }
-                    ScrollView {
-                        Standingloop
-                    }
+                    StandingsView(playerList: leagueVM.playerList)
                 }
                 else {
                     Text("Match History")
@@ -57,9 +57,7 @@ struct leagueDetailView: View {
                         .fontWeight(.bold)
                         .padding()
                     VStack{
-                        ScrollView {
-                            matchHistory
-                        }
+                        MatchHistoryView(listOfMatches: leagueVM.listOfMatches, matchId: $matchId, modifyMatch: $modifyMatch, matchInfo: $matchInfo)
                     }
                 }
                 Spacer()
@@ -132,138 +130,9 @@ struct leagueDetailView: View {
     }
 }
 
-//struct leagueDetailView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        leagueDetailView()
-//    }
-//}
-
-extension leagueDetailView{
-    private var Standingloop: some View {
-        VStack{
-            ForEach(Array(leagueVM.playerList.enumerated()), id: \.offset) { index, player in
-                VStack {
-                    HStack {
-                        Text("\(index + 1).")
-                            .font(.headline)
-                            .padding(.leading)
-                        if player.profilePicUrl != "" {
-                            WebImage(url: URL(string: player.profilePicUrl))
-                                .userImageModifier(width: 80, height: 80)
-                                .padding()
-                        } else {
-                            Image("profile")
-                                .userImageModifier(width: 80, height: 80)
-                                .padding()
-                        }
-                    Divider()
-                    VStack {
-                        Text(player.displayName)
-                            .font(.system(size: 17, weight: .bold))
-                            .foregroundColor(.black)
-                            .multilineTextAlignment(.leading)
-                            .padding()
-                        Divider()
-                        VStack(alignment: .leading){
-                            HStack{
-                                VStack {
-                                    Text("PL").padding(8).font(.system(size: 13, weight: .semibold))
-                                    Text("\((player.wins) + (player.losses))").padding(8).font(.system(size: 11, weight: .semibold))
-                                }
-                                VStack {
-                                    Text("W").padding(8).font(.system(size: 13, weight: .semibold))
-                                    Text("\(player.wins)").padding(8).font(.system(size: 11, weight: .semibold))
-                                }
-                                VStack {
-                                    Text("L").padding(8).font(.system(size: 13, weight: .semibold))
-                                    
-                                    Text("\(player.losses)").padding(8).font(.system(size: 11, weight: .semibold))
-                                  
-                                }
-                                VStack {
-                                    Text("PTS").padding(8).font(.system(size: 13, weight: .semibold))
-                                    
-                                    Text("\(player.points)").padding(8).font(.system(size: 11, weight: .semibold))
-                                  
-                                }
-                            }.padding(.horizontal)
-                        }
-                    }
-                    Spacer()
-                }
-                .frame(width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height/6)
-                Divider().padding(.horizontal)
-                }
-        }
+struct leagueDetailView_Previews: PreviewProvider {
+    static var previews: some View {
+        leagueDetailView(leagueVM: LeagueViewModel()).environmentObject(UserViewModel())
     }
-    }
-    
-    private var matchHistory: some View {
-        VStack {
-            ForEach(leagueVM.listOfMatches, id: \.id) { match in
-                Button {
-                        matchId = match.id
-                        if match.matchOngoing {
-                            modifyMatch.toggle()
-                        } else {
-                            matchInfo.toggle()
-                        }
-                } label: {
-                    VStack {
-                        HStack {
-                            Text("\(match.date)").foregroundColor(Color.black).font(.footnote)
-                            Spacer()
-                            if match.matchOngoing {
-                                Text("Ongoing").font(.footnote).foregroundColor(Color.black)
-                                Image(systemName: "circle.fill").foregroundColor(Color.green).font(.footnote)
-                            }
-                        }.padding(.horizontal).padding(.top, 10)
-                        HStack{
-                            Text("\(match.player1DisplayName)")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.black)
-                                .frame(width: UIScreen.main.bounds.size.width / 4.5)
-                                .fixedSize(horizontal: false, vertical: true)
-
-                            if match.player1Pic != "" {
-                                WebImage(url: URL(string: match.player1Pic))
-                                    .userImageModifier(width: 40, height: 40)
-                            } else {
-                                Image("profile")
-                                    .userImageModifier(width: 40, height: 40)
-                            }
-                            
-                            Text("\(match.player1Score) - \(match.player2Score)")
-                                .font(.callout)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.black)
-                                .padding(5)
-
-                            if match.player2Pic != "" {
-                                WebImage(url: URL(string: match.player2Pic))
-                                    .userImageModifier(width: 40, height: 40)
-                            } else {
-                                Image("profile")
-                                    .userImageModifier(width: 40, height: 40)
-                            }
-
-                            Text("\(match.player2DisplayName)")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.black)
-                                .frame(width: UIScreen.main.bounds.size.width / 4.5)
-                                .fixedSize(horizontal: false, vertical: true)
-
-
-                        }.padding(.leading)
-                            .padding(.trailing)
-                            .padding(.bottom, 10)
-                    }
-                }
-                Divider().padding(.horizontal)
-            }
-        }
-    }
-  
 }
+

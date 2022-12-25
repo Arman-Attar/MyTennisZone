@@ -22,6 +22,7 @@ struct createLeague: View {
     @State private var isLoading = false
     @Environment(\.dismiss) var dismiss
     @State var photoPermission = false
+    @State var invalidLeagueNameAlert = false
     var body: some View {
         ZStack{
             Form{
@@ -45,14 +46,16 @@ struct createLeague: View {
                     Alert(title: Text("Permission Denied!"), message: Text("Please go into your settings and give photo permissions for TennisTracker"), dismissButton:
                             .default(Text("Got it!")))
                 }
+                .alert(isPresented: $invalidLeagueNameAlert) {
+                    Alert(title: Text("Invalid League Name!"), message: Text("League name cannot be empty"), dismissButton:
+                            .default(Text("Got it!")))
+                }
             if isLoading{
                 ZStack{
                     Color(.systemBackground)
                         .ignoresSafeArea()
                         .opacity(0.7)
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .blue))
-                        .scaleEffect(3)
                 }
             }
         }
@@ -115,7 +118,7 @@ extension createLeague {
     private var leagueNameField: some View {
         VStack{
             HStack{
-                TextField("Enter a Unique League Name", text: $leagueName)
+                TextField("Enter League Name", text: $leagueName)
                     .foregroundColor(.black)
                     .keyboardType(.emailAddress)
                 Image(systemName: "plus")
@@ -162,12 +165,19 @@ extension createLeague {
         HStack {
             Spacer()
             createButton.onTapGesture {
-                let admin = vm.user?.uid ?? ""
-                Task{
-                    let result = await leagueVM.createLeague(leagueName: leagueName, playerId: playerId, admin: admin, players: players, bannerImage: image)
-                    if result {
-                        dismiss()
+                if leagueName != "" {
+                    let admin = vm.user?.uid ?? ""
+                    Task{
+                        isLoading = true
+                        let result = await leagueVM.createLeague(leagueName: leagueName, playerId: playerId, admin: admin, players: players, bannerImage: image)
+                        if result {
+                            dismiss()
+                        } else {
+                            isLoading = false
+                        }
                     }
+                } else {
+                    invalidLeagueNameAlert.toggle()
                 }
             }
             Spacer()

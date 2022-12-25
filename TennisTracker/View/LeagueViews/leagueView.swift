@@ -18,7 +18,8 @@ struct leagueView: View {
                     if leagueVm.leagues != nil {
                         ForEach(leagueVm.leagues!, id: \.id){ index in
                             NavigationLink {
-                                leagueDetailView(leagueVM: leagueVm, userVm: userVm) .navigationTitle(index.name.capitalized).onAppear{
+                                leagueDetailView(leagueVM: leagueVm).environmentObject(userVm)
+                                    .navigationTitle(index.name.capitalized).onAppear{
                                     Task {
                                         if let leagueID = index.id {
                                             await leagueVm.getCurrentLeague(leagueId: leagueID)

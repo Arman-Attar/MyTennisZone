@@ -14,7 +14,7 @@ struct Tournament: Codable {
     let playerId: [String]
     var players: [Player]
     var matches: [Match]
-    let bannerURL: String?
+    let bannerURL: String
     let admin: String
     let mode: String
     let winner: String?
