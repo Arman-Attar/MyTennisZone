@@ -10,7 +10,7 @@ import SDWebImageSwiftUI
 import Firebase
 
 struct modifyMatchView: View {
-    @StateObject var matchVM: MatchViewModel
+    @ObservedObject var matchVM: MatchViewModel
     @EnvironmentObject var userVm: UserViewModel
     @State var isLeague = true
     @Environment(\.dismiss) var dismiss
@@ -30,82 +30,77 @@ struct modifyMatchView: View {
     var body: some View {
         ZStack{
             if !isLoading{
-            VStack{
-                Form{
-                    Text("Modify Match")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .padding()
-                    vsSection
-                    HStack{
-                        Text("Match Date:")
-                        Spacer()
-                        Text("\(matchVM.currentMatch?.date ?? "")")
-                    }.padding(.horizontal).padding(.vertical, 2)
-                    HStack{
-                        Text("First To:")
-                        Spacer()
-                        Text("\(matchVM.currentMatch?.setsToWin ?? 2)")
-                    }.padding(.horizontal).padding(.vertical, 2)
-                    Toggle("Match Ongoing?", isOn: $matchOngoing).padding(.horizontal).padding(.vertical, 4)
-                    setResultField.padding(.vertical, 4)
-                    if !matchOngoing {
+                VStack{
+                    Form{
+                        Text("Modify Match")
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .padding()
+                        vsSection
                         HStack{
-                            Text("Match Winner:").padding()
+                            Text("Match Date:")
                             Spacer()
-                            if winner == "" {
-                                Image("profile")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 20)
-                                    .padding(.horizontal)
-                                    .onTapGesture {
-                                        showWinnerSheet.toggle()
-                                    }
-                            }
-                            else {
-                                let winnerPic = winner == matchVM.currentMatch?.player1DisplayName ?? "" ? matchVM.currentMatch?.player1Pic ?? "" : matchVM.currentMatch?.player2Pic ?? ""
-                                if winnerPic != "" {
-                                    WebImage(url: URL(string: winnerPic))
-                                        .userImageModifier(width: 50, height: 50)
-                                        .padding(.horizontal)
-                                        .onTapGesture {
-                                            showWinnerSheet.toggle()
-                                        }
-                                } else {
+                            Text("\(matchVM.currentMatch?.date ?? "")")
+                        }.padding(.horizontal).padding(.vertical, 2)
+                        HStack{
+                            Text("First To:")
+                            Spacer()
+                            Text("\(matchVM.currentMatch?.setsToWin ?? 2)")
+                        }.padding(.horizontal).padding(.vertical, 2)
+                        Toggle("Match Ongoing?", isOn: $matchOngoing).padding(.horizontal).padding(.vertical, 4)
+                        setResultField.padding(.vertical, 4)
+                        if !matchOngoing {
+                            HStack{
+                                Text("Match Winner:").padding()
+                                Spacer()
+                                if winner == "" {
                                     Image("profile")
-                                        .userImageModifier(width: 50, height: 50)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 50, height: 50)
+                                        .clipShape(Circle())
+                                        .shadow(radius: 20)
                                         .padding(.horizontal)
                                         .onTapGesture {
                                             showWinnerSheet.toggle()
                                         }
                                 }
+                                else {
+                                    let winnerPic = winner == matchVM.currentMatch?.player1DisplayName ?? "" ? matchVM.currentMatch?.player1Pic ?? "" : matchVM.currentMatch?.player2Pic ?? ""
+                                    if winnerPic != "" {
+                                        WebImage(url: URL(string: winnerPic))
+                                            .userImageModifier(width: 50, height: 50)
+                                            .padding(.horizontal)
+                                            .onTapGesture {
+                                                showWinnerSheet.toggle()
+                                            }
+                                    } else {
+                                        Image("profile")
+                                            .userImageModifier(width: 50, height: 50)
+                                            .padding(.horizontal)
+                                            .onTapGesture {
+                                                showWinnerSheet.toggle()
+                                            }
+                                    }
+                                }
                             }
                         }
+                        Group{
+                            buttons
+                            deleteButtons
+                        }
                     }
-                    Group{
-                        buttons
-                        deleteButtons
-//                        if isLeague{
-//                            if matchVM.admin == userVm.user!.uid{
-//                                deleteButton
-//                            }
-//                        }
-                    }
+                }.task {
+                    await matchVM.getCurrentMatch()
                 }
-            }.task {
-                await matchVM.getCurrentMatch()
-            }
-            if showSetSheet{
-                Rectangle().ignoresSafeArea().opacity(0.5)
-                addSetBottomSheet
-            }
-            if showWinnerSheet{
-                Rectangle().ignoresSafeArea().opacity(0.5)
-                addWinnerBottomSheet
-            }
+                if showSetSheet{
+                    Rectangle().ignoresSafeArea().opacity(0.5)
+                    addSetBottomSheet
+                }
+                if showWinnerSheet{
+                    Rectangle().ignoresSafeArea().opacity(0.5)
+                    addWinnerBottomSheet
+                }
             } else {
                 ProgressView()
             }
@@ -388,7 +383,7 @@ extension modifyMatchView{
                         Task {
                             isLoading = true
                             self.loser = await matchVM.updateMatch(ongoing: matchOngoing, player1DisplayName: matchVM.currentMatch!.player1DisplayName, player2DisplayName: matchVM.currentMatch!.player2DisplayName, matchID: matchVM.currentMatch!.id, matchType: matchVM.currentMatch!.matchType)
-                           dismiss()
+                            dismiss()
                         }
                     }
                 }
@@ -430,9 +425,9 @@ extension modifyMatchView{
                 .alert(isPresented: $deleteSets){
                     Alert(title: Text("Delete all sets"), message: Text("Are you sure you want to delete all the sets for this match?"), primaryButton: .destructive(Text("Delete")){
                         Task {
-                                isLoading = true
-                                await matchVM.deleteAllSets()
-                                isLoading = false
+                            isLoading = true
+                            await matchVM.deleteAllSets()
+                            isLoading = false
                         }
                     }, secondaryButton: .cancel())
                 }
@@ -441,24 +436,24 @@ extension modifyMatchView{
     }
     
     private func verifyScore() -> Bool{
-            var player1Score = 0
-            var player2Score = 0
-            for set in matchVM.currentSets{
-                if set.player1Points > set.player2Points {
-                    player1Score += 1
-                }
-                else{
-                    player2Score += 1
-                }
+        var player1Score = 0
+        var player2Score = 0
+        for set in matchVM.currentSets{
+            if set.player1Points > set.player2Points {
+                player1Score += 1
             }
-            let setsToWin = matchVM.currentMatch!.setsToWin
-            if player1Score == setsToWin || player2Score == setsToWin {
-                return true
-            }
-            else {
-                return false
+            else{
+                player2Score += 1
             }
         }
+        let setsToWin = matchVM.currentMatch!.setsToWin
+        if player1Score == setsToWin || player2Score == setsToWin {
+            return true
+        }
+        else {
+            return false
+        }
+    }
 }
 
 
