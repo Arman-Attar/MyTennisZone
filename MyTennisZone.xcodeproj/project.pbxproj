@@ -17,6 +17,10 @@
 		C20E8D32295803310051508D /* MatchHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20E8D31295803310051508D /* MatchHistoryView.swift */; };
 		C20E8D34295808BB0051508D /* TournamentWinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20E8D33295808BB0051508D /* TournamentWinnerView.swift */; };
 		C20E8D36295809C60051508D /* BracketMatchUpsview.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20E8D35295809C60051508D /* BracketMatchUpsview.swift */; };
+		C20E8D3829580CF30051508D /* SelectWinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20E8D3729580CF30051508D /* SelectWinnerView.swift */; };
+		C20E8D3A29580DF40051508D /* AddSetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20E8D3929580DF40051508D /* AddSetView.swift */; };
+		C20E8D3C295810E80051508D /* HeadToHeadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20E8D3B295810E80051508D /* HeadToHeadView.swift */; };
+		C20E8D3E295811F60051508D /* SelectOponentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20E8D3D295811F60051508D /* SelectOponentView.swift */; };
 		C21CF04428277E9400292C9F /* mainPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21CF04328277E9400292C9F /* mainPage.swift */; };
 		C21CF0462828BC9100292C9F /* profileTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21CF0452828BC9100292C9F /* profileTab.swift */; };
 		C22205682951439C0002F6AE /* onboardingVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22205672951439C0002F6AE /* onboardingVM.swift */; };
@@ -82,6 +86,10 @@
 		C20E8D31295803310051508D /* MatchHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchHistoryView.swift; sourceTree = "<group>"; };
 		C20E8D33295808BB0051508D /* TournamentWinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TournamentWinnerView.swift; sourceTree = "<group>"; };
 		C20E8D35295809C60051508D /* BracketMatchUpsview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BracketMatchUpsview.swift; sourceTree = "<group>"; };
+		C20E8D3729580CF30051508D /* SelectWinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectWinnerView.swift; sourceTree = "<group>"; };
+		C20E8D3929580DF40051508D /* AddSetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddSetView.swift; sourceTree = "<group>"; };
+		C20E8D3B295810E80051508D /* HeadToHeadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadToHeadView.swift; sourceTree = "<group>"; };
+		C20E8D3D295811F60051508D /* SelectOponentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectOponentView.swift; sourceTree = "<group>"; };
 		C211BB0A281B3D3C00C964F2 /* TennisTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TennisTracker.entitlements; sourceTree = "<group>"; };
 		C21CF04328277E9400292C9F /* mainPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mainPage.swift; sourceTree = "<group>"; };
 		C21CF0452828BC9100292C9F /* profileTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = profileTab.swift; sourceTree = "<group>"; };
@@ -320,6 +328,10 @@
 				C2E64BCF286A6DE900501252 /* opponentSelectionView.swift */,
 				C277D272284719520072814A /* modifyMatchView.swift */,
 				C2B71AA62956B6FA00B1C2A4 /* MatchBubble.swift */,
+				C20E8D3729580CF30051508D /* SelectWinnerView.swift */,
+				C20E8D3929580DF40051508D /* AddSetView.swift */,
+				C20E8D3B295810E80051508D /* HeadToHeadView.swift */,
+				C20E8D3D295811F60051508D /* SelectOponentView.swift */,
 			);
 			path = MatchViews;
 			sourceTree = "<group>";
@@ -483,6 +495,7 @@
 				C25D392E2947A9F200B6520B /* League.swift in Sources */,
 				C25D39322947AA7A00B6520B /* Match.swift in Sources */,
 				C20E8D34295808BB0051508D /* TournamentWinnerView.swift in Sources */,
+				C20E8D3829580CF30051508D /* SelectWinnerView.swift in Sources */,
 				C22E8178281B351F009593BE /* TennisTrackerApp.swift in Sources */,
 				C25D39362947AAA800B6520B /* Set.swift in Sources */,
 				C2F10C652952BCC10081AAD9 /* TextFieldKeyboardModifier.swift in Sources */,
@@ -494,6 +507,7 @@
 				C2BADEA3281B8B4D001FFD83 /* signUp.swift in Sources */,
 				C25D39382947AABE00B6520B /* Friend.swift in Sources */,
 				C277D273284719520072814A /* modifyMatchView.swift in Sources */,
+				C20E8D3C295810E80051508D /* HeadToHeadView.swift in Sources */,
 				C24C4BEB282B6F8E004FA8A5 /* leagueView.swift in Sources */,
 				C2F22D572953836200E381D3 /* UserImageModifier.swift in Sources */,
 				C282C2A7294D056C0044D09E /* MatchDatabaseManager.swift in Sources */,
@@ -524,9 +538,11 @@
 				C20E8D2A2957EE270051508D /* ProfileTabOptionModifier.swift in Sources */,
 				C21CF04428277E9400292C9F /* mainPage.swift in Sources */,
 				C2B71AAA2957C26900B1C2A4 /* HomeOptionsView.swift in Sources */,
+				C20E8D3A29580DF40051508D /* AddSetView.swift in Sources */,
 				C2E64BD22888D50000501252 /* tournamentVM.swift in Sources */,
 				C23BD39E2836E705004E31D2 /* leagueVM.swift in Sources */,
 				C25D39342947AA9400B6520B /* Player.swift in Sources */,
+				C20E8D3E295811F60051508D /* SelectOponentView.swift in Sources */,
 				C2D3B7E0291C980A004A6452 /* resetPasswordView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
