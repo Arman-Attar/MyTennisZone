@@ -149,16 +149,6 @@ extension profileTab {
                         .padding()
                 }
             }
-            //            if displayName == "" && vm.user?.displayName != ""{
-            //                Text(vm.user?.displayName ?? "")
-            //                    .font(.title)
-            //                    .fontWeight(.bold)
-            //            }
-            //            else {
-            //                Text(displayName)
-            //                    .font(.title)
-            //                    .fontWeight(.bold)
-            //            }
             Text(vm.user?.displayName ?? "")
                 .font(.title)
                 .fontWeight(.bold)
