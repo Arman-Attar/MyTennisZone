@@ -73,7 +73,7 @@ class UserViewModel: ObservableObject {
         return user.friends.contains(where: {$0 == userID})
     }
     
-    func addFriend(friendID: String) async {
+    func addFriend() async {
         guard let user = self.user, let friend = self.searchedUser else { return }
         do {
             try await UserDatabaseManager.shared.addFriend(friendID: friend.uid, CurrentUserID: user.uid)
