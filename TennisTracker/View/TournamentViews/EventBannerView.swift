@@ -44,7 +44,7 @@ extension EventBannerView {
                     .padding(.horizontal)
             }
             else {
-                WebImage(url: URL(string: leagueEvent!.bannerURL!))
+                WebImage(url: URL(string: leagueEvent!.bannerURL))
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: UIScreen.main.bounds.width/1.2, height: UIScreen.main.bounds.height/4)

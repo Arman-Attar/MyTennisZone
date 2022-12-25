@@ -10,7 +10,7 @@ import SDWebImageSwiftUI
 
 struct joinLeagueView: View {
     @State var leagueName = ""
-    @StateObject var leagueVm = LeagueViewModel()
+    @ObservedObject var leagueVm = LeagueViewModel()
     @State var showSheet = false
     @EnvironmentObject var vm: UserViewModel
     @State var notFoundAlert = false
@@ -25,13 +25,7 @@ struct joinLeagueView: View {
         }.navigationTitle("Join a League")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showSheet) {
-                VStack {
-                    backButton.padding()
-                    header
-                    statBar
-                    joinButton
-                    Spacer()
-                }
+                LeagueSummaryView(leagueVM: leagueVm).environmentObject(vm)
             }
             .alert(isPresented: $notFoundAlert){
                 Alert(title: Text("Error!"), message: Text("League Not Found"), dismissButton: .default(Text("Got it!")))
@@ -46,109 +40,6 @@ struct joinLeagueView_Previews: PreviewProvider {
 }
 
 extension joinLeagueView {
-    private var statBar: some View {
-        HStack{
-            Spacer()
-            VStack {
-                Text("\(leagueVm.league?.players.count ?? 0)")
-                    .font(.callout)
-                    .fontWeight(.bold)
-                Text("Players")
-                    .font(.caption)
-            }.padding()
-            Spacer()
-            HStack{
-                VStack {
-                    Text("\(leagueVm.playerList[0].displayName)")
-                        .font(.callout)
-                        .fontWeight(.bold)
-                    Text("Admin")
-                        .font(.caption)
-                }
-                VStack{
-                    if leagueVm.playerList[0].profilePicUrl != "" {
-                        WebImage(url: URL(string: leagueVm.playerList[0].profilePicUrl))
-                            .userImageModifier(width: 50, height: 50)
-                            .padding()
-                    }
-                }.padding(.trailing)
-            }
-        }.padding(.horizontal)
-    }
-    
-    private var joinButton: some View {
-        VStack {
-            if leagueVm.playerIsJoined {
-                HStack {
-                    Image(systemName: "person.fill.checkmark").font(.title).foregroundColor(.black)
-                    Text("Joined")
-                        .font(.title2)
-                        .fontWeight(.heavy)
-                        .padding()
-                        .foregroundColor(.black)
-                        .padding()
-                    
-                }.frame(maxWidth: UIScreen.main.bounds.size.width / 1.25, maxHeight: 50)
-                    .overlay(RoundedRectangle(cornerRadius: 100)
-                        .stroke(Color.black, lineWidth: 0.8))
-                    .padding()
-                    .offset(y: 9)
-            } else {
-                Button {
-                    Task {
-                        if await leagueVm.joinLeague(uid: vm.user!.uid, profilePic: vm.user!.profilePicUrl, displayName: vm.user!.displayName) {
-                            showSheet.toggle()
-                        }
-                    }
-                } label: {
-                    HStack {
-                        Image(systemName: "person.fill.badge.plus").font(.title).foregroundColor(.black)
-                        Text("Join")
-                            .font(.title2)
-                            .fontWeight(.heavy)
-                            .padding()
-                            .foregroundColor(.black)
-                            .padding()
-                        
-                    }.frame(maxWidth: UIScreen.main.bounds.size.width / 1.25, maxHeight: 50)
-                        .overlay(RoundedRectangle(cornerRadius: 100)
-                            .stroke(Color.black, lineWidth: 0.8))
-                        .padding()
-                        .offset(y: 9)
-                }
-            }
-        }
-    }
-    
-    private var header: some View {
-        VStack{
-            Image("league")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .cornerRadius(20)
-                .frame(width: UIScreen.main.bounds.size.width - 10, height: UIScreen.main.bounds.size.height / 3.8)
-                .padding(8)
-            
-            Text(leagueVm.league!.name)
-                .font(.title)
-                .fontWeight(.bold)
-                .padding()
-        }
-    }
-    
-    private var backButton: some View {
-        VStack{
-            Button {
-                showSheet.toggle()
-            } label: {
-                HStack{
-                    Image(systemName: "arrow.left")
-                    Text("Back")
-                    Spacer()
-                }.padding()
-            }
-        }
-    }
     
     private var searchBar: some View {
         HStack{

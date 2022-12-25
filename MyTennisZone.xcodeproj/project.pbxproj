@@ -12,6 +12,7 @@
 		C20E8D282957E2960051508D /* FriendListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20E8D272957E2960051508D /* FriendListView.swift */; };
 		C20E8D2A2957EE270051508D /* ProfileTabOptionModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20E8D292957EE270051508D /* ProfileTabOptionModifier.swift */; };
 		C20E8D2C2957F4830051508D /* ChangeDisplayNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20E8D2B2957F4830051508D /* ChangeDisplayNameView.swift */; };
+		C20E8D2E2957F8FA0051508D /* LeagueSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20E8D2D2957F8FA0051508D /* LeagueSummaryView.swift */; };
 		C21CF04428277E9400292C9F /* mainPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21CF04328277E9400292C9F /* mainPage.swift */; };
 		C21CF0462828BC9100292C9F /* profileTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21CF0452828BC9100292C9F /* profileTab.swift */; };
 		C22205682951439C0002F6AE /* onboardingVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22205672951439C0002F6AE /* onboardingVM.swift */; };
@@ -72,6 +73,7 @@
 		C20E8D272957E2960051508D /* FriendListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendListView.swift; sourceTree = "<group>"; };
 		C20E8D292957EE270051508D /* ProfileTabOptionModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTabOptionModifier.swift; sourceTree = "<group>"; };
 		C20E8D2B2957F4830051508D /* ChangeDisplayNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeDisplayNameView.swift; sourceTree = "<group>"; };
+		C20E8D2D2957F8FA0051508D /* LeagueSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeagueSummaryView.swift; sourceTree = "<group>"; };
 		C211BB0A281B3D3C00C964F2 /* TennisTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TennisTracker.entitlements; sourceTree = "<group>"; };
 		C21CF04328277E9400292C9F /* mainPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mainPage.swift; sourceTree = "<group>"; };
 		C21CF0452828BC9100292C9F /* profileTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = profileTab.swift; sourceTree = "<group>"; };
@@ -143,11 +145,11 @@
 		C211BB0B281B3F0200C964F2 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				C282C2A8294E88AB0044D09E /* OnboardingViews */,
 				C2B71AA82957C0DE00B1C2A4 /* TabViews */,
 				C2F10C622952B1DD0081AAD9 /* Misc */,
 				C282C2AA294E89030044D09E /* MatchViews */,
 				C282C2A9294E88CB0044D09E /* LeagueViews */,
-				C282C2A8294E88AB0044D09E /* OnboardingViews */,
 				C282C2AB294E89170044D09E /* TournamentViews */,
 			);
 			path = View;
@@ -363,6 +365,7 @@
 				C20E8D252957C4250051508D /* UserSummaryView.swift */,
 				C20E8D272957E2960051508D /* FriendListView.swift */,
 				C20E8D2B2957F4830051508D /* ChangeDisplayNameView.swift */,
+				C20E8D2D2957F8FA0051508D /* LeagueSummaryView.swift */,
 			);
 			path = Misc;
 			sourceTree = "<group>";
@@ -473,6 +476,7 @@
 				C277D26D283DE6A10072814A /* addMatchView.swift in Sources */,
 				C23BD3A028373E1A004E31D2 /* leagueDetailView.swift in Sources */,
 				C277D26F283F326D0072814A /* matchResultView.swift in Sources */,
+				C20E8D2E2957F8FA0051508D /* LeagueSummaryView.swift in Sources */,
 				C2B71AA72956B6FA00B1C2A4 /* MatchBubble.swift in Sources */,
 				C2BADEA3281B8B4D001FFD83 /* signUp.swift in Sources */,
 				C25D39382947AABE00B6520B /* Friend.swift in Sources */,
