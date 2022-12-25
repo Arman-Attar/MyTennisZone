@@ -22,8 +22,10 @@ struct addFriend: View {
                 }
             }
         }.sheet(isPresented: $showSearchBar) {
-            FriendSummaryView().environmentObject(vm)
+            if let user = vm.searchedUser {
+                UserSummaryView(isFriend: vm.isFriend, user: user).environmentObject(vm)
             }
+        }
             .alert(isPresented: $userNotFound){
                 Alert(title: Text("Error!"), message: Text("User Not Found"), dismissButton: .default(Text("Got it!")))
             }

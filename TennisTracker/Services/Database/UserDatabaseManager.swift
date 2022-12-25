@@ -36,10 +36,10 @@ actor UserDatabaseManager {
         }
     }
     
-    func fetchSearchedUser(username: String) async throws -> User? {
+    func fetchSearchedUser(username: String) async throws -> Friend? {
         do {
             let snapshot = try await FirebaseManager.shared.firestore.collection("users").whereField("username", isEqualTo: username).getDocuments()
-            let user = try snapshot.documents.first?.data(as: User.self)
+            let user = try snapshot.documents.first?.data(as: Friend.self)
             return user
         } catch {
             throw error

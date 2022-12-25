@@ -8,10 +8,12 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
-struct FriendSummaryView: View {
+struct UserSummaryView: View {
 
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var vm: UserViewModel
+    @EnvironmentObject private var vm: UserViewModel
+    @State var isFriend: Bool
+    let user: Friend
     
     var body: some View {
         NavigationView {
@@ -21,7 +23,7 @@ struct FriendSummaryView: View {
                 addButton
                 Spacer()
             }
-            .navigationTitle("Add Friend")
+            .navigationTitle("User Summary")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
@@ -38,14 +40,13 @@ struct FriendSummaryView: View {
 
 struct FriendSummaryView_Previews: PreviewProvider {
     static var previews: some View {
-        FriendSummaryView().environmentObject(UserViewModel())
+        UserSummaryView(isFriend: true, user: Friend(uid: "", username: "test", profilePicUrl: "", displayName: "Testing of Tests", matchesPlayed: 10, matchesWon: 10, trophies: 2))
     }
 }
 
-extension FriendSummaryView {
+extension UserSummaryView {
     private var header: some View {
         VStack{
-            if let user = vm.searchedUser {
                 if user.profilePicUrl != "" {
                     WebImage(url: URL(string: user.profilePicUrl))
                         .userImageModifier(width: 200, height: 200)
@@ -63,20 +64,10 @@ extension FriendSummaryView {
                 Text("@\(user.username)")
                     .font(.body)
                     .foregroundColor(Color.gray)
-            }
         }
     }
     private var statBar: some View {
         HStack{
-            if let user = vm.searchedUser {
-                Spacer()
-                VStack {
-                    Text("\(user.friends.count)")
-                        .font(.callout)
-                        .fontWeight(.bold)
-                    Text("Friends")
-                        .font(.caption)
-                }.padding()
                 Spacer()
                 VStack {
                     Text("\(user.matchesPlayed)")
@@ -104,7 +95,6 @@ extension FriendSummaryView {
                         .font(.caption)
                 }.padding()
                 Spacer()
-            }
         }.padding(.horizontal)
     }
     private var backButton: some View {
@@ -122,7 +112,7 @@ extension FriendSummaryView {
     }
     private var addButton: some View {
         VStack {
-            if vm.isFriend {
+            if isFriend {
                 HStack {
                     Image(systemName: "person.fill.checkmark").font(.title).foregroundColor(.black)
                     Text("Friend")
@@ -142,6 +132,7 @@ extension FriendSummaryView {
                 Button {
                     Task {
                         await vm.addFriend()
+                        isFriend.toggle()
                     }
                 } label: {
                     HStack {

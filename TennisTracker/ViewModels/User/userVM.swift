@@ -17,7 +17,7 @@ class UserViewModel: ObservableObject {
     @Published var user: User?
     @Published var friends: [Friend] = []
     @Published var isFriend = false
-    @Published var searchedUser: User?
+    @Published var searchedUser: Friend?
     @Published var isUserSignedOut = false
     
     
@@ -137,6 +137,9 @@ class UserViewModel: ObservableObject {
         do {
             try await UserDatabaseManager.shared.updateDisplayName(userID: userID, username: username)
             try await LeagueDatabaseManager.shared.updateDisplayName(playerID: userID, profilePicURL: picURL, displayName: username)
+            await MainActor.run(body: { [weak self] in
+                self?.user?.displayName = username
+            })
         } catch {
             print(error)
         }

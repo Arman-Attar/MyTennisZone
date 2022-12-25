@@ -13,10 +13,8 @@ struct profileTab: View {
     @State var showImagePicker = false
     @State var image: UIImage?
     @State var changeDisplayName = false
-    @State var displayName = ""
     @State var showFriendsList = false
     @State var confirmDeleteAlert = false
-    @State var invalidDisplayName = false
     @State var permission = false
     @EnvironmentObject private var vm: UserViewModel
     var body: some View {
@@ -36,18 +34,7 @@ struct profileTab: View {
                         }.padding()
                         Spacer()
                     }.sheet(isPresented: $showFriendsList, content: {
-                        VStack {
-                            Text("Friends")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .padding()
-                            Divider().padding(.horizontal)
-                            Spacer()
-                            ScrollView {
-                                friendsList
-                            }
-                            Spacer()
-                        }
+                        FriendListView().environmentObject(vm)
                     })
                 }
                 .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
@@ -69,57 +56,13 @@ struct profileTab: View {
             }.fullScreenCover(isPresented: $vm.isUserSignedOut) {
                 signIn()
             }
-            .alert(isPresented: $invalidDisplayName) {
-                Alert(title: Text("Error!"), message: Text("Invalid display name entered"), dismissButton:
-                        .default(Text("Got it!")))
-            }
             .alert(isPresented: $permission) {
                 Alert(title: Text("Permission Denied!"), message: Text("Please go into your settings and give photo permissions for TennisTracker"), dismissButton:
                         .default(Text("Got it!")))
             }
             if changeDisplayName{
                 Rectangle().ignoresSafeArea(.all).opacity(0.5)
-                VStack{
-                    Text("Change Display Name").font(.title3).fontWeight(.bold).padding()
-                    TextField(" Enter your new display name", text: $displayName).padding().background(Color.gray.opacity(0.3)).cornerRadius(20)
-                    HStack{
-                        Button {
-                            if displayName.isEmpty {
-                                invalidDisplayName = true
-                            }
-                            else{
-                                Task{
-                                    displayName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
-                                    await vm.updateDisplayName(username: displayName)
-                                    changeDisplayName.toggle()
-                                }
-                            }
-                        } label: {
-                            VStack{
-                                Text("Update")
-                                    .padding()
-                                    .foregroundColor(Color.white)
-                                    .background(Color.blue.opacity(0.8))
-                                    .cornerRadius(20)
-                            }
-                        }
-                        Button {
-                            changeDisplayName.toggle()
-                        } label: {
-                            VStack{
-                                Text("Cancel")
-                                    .padding()
-                                    .foregroundColor(Color.white)
-                                    .background(Color.blue.opacity(0.8))
-                                    .cornerRadius(20)
-                            }
-                        }
-                    }.padding()
-                }
-                .padding()
-                .frame(width: UIScreen.main.bounds.midX * 1.5, height: UIScreen.main.bounds.midY / 2)
-                .background(Color.white)
-                .cornerRadius(30)
+                ChangeDisplayNameView(changeDisplayName: $changeDisplayName).environmentObject(vm)
             }
             
         }.alert(isPresented: $confirmDeleteAlert) {
@@ -150,9 +93,7 @@ extension profileTab {
     private var statBar: some View {
         HStack{
             Spacer()
-            Button {
-                showFriendsList.toggle()
-            } label: {
+            NavigationLink(destination: FriendListView().navigationTitle("Friends")) {
                 VStack {
                     Text("\(vm.user?.friends.count ?? 0)")
                         .font(.callout)
@@ -208,16 +149,19 @@ extension profileTab {
                         .padding()
                 }
             }
-            if displayName == "" && vm.user?.displayName != ""{
-                Text(vm.user?.displayName ?? "")
-                    .font(.title)
-                    .fontWeight(.bold)
-            }
-            else {
-                Text(displayName)
-                    .font(.title)
-                    .fontWeight(.bold)
-            }
+            //            if displayName == "" && vm.user?.displayName != ""{
+            //                Text(vm.user?.displayName ?? "")
+            //                    .font(.title)
+            //                    .fontWeight(.bold)
+            //            }
+            //            else {
+            //                Text(displayName)
+            //                    .font(.title)
+            //                    .fontWeight(.bold)
+            //            }
+            Text(vm.user?.displayName ?? "")
+                .font(.title)
+                .fontWeight(.bold)
             Text("@\(vm.user?.username ?? "")")
                 .font(.body)
                 .foregroundColor(Color.gray)
@@ -230,16 +174,13 @@ extension profileTab {
         } label: {
             HStack{
                 Image(systemName: "at")
-                    .font(.title)
-                    .foregroundColor(Color.black)
-                    .frame(width: 50, height: 50)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .padding(.horizontal)
+                    .profileTabButtonImageModifier(textColor: Color.black)
                 
                 Text("Change Display Name")
-                    .foregroundColor(Color.black)
+                    .fontWeight(.semibold)
                     .font(.body)
                     .fontWeight(.semibold)
+                    .foregroundColor(Color.black)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
                 Spacer()
@@ -264,15 +205,11 @@ extension profileTab {
         } label: {
             HStack{
                 Image(systemName: "camera")
-                    .font(.title)
-                    .foregroundColor(Color.black)
-                    .frame(width: 50, height: 50)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .padding(.horizontal)
+                    .profileTabButtonImageModifier(textColor: Color.black)
                 Text("Change Profile Picture")
-                    .foregroundColor(Color.black)
                     .font(.body)
                     .fontWeight(.semibold)
+                    .foregroundColor(Color.black)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
                 Spacer()
@@ -290,15 +227,14 @@ extension profileTab {
         } label: {
             HStack{
                 Image(systemName: "arrow.right.square")
-                    .font(.title)
-                    .foregroundColor(Color.black)
-                    .frame(width: 50, height: 50)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .padding(.horizontal)
+                    .profileTabButtonImageModifier(textColor: Color.black)
                 Text("Log Out")
-                    .foregroundColor(Color.black)
+                    .fontWeight(.semibold)
                     .font(.body)
                     .fontWeight(.semibold)
+                    .foregroundColor(Color.black)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                 Spacer()
                 Image(systemName: "chevron.right")
                     .foregroundColor(Color.black)
@@ -313,50 +249,19 @@ extension profileTab {
         } label: {
             HStack{
                 Image(systemName: "arrow.right.square")
-                    .font(.title)
-                    .foregroundColor(Color.red)
-                    .frame(width: 50, height: 50)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .padding(.horizontal)
+                    .profileTabButtonImageModifier(textColor: Color.red)
                 Text("Delete Account")
-                    .foregroundColor(Color.red)
+                    .fontWeight(.semibold)
                     .font(.body)
                     .fontWeight(.semibold)
+                    .foregroundColor(Color.red)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
                 Spacer()
                 Image(systemName: "chevron.right")
                     .foregroundColor(Color.red)
                     .padding()
             }.padding(.horizontal)
-        }
-    }
-    
-    private var friendsList: some View {
-        ForEach(vm.friends, id: \.uid) {friend in
-            HStack{
-                if friend.profilePicUrl != "" {
-                    WebImage(url: URL(string: friend.profilePicUrl))
-                        .userImageModifier(width: 50, height: 50)
-                        .padding(.horizontal)
-                }
-                else {
-                    Image("profile")
-                        .userImageModifier(width: 50, height: 50)
-                        .padding(.horizontal)
-                }
-                VStack(alignment: .leading){
-                    
-                    Text(friend.displayName)
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.black)
-                    Text("@\(friend.username)")
-                        .font(.callout)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.gray)
-                }
-                Spacer()
-            }
-            Divider().padding(.horizontal)
         }
     }
 }
