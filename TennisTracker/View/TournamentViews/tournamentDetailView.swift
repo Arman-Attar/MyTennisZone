@@ -23,86 +23,112 @@ struct tournamentDetailView: View {
     @State var matchId = ""
     @State var confirmDeleteAlert = false
     @State var loser: String = ""
+    @State var isLoading = false
+    @State var refresh = false
     
     var body: some View {
-        VStack(alignment: .leading) {
-            if tournamentVm.tournament != nil {
-                Picker("Tab View", selection: $selectedIndex, content: {
-                    Text("Table").tag(0)
-                    Text("Matches").tag(1)
-                })
-                .pickerStyle(SegmentedPickerStyle())
-                .padding()
-                if selectedIndex == 0 {
-                    HStack {
-                        Text("Standings")
+        ZStack {
+            VStack(alignment: .leading) {
+                if tournamentVm.tournament != nil {
+                    Picker("Tab View", selection: $selectedIndex, content: {
+                        Text("Table").tag(0)
+                        Text("Matches").tag(1)
+                    })
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding()
+                    if selectedIndex == 0 {
+                        HStack {
+                            Text("Standings")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .padding()
+                            Spacer()
+                        }
+                        StandingsView(playerList: tournamentVm.playerList)
+                    }
+                    else {
+                        Text("Match History")
                             .font(.title2)
                             .fontWeight(.bold)
                             .padding()
-                        Spacer()
+                        VStack{
+                            MatchHistoryView(listOfMatches: tournamentVm.listOfMatches, matchId: $matchId, modifyMatch: $modifyMatch, matchInfo: $matchInfo)
+                        }
                     }
-                    StandingsView(playerList: tournamentVm.playerList)
+                    Spacer()
+                } else {
+                    ProgressView()
                 }
-                else {
-                    Text("Match History")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .padding()
-                    VStack{
-                        MatchHistoryView(listOfMatches: tournamentVm.listOfMatches, matchId: $matchId, modifyMatch: $modifyMatch, matchInfo: $matchInfo)
+                
+            }
+            .sheet(isPresented: $modifyMatch, onDismiss: {
+                if refresh {
+                    Task {
+                        if let tournamentID = tournamentVm.tournament?.id {
+                            await tournamentVm.getCurrentTournament(tournamentID: tournamentID)
+                        }
                     }
                 }
-                Spacer()
-            } else {
-                ProgressView()
-            }
-            
-        }
-        .sheet(isPresented: $modifyMatch) {
-            if matchId != "" {
-                modifyMatchView(matchVM: MatchViewModel(id: tournamentVm.tournament!.id!, listOfMatches: tournamentVm.listOfMatches, playerList: tournamentVm.playerList, admin: tournamentVm.tournament!.admin, matchID: matchId), loser: $loser)
-            }
-        }
-        .sheet(isPresented: $matchInfo) {
-            if matchId != "" {
-                matchResultView(matchVM: MatchViewModel(id: tournamentVm.tournament!.id!, listOfMatches: tournamentVm.listOfMatches, playerList: tournamentVm.playerList, admin: tournamentVm.tournament!.admin, matchID: matchId))
-            }
-        }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                if tournamentVm.tournament?.admin ?? "" == userVm.user!.uid{
-                    Button {
-                        settingTapped.toggle()
-                    } label: {
-                        Image(systemName: "gear")
+            }, content: {
+                if matchId != "" {
+                    modifyMatchView(matchVM: MatchViewModel(id: tournamentVm.tournament!.id!, listOfMatches: tournamentVm.listOfMatches, playerList: tournamentVm.playerList, admin: tournamentVm.tournament!.admin, matchID: matchId), isLeague: false, loser: $loser, refresh: $refresh)
+                }
+            })
+            .sheet(isPresented: $matchInfo, onDismiss: {
+                if refresh {
+                    Task {
+                        if let tournamentID = tournamentVm.tournament?.id {
+                            await tournamentVm.getCurrentTournament(tournamentID: tournamentID)
+                        }
                     }
-                    
+                }
+            }, content: {
+                if matchId != "" {
+                    matchResultView(matchVM: MatchViewModel(id: tournamentVm.tournament!.id!, listOfMatches: tournamentVm.listOfMatches, playerList: tournamentVm.playerList, admin: tournamentVm.tournament!.admin, matchID: matchId), isLeague: false ,refresh: $refresh)
+                }
+            })
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if tournamentVm.tournament?.admin ?? "" == userVm.user!.uid{
+                        Button {
+                            settingTapped.toggle()
+                        } label: {
+                            Image(systemName: "gear")
+                        }
+                        
+                    }
                 }
             }
-        }
-        .confirmationDialog("Settings", isPresented: $settingTapped) {
-            Button(role: .destructive) {
-                confirmDeleteAlert.toggle()
-            } label: {
-                Text("Delete league")
+            .confirmationDialog("Settings", isPresented: $settingTapped) {
+                Button(role: .destructive) {
+                    confirmDeleteAlert.toggle()
+                } label: {
+                    Text("Delete league")
+                }
+                
             }
-            
-        }
-        .alert(isPresented: $confirmDeleteAlert) {
-            Alert(title: Text("Delete league"), message: Text("Are you sure you want to delete this league?"), primaryButton: .destructive(Text("Delete")){
+            .alert(isPresented: $confirmDeleteAlert) {
+                Alert(title: Text("Delete league"), message: Text("Are you sure you want to delete this league?"), primaryButton: .destructive(Text("Delete")){
+                    Task {
+                        isLoading.toggle()
+                        if await tournamentVm.deleteTournament(tournamentId: tournamentVm.tournament!.id!) {
+                            await tournamentVm.getTournaments()
+                            dismiss()
+                        } else {
+                            isLoading.toggle()
+                        }
+                    }
+                }, secondaryButton: .cancel())
+            }
+            .refreshable {
                 Task {
-                    if await tournamentVm.deleteTournament(tournamentId: tournamentVm.tournament!.id!) {
-                        await tournamentVm.getTournaments()
-                        dismiss()
+                    if let tournmentID = tournamentVm.tournament?.id {
+                        await tournamentVm.getCurrentTournament(tournamentID: tournmentID)
                     }
                 }
-            }, secondaryButton: .cancel())
         }
-        .refreshable {
-            Task {
-                if let tournmentID = tournamentVm.tournament?.id {
-                    await tournamentVm.getCurrentTournament(tournamentID: tournmentID)
-                }
+            if isLoading {
+                LoadingView()
             }
         }
     }

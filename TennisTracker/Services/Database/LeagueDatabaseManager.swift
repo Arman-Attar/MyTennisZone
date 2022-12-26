@@ -36,17 +36,21 @@ actor LeagueDatabaseManager {
         }
     }
     
-    func searchLeague(leagueName: String) async throws -> League? {
-        var league: League? = nil
+    func searchLeague(leagueName: String) async throws -> [League]? {
+        var leagues: [League] = []
         do {
             let data = try await FirebaseManager.shared.firestore.collection("leagues").whereField("name", isEqualTo: leagueName).getDocuments()
-            if let document = data.documents.first {
-                league = try document.data(as: League.self)
+            for document in data.documents {
+                try leagues.append(document.data(as: League.self))
             }
         } catch {
             throw (error)
         }
-        return league
+        if leagues.isEmpty {
+            return nil
+        } else {
+            return leagues
+        }
     }
     
     func joinLeague(playerData: [String: Any], leagueID: String, playerID: String) async throws {

@@ -10,7 +10,7 @@ import SDWebImageSwiftUI
 import Firebase
 
 struct modifyMatchView: View {
-    @ObservedObject var matchVM: MatchViewModel
+    @StateObject var matchVM: MatchViewModel
     @EnvironmentObject var userVm: UserViewModel
     @State var isLeague = true
     @Environment(\.dismiss) var dismiss
@@ -27,6 +27,7 @@ struct modifyMatchView: View {
     @State var isLoading = false
     @State var deleteSets = false
     @Binding var loser: String
+    var refresh: Binding<Bool>?
     var body: some View {
         ZStack{
             if !isLoading{
@@ -102,7 +103,7 @@ struct modifyMatchView: View {
                     addWinnerBottomSheet
                 }
             } else {
-                ProgressView()
+                LoadingView()
             }
         }
         .confirmationDialog("Settings", isPresented: $deleteTapped) {
@@ -119,6 +120,8 @@ struct modifyMatchView: View {
                     if isLeague {
                         isLoading = true
                         await matchVM.deleteMatch()
+                        refresh!.wrappedValue = true
+                        loser = "match deleted"
                     }
                     dismiss()
                 }
@@ -130,11 +133,11 @@ struct modifyMatchView: View {
     }
 }
 
-//struct modifyMatchView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        modifyMatchView()
-//    }
-//}
+struct modifyMatchView_Previews: PreviewProvider {
+    static var previews: some View {
+        modifyMatchView(matchVM: MatchViewModel(id: "", listOfMatches: [], playerList: [], admin: "", matchID: ""), loser: .constant(""), refresh: .constant(true))
+    }
+}
 
 extension modifyMatchView{
     
@@ -153,6 +156,7 @@ extension modifyMatchView{
                     Image("profile")
                         .userImageModifier(width: 100, height: 100)
                         .padding(.horizontal)
+                        .padding(.top)
                 }
                 
                 Text(matchVM.currentMatch?.player1DisplayName ?? "Oponent")
@@ -175,6 +179,7 @@ extension modifyMatchView{
                     Image("profile")
                         .userImageModifier(width: 100, height: 100)
                         .padding(.horizontal)
+                        .padding(.top)
                 }
                 
                 
@@ -383,12 +388,13 @@ extension modifyMatchView{
                         Task {
                             isLoading = true
                             self.loser = await matchVM.updateMatch(ongoing: matchOngoing, player1DisplayName: matchVM.currentMatch!.player1DisplayName, player2DisplayName: matchVM.currentMatch!.player2DisplayName, matchID: matchVM.currentMatch!.id, matchType: matchVM.currentMatch!.matchType)
+                            refresh!.wrappedValue = true
                             dismiss()
                         }
                     }
                 }
                 .alert(isPresented: $showAlert){
-                    Alert(title: Text("Error!"), message: Text("Required number of sets not reached"), dismissButton: .default(Text("Got it!")))
+                    Alert(title: Text("Error!"), message: Text("Inalid number of sets and or winner selected!"), dismissButton: .default(Text("Got it!")))
                 }
         }.padding()
     }
@@ -410,29 +416,29 @@ extension modifyMatchView{
                         deleteTapped.toggle()
                     }
             }
-            Text("Delete all sets")
-                .font(.headline)
-                .fontWeight(.bold)
-                .foregroundColor(Color.red)
-                .frame(width: UIScreen.main.bounds.size.width/4)
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
-                .padding()
-                .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
-                .onTapGesture {
-                    deleteSets.toggle()
-                }
-                .alert(isPresented: $deleteSets){
-                    Alert(title: Text("Delete all sets"), message: Text("Are you sure you want to delete all the sets for this match?"), primaryButton: .destructive(Text("Delete")){
-                        Task {
-                            isLoading = true
-                            await matchVM.deleteAllSets()
-                            isLoading = false
-                        }
-                    }, secondaryButton: .cancel())
-                }
+//            Text("Delete all sets")
+//                .font(.headline)
+//                .fontWeight(.bold)
+//                .foregroundColor(Color.red)
+//                .frame(width: UIScreen.main.bounds.size.width/4)
+//                .lineLimit(1)
+//                .minimumScaleFactor(0.5)
+//                .padding()
+//                .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
+//                .onTapGesture {
+//                    deleteSets.toggle()
+//                }
+//                .alert(isPresented: $deleteSets){
+//                    Alert(title: Text("Delete all sets"), message: Text("Are you sure you want to delete all the sets for this match?"), primaryButton: .destructive(Text("Delete")){
+//                        Task {
+//                            isLoading = true
+//                            await matchVM.deleteAllSets()
+//                            isLoading = false
+//                        }
+//                    }, secondaryButton: .cancel())
+//                }
             Spacer()
-        }.padding()
+        }.padding(.horizontal)
     }
     
     private func verifyScore() -> Bool{
@@ -447,7 +453,9 @@ extension modifyMatchView{
             }
         }
         let setsToWin = matchVM.currentMatch!.setsToWin
-        if player1Score == setsToWin || player2Score == setsToWin {
+        if player1Score == setsToWin && winner == matchVM.currentMatch?.player1DisplayName ?? "" {
+            return true
+        } else if player2Score == setsToWin && winner == matchVM.currentMatch?.player2DisplayName ?? ""{
             return true
         }
         else {

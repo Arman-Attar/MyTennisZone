@@ -31,17 +31,18 @@ struct TournamentWinnerView: View {
                             Text("To Be Determined").fontWeight(.heavy).padding()
                         }
                         else {
-                            if tournamentVm.tournament?.players[0].profilePicUrl ?? "profile" != "profile"{
+                            if tournamentVm.tournament?.players[0].profilePicUrl ?? "" != ""{
                                 
                                 WebImage(url: URL(string: tournamentVm.playerList[0].profilePicUrl))
                                     .userImageModifier(width: 150, height: 150)
                                 
-                                Text("\(tournamentVm.tournament!.players[0].displayName)").fontWeight(.heavy).padding()
                             }
                             else {
                                 Image("profile")
                                     .userImageModifier(width: 150, height: 150)
                             }
+                            
+                            Text("\(tournamentVm.tournament!.players[0].displayName)").fontWeight(.heavy).padding()
                         }
                         Spacer()
                     }.padding(.top)

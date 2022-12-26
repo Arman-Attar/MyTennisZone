@@ -17,7 +17,6 @@ struct opponentSelectionView: View {
     @State var playerName = ""
     @State var showForm = false
     var body: some View {
-        ZStack {
             VStack{
                 HStack {
                     Text("Choose players")
@@ -50,11 +49,9 @@ struct opponentSelectionView: View {
                         .padding()
                 }
                 selectOpponent
-            }
-            if showForm{
-                Rectangle().ignoresSafeArea().opacity(0.5)
+            }.sheet(isPresented: $showForm) {
                 playerForm
-            }
+                    .presentationDetents([.medium])
         }
     }
 }
@@ -71,7 +68,6 @@ struct opponentSelectionView: View {
 extension opponentSelectionView {
     
     private var playerForm: some View{
-        ZStack{
             Form{
                 HStack {
                     Spacer()
@@ -79,12 +75,9 @@ extension opponentSelectionView {
                     Spacer()
                 }
                 header
-                playerNameField.padding(.vertical)
+                playerNameField.padding(.top)
                 buttons
             }.cornerRadius(20)
-                .frame(width: UIScreen.main.bounds.size.width - 10, height: UIScreen.main.bounds.size.height / 1.7)
-                .position(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.maxY - 300)
-        }
     }
     
     private var selectOpponent: some View {
@@ -174,12 +167,12 @@ extension opponentSelectionView {
     private var header: some View {
         HStack{
             Text("Player Image")
-                .font(.title3)
+                .font(.title2)
                 .fontWeight(.semibold)
-                .padding()
+                .padding(.horizontal)
             Spacer()
                 Image("profile")
-                .userImageModifier(width: 100, height: 100)
+                .userImageModifier(width: 60, height: 60)
                 .padding()
             Spacer()
         }

@@ -18,10 +18,20 @@ struct joinLeagueView: View {
         VStack{
             searchBar
             ScrollView {
-                ForEach(0..<15){ num in
-                    Divider().padding()
+                if leagueVm.searchedLeagues != nil {
+                    ForEach(leagueVm.searchedLeagues!, id: \.id){ league in
+                        Button {
+                                if let playerID = vm.user?.uid {
+                                    leagueVm.getSearchedLeague(league: league, playerID: playerID)
+                                    showSheet.toggle()
+                                }
+                        } label: {
+                            LeagueSearchedCell(league: league)
+                        }
+                        Divider().padding()
+                    }
                 }
-            }
+            }.padding(.top)
         }.navigationTitle("Join a League")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showSheet) {
@@ -53,12 +63,9 @@ extension joinLeagueView {
             Button {
                 let trimmedName = leagueName.trimmingCharacters(in: .whitespacesAndNewlines)
                 Task {
-                    await leagueVm.findLeague(leagueName: trimmedName.lowercased(), playerID: vm.user!.uid)
-                    if leagueVm.league?.id ?? "" == ""{
+                    await leagueVm.findLeagues(leagueName: trimmedName.lowercased(), playerID: vm.user!.uid)
+                    if leagueVm.searchedLeagues == nil {
                         notFoundAlert = true
-                    }
-                    else{
-                        showSheet.toggle()
                     }
                 }
                 

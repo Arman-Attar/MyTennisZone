@@ -49,6 +49,7 @@ struct MatchBubble: View {
                 if match.player2Pic != "" {
                     WebImage(url: URL(string: match.player2Pic))
                         .userImageModifier(width: 50, height: 50)
+                        .padding()
                 } else {
                     Image("profile")
                         .userImageModifier(width: 50, height: 50)

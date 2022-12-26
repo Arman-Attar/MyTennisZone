@@ -78,7 +78,7 @@ extension EventBannerView {
         VStack{
             if let tournamentEvent = tournamentEvent {
                 if tournamentEvent.bannerURL == ""{
-                    Image("league")
+                    Image("tourny")
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: UIScreen.main.bounds.width/1.2, height: UIScreen.main.bounds.height/4)

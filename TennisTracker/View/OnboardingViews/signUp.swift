@@ -17,6 +17,7 @@ struct signUp: View {
     @State var showSuccess = false
     @StateObject var vm = OnboardingViewModel()
     @Environment(\.dismiss) var dismiss
+    @State var isLoading = false
     
     //    init(email: String, password: String){
     //        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.black]
@@ -41,6 +42,10 @@ struct signUp: View {
                 }
                 Spacer()
             }.ignoresSafeArea(.keyboard)
+            
+            if isLoading {
+                LoadingView().ignoresSafeArea()
+            }
         }
     }
 }
@@ -115,13 +120,16 @@ extension signUp {
         VStack{
             Button {
                 showError = false
+                isLoading = true
                 Task {
                     if await vm.register(email: email, password: password, username: userName) {
+                        isLoading = false
                         showSuccess = true
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                             dismiss()
                         }
                     } else {
+                        isLoading = false
                         showError = true
                     }
                 }

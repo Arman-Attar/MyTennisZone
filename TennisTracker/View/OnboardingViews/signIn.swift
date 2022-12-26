@@ -14,16 +14,21 @@ struct signIn: View {
     //    }
     @AppStorage("email") var email = ""
     @AppStorage("password") var password = ""
-    @State var isUserSignedIn = false
     @State var showPassword = false
     @State var forgotPassSheet = false
     @StateObject var vm = OnboardingViewModel()
+    @State var isLoading = false
     var body: some View {
-        if vm.isSignedIn{
-            mainPage()
-        }
-        else {
-            signInScreen
+        ZStack {
+            if vm.isSignedIn{
+                mainPage()
+            }
+            else {
+                signInScreen
+            }
+            if isLoading {
+                LoadingView().ignoresSafeArea()
+            }
         }
     }
 }
@@ -121,8 +126,10 @@ extension signIn {
     private var submitButton: some View {
         VStack{
             Button {
+                isLoading = true
                 Task{
                     await vm.logIn(email: email, password: password)
+                    isLoading = false
                 }
             } label: {
                 VStack {

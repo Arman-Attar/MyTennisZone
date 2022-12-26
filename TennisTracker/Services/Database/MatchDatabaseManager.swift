@@ -127,15 +127,17 @@ actor MatchDatabaseManager {
                     try await FirebaseManager.shared.firestore.collection("tournaments").document(competitionID).updateData(["players" : FieldValue.arrayUnion([playerData])])
                 }
             }
-            
+        } catch {
+            throw error
+        }
+        if winnerID != "" {
             try? await FirebaseManager.shared.firestore.collection("users").document(winnerID).updateData(
                 ["matchesPlayed" : FieldValue.increment(-1.00)])
             
             try? await FirebaseManager.shared.firestore.collection("users").document(winnerID).updateData(["matchesWon" : FieldValue.increment(-1.00)])
-            
+        }
+        if loserID != "" {
             try? await FirebaseManager.shared.firestore.collection("users").document(loserID).updateData(["matchesPlayed" : FieldValue.increment(-1.00)])
-        } catch {
-            throw error
         }
     }
     

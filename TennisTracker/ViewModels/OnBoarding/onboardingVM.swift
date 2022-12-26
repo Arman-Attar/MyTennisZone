@@ -12,10 +12,10 @@ class OnboardingViewModel: ObservableObject {
     @Published var isSignedIn = false
     
     func register(email: String, password: String, username: String) async -> Bool {
-        if await FirebaseManager.shared.validateUsername(username: username.lowercased()) {
+        if await FirebaseManager.shared.validateUsername(username: username.lowercased().replacingOccurrences(of: " ", with: "")) {
             do {
                 try await FirebaseManager.shared.auth.createUser(withEmail: email.lowercased(), password: password)
-                try await createUser(email: email.lowercased(), username: username)
+                try await createUser(email: email.lowercased(), username: username.replacingOccurrences(of: " ", with: "").lowercased())
                 return true
             } catch {
                 await MainActor.run(body: { [weak self] in
@@ -41,7 +41,7 @@ class OnboardingViewModel: ObservableObject {
         }
     }
     
-    func logIn(email: String, password: String) async {
+    func logIn(email: String, password: String) async -> Bool{
         await MainActor.run(body: { [weak self] in
             self?.message = ""
         })
@@ -50,11 +50,13 @@ class OnboardingViewModel: ObservableObject {
             await MainActor.run(body: { [weak self] in
                 self?.isSignedIn = true
             })
+            return true
         } catch {
             await MainActor.run(body: { [weak self] in
                 self?.message = ("Unable to sign in: \(error.localizedDescription)")
                 self?.isSignedIn = false
             })
+            return false
         }
     }
     

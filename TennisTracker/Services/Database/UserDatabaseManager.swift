@@ -58,16 +58,41 @@ actor UserDatabaseManager {
     }
     
     func deleteUserData(userID: String) async throws {
+        //delete user image if he had one
+        try? await FirebaseManager.shared.storage.reference(withPath: userID).delete()
         do {
-            //delete user image if he had one
-            try? await FirebaseManager.shared.storage.reference(withPath: userID).delete()
             //delete user data
+            print(userID)
+            let leagueDocument = try await FirebaseManager.shared.firestore.collection("leagues").whereField("playerId", arrayContains: userID).getDocuments()
+            for league in leagueDocument.documents {
+                print("inside league")
+                let leagueData = try league.data(as: League.self)
+                if let player = leagueData.players.first(where: {$0.uid == userID}) {
+                    let playerData = ["uid": player.uid, "profilePicUrl": player.profilePicUrl, "displayName": player.displayName, "points": player.points, "wins": player.wins, "losses": player.losses] as [String: Any]
+                    print(playerData)
+                    try await FirebaseManager.shared.firestore.collection("leagues").document(league.documentID).updateData(["players" : FieldValue.arrayRemove([playerData])])
+                }
+                try await FirebaseManager.shared.firestore.collection("leagues").document(league.documentID).updateData(["playerId" : FieldValue.arrayRemove([userID])])
+            }
+            
+            let tournamentDocument = try await FirebaseManager.shared.firestore.collection("tournaments").whereField("playerId", arrayContains: userID).getDocuments()
+            for tournament in tournamentDocument.documents {
+                let tournamentData = try tournament.data(as: Tournament.self)
+                if let player = tournamentData.players.first(where: {$0.uid == userID}) {
+                    let playerData = ["uid": player.uid, "profilePicUrl": player.profilePicUrl, "displayName": player.displayName, "points": player.points, "wins": player.wins, "losses": player.losses] as [String: Any]
+                    try await FirebaseManager.shared.firestore.collection("tournaments").document(tournament.documentID).updateData(["players" : FieldValue.arrayRemove([playerData])])
+                }
+                try await FirebaseManager.shared.firestore.collection("tournaments").document(tournament.documentID).updateData(["playerId" : FieldValue.arrayRemove([userID])])
+            }
+            
             try await FirebaseManager.shared.firestore.collection("users").document(userID).delete()
             //remove current user from their friends, friends list
             let friendsData = try await FirebaseManager.shared.firestore.collection("users").whereField("friends", arrayContains: userID).getDocuments()
             for friend in friendsData.documents {
                 try await FirebaseManager.shared.firestore.collection("users").document(friend.documentID).updateData(["friends" : FieldValue.arrayRemove([userID])])
             }
+            
+           
         } catch {
             throw error
         }

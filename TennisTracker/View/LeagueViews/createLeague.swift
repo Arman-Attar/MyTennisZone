@@ -30,10 +30,10 @@ struct createLeague: View {
                 leagueNameField.padding(.vertical, 10)
                 opponentSection
                 buttonSection
-            }.navigationTitle("Create a tournament")
+            }.navigationTitle("Create a league")
                 .navigationBarTitleDisplayMode(.inline)
                 .sheet(isPresented: $opponentSelection) {
-                    opponentSelectionView(players: $players, playerId: $playerId).environmentObject(vm)
+                    opponentSelectionView(players: $players, playerId: $playerId).environmentObject(vm).padding(.bottom)
                 }
                 .onAppear{
                     players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user!.profilePicUrl, displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0))
@@ -51,14 +51,9 @@ struct createLeague: View {
                             .default(Text("Got it!")))
                 }
             if isLoading{
-                ZStack{
-                    Color(.systemBackground)
-                        .ignoresSafeArea()
-                        .opacity(0.7)
-                    ProgressView()
-                }
+                    LoadingView()
             }
-        }
+        }.padding(.bottom)
     }
 }
 

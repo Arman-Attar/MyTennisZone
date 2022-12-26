@@ -120,7 +120,7 @@ class TournamentViewModel: ObservableObject {
     
     private func generateMatches(playerList: [Player], mode: String, setsToWin: Int) -> [Match] {
         var matches: [Match] = []
-        var temp = playerList
+        var temp = playerList.shuffled()
         if mode == "Round Robin"{
             while temp.count != 1 {
                 for i in 1..<temp.count {
@@ -198,6 +198,15 @@ class TournamentViewModel: ObservableObject {
             await MainActor.run(body: { [weak self] in
                 self?.playerList.remove(at:index)
             })
+            if currentRound == "FINAL" {
+                let finalMatchIndex = listOfMatches.endIndex - 1
+                let finalMatch = listOfMatches[finalMatchIndex]
+                let winner = finalMatch.winner
+                let loser = (winner == finalMatch.player1DisplayName ? finalMatch.player2DisplayName : finalMatch.player1DisplayName )
+                let winnerIndex = playerList.firstIndex(where: {$0.displayName == winner})
+                let winnerID = playerList[winnerIndex!].uid
+                try await TournamentDatabaseManager.shared.tournamentWrapUp(winner: winner, winnerID: winnerID, tournamentID: self.tournament!.id!)
+            }
         } catch {
             print(error)
         }

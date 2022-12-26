@@ -151,10 +151,25 @@ class MatchViewModel: ObservableObject {
                     loser = currentMatch.player1DisplayName
                 }
                 let loserIndex = players.firstIndex(where: { $0.displayName == loser})
-                players[winnerIndex!].points -= 3
-                players[winnerIndex!].wins -= 1
-                players[loserIndex!].losses -= 1
-                try await MatchDatabaseManager.shared.updateDeletedStats(competitionID: self.id, winnerID: players[winnerIndex!].uid, loserID: players[loserIndex!].uid, players: players, competition: currentMatch.matchType)
+                if let winnerIndex = winnerIndex, let loserIndex = loserIndex {
+                    players[winnerIndex].points -= 3
+                    players[winnerIndex].wins -= 1
+                    players[loserIndex].losses -= 1
+                    
+                    try await MatchDatabaseManager.shared.updateDeletedStats(competitionID: self.id, winnerID: players[winnerIndex].uid, loserID: players[loserIndex].uid, players: players, competition: currentMatch.matchType)
+                    
+                } else if let winnerIndex = winnerIndex {
+                    players[winnerIndex].points -= 3
+                    players[winnerIndex].wins -= 1
+                    
+                    try await MatchDatabaseManager.shared.updateDeletedStats(competitionID: self.id, winnerID: players[winnerIndex].uid, loserID: "", players: players, competition: currentMatch.matchType)
+                    
+                } else if let loserIndex = loserIndex {
+                    players[loserIndex].losses -= 1
+                    
+                    try await MatchDatabaseManager.shared.updateDeletedStats(competitionID: self.id, winnerID: "", loserID: players[loserIndex].uid, players: players, competition: currentMatch.matchType)
+                }
+
                 try await MatchDatabaseManager.shared.deleteSets(matchID: currentMatch.id)
             }
             
@@ -197,12 +212,12 @@ class MatchViewModel: ObservableObject {
         }
     }
     
-    func deleteAllSets() async {
-        guard let matchID = self.matchID else { return }
-        do {
-            try await MatchDatabaseManager.shared.deleteSets(matchID: matchID)
-        } catch {
-            print(error)
-        }
-    }
+//    func deleteAllSets() async {
+//        guard let matchID = self.matchID else { return }
+//        do {
+//            try await MatchDatabaseManager.shared.deleteSets(matchID: matchID)
+//        } catch {
+//            print(error)
+//        }
+//    }
 }

@@ -26,6 +26,7 @@ struct addMatchView: View {
     @State var showSetSheet = false
     @State var showAlert = false
     @State var isLoading = false
+    @Binding var refresh: Bool
     @ObservedObject var matchVM: MatchViewModel
     @Environment(\.dismiss) var dismiss
     var body: some View {
@@ -89,7 +90,7 @@ struct addMatchView: View {
                             SelectOponentView(playerNumber: $playerNumber, player1: $player1, player2: $player2, showPlayerList: $showPlayerList, playerList: matchVM.playerList)
                         }
                 } else {
-                    ProgressView()
+                    LoadingView()
                 }
             }
             if showSetSheet{
@@ -102,7 +103,7 @@ struct addMatchView: View {
                 SelectWinnerView(showWinnerSheet: $showWinnerSheet, winner: $winner, player1: player1, player2: player2)
             }
         }.alert(isPresented: $showAlert){
-            Alert(title: Text("Error!"), message: Text("Required number of sets not reached"), dismissButton: .default(Text("Got it!")))
+            Alert(title: Text("Error!"), message: Text("Inalid number of sets and or winner selected!"), dismissButton: .default(Text("Got it!")))
         }
     }
 }
@@ -110,7 +111,7 @@ struct addMatchView: View {
 
 struct addMatchView_Previews: PreviewProvider {
     static var previews: some View {
-        addMatchView(matchVM: MatchViewModel(id: "", listOfMatches: [], playerList: [], admin: "", matchID: ""))
+        addMatchView(refresh: .constant(true), matchVM: MatchViewModel(id: "", listOfMatches: [], playerList: [], admin: "", matchID: ""))
     }
 }
 
@@ -143,6 +144,7 @@ extension addMatchView {
                             Task {
                                 isLoading = true
                                 if await matchVM.createMatch(matchOngoing: matchOngoing, player1: player1!, player2: player2!, date: matchDate, setsToWin: numberOfSets, matchType: "league" , sets: sets, matchID: matchId) {
+                                    refresh = true
                                     dismiss()
                                 }
                             }
@@ -176,7 +178,9 @@ extension addMatchView {
     
     private func verifyScore() -> Bool{
         (player1Score, player2Score) = Utilities.calculatePlayerScores(sets: sets)
-        if player1Score == numberOfSets || player2Score == numberOfSets{
+        if player1Score == numberOfSets && winner == player1?.uid ?? "" {
+            return true
+        } else if player2Score == numberOfSets && winner == player2?.uid ?? "" {
             return true
         }
         else {
@@ -184,3 +188,4 @@ extension addMatchView {
         }
     }
 }
+

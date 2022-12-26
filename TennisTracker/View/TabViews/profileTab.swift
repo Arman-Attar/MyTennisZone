@@ -16,6 +16,7 @@ struct profileTab: View {
     @State var showFriendsList = false
     @State var confirmDeleteAlert = false
     @State var permission = false
+    @State var isLoading = false
     @EnvironmentObject private var vm: UserViewModel
     var body: some View {
         ZStack{
@@ -65,11 +66,17 @@ struct profileTab: View {
                 ChangeDisplayNameView(changeDisplayName: $changeDisplayName).environmentObject(vm)
             }
             
+            if isLoading {
+                LoadingView()
+            }
+            
         }.alert(isPresented: $confirmDeleteAlert) {
             Alert(title: Text("Delete Account"), message: Text("Are you sure you want to delete your account?"), primaryButton:
                     .destructive(Text("Delete")){
+                        isLoading = true
                         Task {
                             await vm.deleteUser()
+                            isLoading = false
                         }
                     }, secondaryButton: .cancel())
         }

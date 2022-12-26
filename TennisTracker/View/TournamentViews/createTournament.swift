@@ -29,109 +29,121 @@ struct createTournament: View {
     @State var showAlert = false
     @State var photoPermission = false
     @State var invalidNameAlert = false
+    @State var isLoading = false
     
     var modes = ["Bracket", "Round Robin"]
     var bracketGeneration = "Random"
     
     var body: some View {
         NavigationView {
-            Form{
-                leagueBanner.padding(.vertical)
-                leagueNameField.padding(.vertical, 10)
-                HStack {
-                    Spacer()
-                    Picker("First To:", selection: $numberOfSets) {
-                        ForEach(0..<5){ set in
-                            Text("\(set) Sets")
-                        }
-                    }
-                }.padding()
-                HStack {
-                    Spacer()
-                    Picker("Tournament Mode:", selection: $mode) {
-                        ForEach(modes, id: \.self){ mode in
-                            Text(mode)
-                        }
-                    }
-                }.padding()
-                if mode == "Bracket"{
-                    HStack{
-                        Text("Bracket Generation:").padding(.leading, 8)
-                        Spacer()
-                        Text("Random").padding(.trailing, 11)
-                    }.padding()
-                }
-                VStack {
+            ZStack {
+                Form{
+                    leagueBanner.padding(.vertical)
+                    leagueNameField.padding(.vertical, 10)
                     HStack {
-                        Text("Players")
-                            .font(.title3)
-                            .fontWeight(.bold)
-                            .padding()
                         Spacer()
-                        Image(systemName: "person.fill.badge.plus")
-                        
-                            .font(.title3)
-                            .onTapGesture {
-                                opponentSelection.toggle()
-                            }
-                            .padding()
-                    }
-                    HStack(spacing: -20) {
-                        ForEach(players, id:\.uid) { player in
-                            if player.profilePicUrl != "" {
-                                WebImage(url: URL(string: player.profilePicUrl))
-                                    .userImageModifier(width: 50, height: 50)
-                            } else {
-                                Image("profile")
-                                    .userImageModifier(width: 50, height: 50)
+                        Picker("First To:", selection: $numberOfSets) {
+                            ForEach(0..<5){ set in
+                                Text("\(set) Sets")
                             }
                         }
                     }.padding()
-                }
-                HStack {
-                    Spacer()
-                    createButton.onTapGesture {
-                        if verifyNumbOfPlayers(){
-                            Task {
-                                let result = await tournamentVM.createTournament(tournamentName: tournamentName, playerId: playerId, admin: vm.user!.uid, players: players, bannerImage: image, mode: mode, setsToWin: numberOfSets)
-                                if result {
-                                    dismiss()
+                    HStack {
+                        Spacer()
+                        Picker("Tournament Mode:", selection: $mode) {
+                            ForEach(modes, id: \.self){ mode in
+                                Text(mode)
+                            }
+                        }
+                    }.padding()
+                    if mode == "Bracket"{
+                        HStack{
+                            Text("Bracket Generation:").padding(.leading, 8)
+                            Spacer()
+                            Text("Random").padding(.trailing, 11)
+                        }.padding()
+                    }
+                    VStack {
+                        HStack {
+                            Text("Players")
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .padding()
+                            Spacer()
+                            Image(systemName: "person.fill.badge.plus")
+                            
+                                .font(.title3)
+                                .onTapGesture {
+                                    opponentSelection.toggle()
+                                }
+                                .padding()
+                        }
+                        HStack(spacing: -20) {
+                            ForEach(players, id:\.uid) { player in
+                                if player.profilePicUrl != "" {
+                                    WebImage(url: URL(string: player.profilePicUrl))
+                                        .userImageModifier(width: 50, height: 50)
+                                } else {
+                                    Image("profile")
+                                        .userImageModifier(width: 50, height: 50)
+                                }
+                            }
+                        }.padding()
+                    }
+                    HStack {
+                        Spacer()
+                        createButton.onTapGesture {
+                            if isNameInvalid() {
+                                invalidNameAlert.toggle()
+                            } else if !verifyNumbOfPlayers() {
+                                showAlert.toggle()
+                            } else {
+                                Task {
+                                    isLoading = true
+                                    let result = await tournamentVM.createTournament(tournamentName: tournamentName, playerId: playerId, admin: vm.user!.uid, players: players, bannerImage: image, mode: mode, setsToWin: numberOfSets)
+                                    if result {
+                                        dismiss()
+                                    } else {
+                                        isLoading = false
+                                    }
                                 }
                             }
                         }
-                        else {
-                            showAlert.toggle()
+                        .alert(isPresented: $showAlert){
+                            Alert(title: Text("Error!"), message: Text("Number of players are not valid"), dismissButton: .default(Text("Got it!")))
                         }
+                        Spacer()
                     }
-                    
-                    Spacer()
                 }
-            }
-            .sheet(isPresented: $opponentSelection) {
-                opponentSelectionView(players: $players, playerId: $playerId)
-            }
-            .onAppear{
-                if playerId.isEmpty {
-                    players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user?.profilePicUrl ?? "", displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0))
-                    playerId.append(vm.user?.uid ?? "")
+                .sheet(isPresented: $opponentSelection) {
+                    opponentSelectionView(players: $players, playerId: $playerId)
                 }
+                .onAppear{
+                    if playerId.isEmpty {
+                        players.append(Player(uid: vm.user?.uid ?? "", profilePicUrl: vm.user?.profilePicUrl ?? "", displayName: vm.user?.displayName ?? "", points: 0, wins: 0, losses: 0))
+                        playerId.append(vm.user?.uid ?? "")
+                    }
+                }
+                .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
+                    ImagePicker(image: $image)
+                }
+                .navigationBarHidden(true)
+                .sheet(isPresented: $opponentSelection) {
+                    opponentSelectionView(players: $players, playerId: $playerId)
+                }
+                .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
+                    ImagePicker(image: $image)
+                }
+                .alert(isPresented: $photoPermission) {
+                    Alert(title: Text("Permission Denied!"), message: Text("Please go into your settings and give photo permissions for TennisTracker"), dismissButton:
+                            .default(Text("Got it!")))
             }
-            .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
-                ImagePicker(image: $image)
-            }
-            .navigationBarHidden(true)
-            .alert(isPresented: $showAlert){
-                Alert(title: Text("Error!"), message: Text("Number of players are not valid"), dismissButton: .default(Text("Got it!")))
-            }
-            .sheet(isPresented: $opponentSelection) {
-                opponentSelectionView(players: $players, playerId: $playerId)
-            }
-            .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
-                ImagePicker(image: $image)
-            }
-            .alert(isPresented: $photoPermission) {
-                Alert(title: Text("Permission Denied!"), message: Text("Please go into your settings and give photo permissions for TennisTracker"), dismissButton:
-                        .default(Text("Got it!")))
+                .alert(isPresented: $invalidNameAlert){
+                    Alert(title: Text("Error!"), message: Text("Name field cannot be empty"), dismissButton: .default(Text("Got it!")))
+                }
+                if isLoading {
+                    LoadingView()
+                }
             }
         }
         .navigationTitle("Create a tournament")
@@ -172,7 +184,7 @@ extension createTournament {
                     }
             }
             else {
-                Image("league")
+                Image("tourny")
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: UIScreen.main.bounds.width/1.26, height: UIScreen.main.bounds.height/4)
@@ -290,9 +302,11 @@ extension createTournament {
         }
     }
     
-    private func verifyName() {
+    private func isNameInvalid() -> Bool {
         if tournamentName == "" {
-            invalidNameAlert.toggle()
+            return true
+        } else {
+            return false
         }
     }
 }

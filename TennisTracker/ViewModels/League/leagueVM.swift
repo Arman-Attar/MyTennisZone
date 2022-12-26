@@ -13,6 +13,7 @@ import FirebaseFirestoreSwift
 class LeagueViewModel: ObservableObject {
     @Published var leagues: [League]?
     @Published var league: League?
+    @Published var searchedLeagues: [League]?
     @Published var playerList: [Player] = []
     @Published var listOfMatches: [Match] = []
     @Published var currentMatch: Match?
@@ -49,15 +50,15 @@ class LeagueViewModel: ObservableObject {
         }
     }
     
-    func findLeague(leagueName: String, playerID: String) async {
+    func findLeagues(leagueName: String, playerID: String) async {
         await MainActor.run(body: { [weak self] in
-            self?.league = nil
+            self?.searchedLeagues = nil
         })
         do {
-            if let league = try await LeagueDatabaseManager.shared.searchLeague(leagueName: leagueName) {
+            if let leagues = try await LeagueDatabaseManager.shared.searchLeague(leagueName: leagueName) {
                 await MainActor.run(body: { [weak self] in
-                    self?.league = league
-                    self?.playerList = league.players
+                    self?.searchedLeagues = leagues
+                    //self?.playerList = league.players
                 })
             }
         } catch {
@@ -67,13 +68,15 @@ class LeagueViewModel: ObservableObject {
                 
             })
         }
-        let userStatus = await isUserJoined(playerID: playerID)
-        await MainActor.run(body: { [weak self] in
-            self?.playerIsJoined = userStatus
-        })
     }
     
-    func isUserJoined(playerID: String) async -> Bool {
+    func getSearchedLeague(league: League, playerID: String) {
+            self.league = league
+            self.playerList = league.players
+            self.playerIsJoined = isUserJoined(playerID: playerID)
+    }
+    
+    func isUserJoined(playerID: String) -> Bool {
         let result = self.playerList.filter{playerID == $0.uid}
         return !result.isEmpty
     }
