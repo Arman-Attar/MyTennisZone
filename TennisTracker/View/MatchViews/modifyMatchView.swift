@@ -37,7 +37,7 @@ struct modifyMatchView: View {
                             .font(.title)
                             .fontWeight(.bold)
                             .padding()
-                        vsSection
+                        vsSection.padding(.horizontal)
                         HStack{
                             Text("Match Date:")
                             Spacer()
@@ -166,6 +166,8 @@ extension modifyMatchView{
             }
             Text("VS")
                 .font(.system(size: 20, weight: .bold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
                 .offset(y: -25)
             
             VStack{

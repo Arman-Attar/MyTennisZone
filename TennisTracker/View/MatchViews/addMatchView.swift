@@ -38,7 +38,7 @@ struct addMatchView: View {
                             .font(.title)
                             .fontWeight(.bold)
                             .padding()
-                        HeadToHeadView(player1: player1, player2: player2, playerNumber: $playerNumber, showPlayerList: $showPlayerList)
+                        HeadToHeadView(player1: player1, player2: player2, playerNumber: $playerNumber, showPlayerList: $showPlayerList).padding(.horizontal)
                         DatePicker("Match Date:", selection: $matchDate, displayedComponents: .date).padding(.horizontal).padding(.vertical, 2).font(.callout)
                         Picker("First To:", selection: $numberOfSets) {
                             ForEach(0..<6){ set in

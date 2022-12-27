@@ -46,6 +46,8 @@ struct HeadToHeadView: View {
             }
             Text("VS")
                 .font(.system(size: 20, weight: .bold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
                 .offset(y: -25)
             
             VStack{
