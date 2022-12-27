@@ -30,7 +30,7 @@ struct tournyView: View {
                                         }
                                 } else {
                                     bracketDetailView(tournamentVm: tournamentVm)
-                                        .navigationTitle(index.name).onAppear{
+                                        .navigationTitle(index.name.capitalized).onAppear{
                                             Task {
                                                 await tournamentVm.getCurrentTournament(tournamentID: index.id!)
                                             }
