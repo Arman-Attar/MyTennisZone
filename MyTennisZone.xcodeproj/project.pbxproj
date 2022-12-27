@@ -33,11 +33,11 @@
 		C22E817F281B3521009593BE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C22E817E281B3521009593BE /* Preview Assets.xcassets */; };
 		C23BD39E2836E705004E31D2 /* leagueVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = C23BD39D2836E705004E31D2 /* leagueVM.swift */; };
 		C23BD3A028373E1A004E31D2 /* leagueDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C23BD39F28373E1A004E31D2 /* leagueDetailView.swift */; };
+		C24427CD295A8F16007FE236 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C24427CC295A8F16007FE236 /* GoogleService-Info.plist */; };
 		C24C4BE9282A17B2004FA8A5 /* homePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24C4BE8282A17B2004FA8A5 /* homePage.swift */; };
 		C24C4BEB282B6F8E004FA8A5 /* leagueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24C4BEA282B6F8E004FA8A5 /* leagueView.swift */; };
 		C24C4BED282C2C6A004FA8A5 /* tournyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24C4BEC282C2C6A004FA8A5 /* tournyView.swift */; };
 		C24C4BEF282D9B6A004FA8A5 /* imagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24C4BEE282D9B6A004FA8A5 /* imagePicker.swift */; };
-		C2521616282DA6B9004C124A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C2521615282DA6B9004C124A /* GoogleService-Info.plist */; };
 		C2521619282DA749004C124A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = C2521618282DA749004C124A /* FirebaseAuth */; };
 		C252161B282DA749004C124A /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = C252161A282DA749004C124A /* FirebaseFirestore */; };
 		C252161D282DA749004C124A /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = C252161C282DA749004C124A /* FirebaseStorage */; };
@@ -108,11 +108,11 @@
 		C22E817E281B3521009593BE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C23BD39D2836E705004E31D2 /* leagueVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = leagueVM.swift; sourceTree = "<group>"; };
 		C23BD39F28373E1A004E31D2 /* leagueDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = leagueDetailView.swift; sourceTree = "<group>"; };
+		C24427CC295A8F16007FE236 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		C24C4BE8282A17B2004FA8A5 /* homePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = homePage.swift; sourceTree = "<group>"; };
 		C24C4BEA282B6F8E004FA8A5 /* leagueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = leagueView.swift; sourceTree = "<group>"; };
 		C24C4BEC282C2C6A004FA8A5 /* tournyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tournyView.swift; sourceTree = "<group>"; };
 		C24C4BEE282D9B6A004FA8A5 /* imagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = imagePicker.swift; sourceTree = "<group>"; };
-		C2521615282DA6B9004C124A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		C252161E282DFD7E004C124A /* userVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = userVM.swift; sourceTree = "<group>"; };
 		C252162628320309004C124A /* addFriend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = addFriend.swift; sourceTree = "<group>"; };
 		C25D392D2947A9F200B6520B /* League.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = League.swift; sourceTree = "<group>"; };
@@ -178,6 +178,7 @@
 				C282C2A9294E88CB0044D09E /* LeagueViews */,
 				C282C2AB294E89170044D09E /* TournamentViews */,
 				C22703A129591E9500B85000 /* LottieView.swift */,
+				C24427CC295A8F16007FE236 /* GoogleService-Info.plist */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -244,7 +245,6 @@
 				C211BB0B281B3F0200C964F2 /* View */,
 				C211BB0A281B3D3C00C964F2 /* TennisTracker.entitlements */,
 				C22E8177281B351F009593BE /* TennisTrackerApp.swift */,
-				C2521615282DA6B9004C124A /* GoogleService-Info.plist */,
 				C22E817B281B3521009593BE /* Assets.xcassets */,
 				C227039C29591A1000B85000 /* loading.json */,
 				C22E817D281B3521009593BE /* Preview Content */,
@@ -490,9 +490,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				C22E817F281B3521009593BE /* Preview Assets.xcassets in Resources */,
+				C24427CD295A8F16007FE236 /* GoogleService-Info.plist in Resources */,
 				C22E817C281B3521009593BE /* Assets.xcassets in Resources */,
 				C227039D29591A1000B85000 /* loading.json in Resources */,
-				C2521616282DA6B9004C124A /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
