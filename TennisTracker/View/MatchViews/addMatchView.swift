@@ -26,6 +26,7 @@ struct addMatchView: View {
     @State var showSetSheet = false
     @State var showAlert = false
     @State var isLoading = false
+    @State var noPlayerSelectedAlert = false
     @Binding var refresh: Bool
     @ObservedObject var matchVM: MatchViewModel
     @Environment(\.dismiss) var dismiss
@@ -89,13 +90,16 @@ struct addMatchView: View {
                         .sheet(isPresented: $showPlayerList) {
                             SelectOponentView(playerNumber: $playerNumber, player1: $player1, player2: $player2, showPlayerList: $showPlayerList, playerList: matchVM.playerList)
                         }
+                        .alert(isPresented: $noPlayerSelectedAlert){
+                            Alert(title: Text("Error!"), message: Text("Please select the players first then input set scores"), dismissButton: .default(Text("Got it!")))
+                        }
                 } else {
                     LoadingView()
                 }
             }
             if showSetSheet{
                 Rectangle().ignoresSafeArea().opacity(0.5)
-                AddSetView(player1: player1, player2: player2, matchID: matchId, matchVM: matchVM, showSetSheet: $showSetSheet, sets: $sets)
+                AddSetView(player1: player1, player2: player2, matchID: matchId, matchVM: matchVM, noPlayerSelectedAlert: $noPlayerSelectedAlert ,showSetSheet: $showSetSheet, sets: $sets)
                 
             }
             if showWinnerSheet{
@@ -167,7 +171,7 @@ extension addMatchView {
             }
             HStack{
                 if !sets.isEmpty{
-                    ForEach(sets, id: \.id) { set in
+                    ForEach(Array(sets.enumerated()), id: \.offset) { _ , set in
                         Text("\(set.player1Points)-\(set.player2Points)").font(.headline).fontWeight(.bold)
                         Divider()
                     }

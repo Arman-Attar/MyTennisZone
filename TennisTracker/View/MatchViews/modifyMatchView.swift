@@ -220,7 +220,7 @@ extension modifyMatchView{
             }
             HStack{
                 if !matchVM.currentSets.isEmpty {
-                    ForEach(matchVM.currentSets, id: \.id) { set in
+                    ForEach(Array(matchVM.currentSets.enumerated()), id: \.offset) { _ , set in
                         Text("\(set.player1Points)-\(set.player2Points)").font(.headline).fontWeight(.bold)
                         Divider()
                     }

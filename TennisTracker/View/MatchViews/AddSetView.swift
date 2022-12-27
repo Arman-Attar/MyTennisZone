@@ -16,6 +16,7 @@ struct AddSetView: View {
     @ObservedObject var matchVM: MatchViewModel
     @State var player1SetScore = 0
     @State var player2SetScore = 0
+    @Binding var noPlayerSelectedAlert: Bool
     @Binding var showSetSheet: Bool
     @Binding var sets: [Set]
     
@@ -85,12 +86,16 @@ struct AddSetView: View {
                             .overlay(RoundedRectangle(cornerRadius: 20).stroke(lineWidth: 1))
                             .onTapGesture {
                                 var setWinner = ""
-                                if player1SetScore > player2SetScore { setWinner = player1?.uid ?? ""}
-                                else { setWinner = player2?.uid ?? ""}
-                                let set = Set(matchId: matchID, winner: setWinner, player1Uid: player1!.uid, player2Uid: player2!.uid, player1Points: player1SetScore, player2Points: player2SetScore)
-                                sets.append(set)
-                                Task {
-                                    await matchVM.addSet(p1Points: player1SetScore, p2Points: player2SetScore, set: set)
+                                if player1 != nil && player2 != nil {
+                                    if player1SetScore > player2SetScore { setWinner = player1?.uid ?? ""}
+                                    else { setWinner = player2?.uid ?? ""}
+                                    let set = Set(matchId: matchID, winner: setWinner, player1Uid: player1!.uid, player2Uid: player2!.uid, player1Points: player1SetScore, player2Points: player2SetScore)
+                                    sets.append(set)
+                                    Task {
+                                        await matchVM.addSet(p1Points: player1SetScore, p2Points: player2SetScore, set: set)
+                                    }
+                                } else {
+                                    noPlayerSelectedAlert.toggle()
                                 }
                                 showSetSheet.toggle()
                             }
