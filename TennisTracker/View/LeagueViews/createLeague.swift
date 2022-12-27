@@ -27,6 +27,10 @@ struct createLeague: View {
         ZStack{
             Form{
                 leagueBanner.padding(.vertical)
+                    .alert(isPresented: $photoPermission) {
+                        Alert(title: Text("Permission Denied!"), message: Text("Please go into your settings and give photo permissions for MyTennisZone"), dismissButton:
+                                .default(Text("Got it!")))
+                    }
                 leagueNameField.padding(.vertical, 10)
                 opponentSection
                 buttonSection
@@ -41,10 +45,6 @@ struct createLeague: View {
                 }
                 .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
                     ImagePicker(image: $image)
-                }
-                .alert(isPresented: $photoPermission) {
-                    Alert(title: Text("Permission Denied!"), message: Text("Please go into your settings and give photo permissions for TennisTracker"), dismissButton:
-                            .default(Text("Got it!")))
                 }
                 .alert(isPresented: $invalidLeagueNameAlert) {
                     Alert(title: Text("Invalid League Name!"), message: Text("League name cannot be empty"), dismissButton:
@@ -81,7 +81,7 @@ extension createLeague {
                             if status == .authorized || status == .limited {
                                 showImagePicker.toggle()
                             } else {
-                                photoPermission = false
+                                photoPermission = true
                             }
                         }
                         
@@ -102,7 +102,7 @@ extension createLeague {
                             if status == .authorized || status == .limited {
                                 showImagePicker.toggle()
                             } else {
-                                photoPermission = false
+                                photoPermission = true
                             }
                         }
                     }

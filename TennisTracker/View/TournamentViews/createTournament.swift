@@ -39,6 +39,10 @@ struct createTournament: View {
             ZStack {
                 Form{
                     leagueBanner.padding(.vertical)
+                        .alert(isPresented: $photoPermission) {
+                            Alert(title: Text("Permission Denied!"), message: Text("Please go into your settings and give photo permissions for MyTennisZone"), dismissButton:
+                                    .default(Text("Got it!")))
+                        }
                     leagueNameField.padding(.vertical, 10)
                     HStack {
                         Spacer()
@@ -134,10 +138,6 @@ struct createTournament: View {
                 .fullScreenCover(isPresented: $showImagePicker, onDismiss: nil) {
                     ImagePicker(image: $image)
                 }
-                .alert(isPresented: $photoPermission) {
-                    Alert(title: Text("Permission Denied!"), message: Text("Please go into your settings and give photo permissions for TennisTracker"), dismissButton:
-                            .default(Text("Got it!")))
-            }
                 .alert(isPresented: $invalidNameAlert){
                     Alert(title: Text("Error!"), message: Text("Name field cannot be empty"), dismissButton: .default(Text("Got it!")))
                 }
@@ -178,7 +178,7 @@ extension createTournament {
                             if status == .authorized || status == .limited {
                                 showImagePicker.toggle()
                             } else {
-                                photoPermission = false
+                                photoPermission = true
                             }
                         }
                     }
@@ -198,7 +198,7 @@ extension createTournament {
                             if status == .authorized || status == .limited {
                                 showImagePicker.toggle()
                             } else {
-                                photoPermission = false
+                                photoPermission = true
                             }
                         }
                     }

@@ -23,7 +23,10 @@ struct profileTab: View {
             NavigationView {
                 ScrollView(showsIndicators: false){
                     VStack{
-                        header
+                        header.alert(isPresented: $permission) {
+                            Alert(title: Text("Permission Denied!"), message: Text("Please go into your settings and give photo permissions for MyTennisZone"), dismissButton:
+                                    .default(Text("Got it!")))
+                        }
                         Divider().padding(.horizontal)
                         statBar
                         VStack{
@@ -57,10 +60,6 @@ struct profileTab: View {
             }.fullScreenCover(isPresented: $vm.isUserSignedOut) {
                 signIn()
             }
-            .alert(isPresented: $permission) {
-                Alert(title: Text("Permission Denied!"), message: Text("Please go into your settings and give photo permissions for TennisTracker"), dismissButton:
-                        .default(Text("Got it!")))
-            }
             if changeDisplayName{
                 Rectangle().ignoresSafeArea(.all).opacity(0.5)
                 ChangeDisplayNameView(changeDisplayName: $changeDisplayName).environmentObject(vm)
@@ -71,7 +70,7 @@ struct profileTab: View {
             }
             
         }.alert(isPresented: $confirmDeleteAlert) {
-            Alert(title: Text("Delete Account"), message: Text("Are you sure you want to delete your account?"), primaryButton:
+            Alert(title: Text("Delete Account"), message: Text("Are you sure you want to delete your account? All your data will be deleted!"), primaryButton:
                     .destructive(Text("Delete")){
                         isLoading = true
                         Task {
