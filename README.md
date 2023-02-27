@@ -1,3 +1,17 @@
 # MyTennisZone
 
-MyTennisZone was my first "big" app I created from scratch. It started out as a fun summer project which was meant to be used to simply track all the stats from tennis matches played with my friends but it slowly got bigger and bigger with more features. It utilizes Firebase Auth and Firestore to allow for users to sign up, add friends, create leagues and tournaments and record match results.
+MyTennisZone is the ultimate Tennis App for recreational tennis players who want to create leagues and tournaments and keep track of the games they have played.
+
+[Demo](https://www.armanattar.com/MyTennisZone)
+
+## Description
+
+Simply create an account, add friends and create your desired competition. Whether it's Leagues, Round Robin or Bracket Tournaments, MyTennisZone has you covered. You can even create temporary players if your friend don't have an account.
+Create Matches within each competition and keep track of the match scores alongside set scores. MyTennisZone also tracks your statistic including the number of matches played, matches won and even trophies from tournaments.
+
+## Frameworks and APIs
+
+* Firebase Authentication
+* Firebase Cloud Firestore
+* [SDWebImageSwiftUI](https://github.com/SDWebImage/SDWebImageSwiftUI)
+* [Lottie](https://github.com/airbnb/lottie-ios)
